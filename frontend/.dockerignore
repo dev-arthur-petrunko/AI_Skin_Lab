@@ -1,0 +1,8 @@
+node_modules
+.next
+build.log
+server.log
+Dockerfile
+.dockerignore
+*.tsbuildinfo
+next-env.d.ts
