@@ -50,3 +50,13 @@ def health():
         "products": len(catalog_store.products),
         "last_updated": catalog_store.last_updated,
     }
+
+@app.get("/admin/reload")
+def admin_reload():
+    catalog_store.reload()
+    return {'status': 'reloaded', 'products': len(catalog_store.products)}
+
+@app.get("/admin/translate")
+def admin_translate(to: str = "ru,en", dry_run: bool = False):
+    cells, written = translate_catalog(to=to.split(","), dry_run=dry_run)
+    return {'status': 'translated', 'to': to, 'dry_run': dry_run, 'cells': cells, 'written': written}

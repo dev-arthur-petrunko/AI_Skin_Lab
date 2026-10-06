@@ -33,7 +33,7 @@ export default function ProductDetailView({ product, related }: Props) {
     <div className="container-page py-12">
       <Link
         href="/catalog"
-        className="inline-flex items-center gap-1 text-sm text-espresso/60 transition hover:text-mocha"
+        className="inline-flex items-center gap-1 text-sm text-[var(--muted)] transition hover:text-[var(--azure)]"
       >
         ← {t("back")}
       </Link>
@@ -43,10 +43,10 @@ export default function ProductDetailView({ product, related }: Props) {
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl bg-sand"
+          className="tile pearl-edge relative overflow-hidden !p-0"
         >
           {product.is_on_sale && (
-            <span className="absolute left-4 top-4 z-10 animate-pulse rounded-full bg-berry px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-berry/30">
+            <span className="absolute left-4 top-4 z-10 rounded-full bg-[var(--sale)] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
               Sale -{product.discount_percent}%
             </span>
           )}
@@ -67,49 +67,49 @@ export default function ProductDetailView({ product, related }: Props) {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-col"
+          className="tile pearl-edge flex flex-col"
         >
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-mocha">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--azure)]">
             {product.brand}
           </div>
-          <h1 className="mt-2 font-serif text-3xl leading-tight text-espresso sm:text-4xl">
+          <h1 className="section-title mt-2 !text-3xl sm:!text-4xl">
             {name}
           </h1>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-3">
             {product.is_on_sale ? (
               <>
-                <span className="text-3xl font-semibold text-berry">
+                <span className="price-new !text-3xl">
                   {formatPrice(price)} {tCommon("currency")}
                 </span>
-                <span className="text-lg text-espresso/40 line-through">
+                <span className="price-old !text-lg">
                   {formatPrice(product.price)} {tCommon("currency")}
                 </span>
               </>
             ) : (
-              <span className="text-3xl font-semibold text-espresso">
+              <span className="text-3xl font-semibold">
                 {formatPrice(product.price)} {tCommon("currency")}
               </span>
             )}
           </div>
 
-          <dl className="mt-7 grid grid-cols-2 gap-4 border-y border-espresso/10 py-5 text-sm">
+          <dl className="mt-7 grid grid-cols-2 gap-4 border-y border-[var(--gl)] py-5 text-sm">
             {specs.map((s) => (
               <div key={s.label}>
-                <dt className="text-espresso/50">{s.label}</dt>
-                <dd className="mt-1 font-medium text-espresso">{s.value}</dd>
+                <dt className="text-[var(--muted)]">{s.label}</dt>
+                <dd className="mt-1 font-medium">{s.value}</dd>
               </div>
             ))}
             <div>
-              <dt className="text-espresso/50">{t("availability")}</dt>
+              <dt className="text-[var(--muted)]">{t("availability")}</dt>
               <dd className="mt-1">
                 {product.stock > 0 ? (
-                  <span className="inline-flex items-center gap-1.5 font-medium text-green-700">
-                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                  <span className="inline-flex items-center gap-1.5 font-medium text-[var(--glow)]">
+                    <span className="h-2 w-2 rounded-full bg-[var(--glow)]" />
                     {t("in_stock")}
                   </span>
                 ) : (
-                  <span className="font-medium text-espresso/50">{t("out_of_stock")}</span>
+                  <span className="font-medium text-[var(--muted)]">{t("out_of_stock")}</span>
                 )}
               </dd>
             </div>
@@ -117,15 +117,15 @@ export default function ProductDetailView({ product, related }: Props) {
 
           <div className="mt-7">
             <h2 className="section-label">{t("description")}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-espresso/75">{description}</p>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{description}</p>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button type="button" className="btn-primary" disabled={product.stock === 0}>
-              {product.stock > 0 ? "🛒 Додати в кошик" : t("out_of_stock")}
+            <button type="button" className="btn btn-primary" disabled={product.stock === 0}>
+              {product.stock > 0 ? t("in_stock") : t("out_of_stock")}
             </button>
-            <Link href="/catalog" className="btn-ghost">
-              ✨ {t("ask_ai")}
+            <Link href="/catalog" className="btn btn-ghost">
+              {t("ask_ai")}
             </Link>
           </div>
         </motion.div>

@@ -78,12 +78,12 @@ export default function ChatWidget() {
         transition={{ delay: 1, type: "spring", stiffness: 200, damping: 16 }}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-5 right-5 z-50 flex h-14 items-center gap-2 rounded-full bg-espresso px-5 text-sm font-medium text-cream shadow-xl shadow-espresso/30"
+        className="fixed bottom-5 right-5 z-50 flex h-14 items-center gap-2 rounded-full btn btn-primary !px-5"
         aria-label={t("open")}
       >
         <span className="relative flex h-6 w-6 items-center justify-center">
           ✨
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 animate-pulse rounded-full bg-berry" />
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 animate-pulse rounded-full bg-[var(--sale)]" />
         </span>
         <span className="hidden sm:inline">{t("open")}</span>
       </motion.button>
@@ -95,15 +95,15 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 32, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="fixed bottom-24 right-4 z-50 flex h-[70vh] max-h-[640px] w-[calc(100vw-2rem)] max-w-md flex-col overflow-hidden rounded-3xl border border-espresso/10 bg-white shadow-2xl shadow-espresso/25"
+            className="fixed bottom-24 right-4 z-50 flex h-[70vh] max-h-[640px] w-[calc(100vw-2rem)] max-w-md flex-col overflow-hidden rounded-3xl tile !rounded-3xl !p-0"
           >
-            <div className="flex items-center gap-3 bg-espresso px-5 py-4 text-cream">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cream/15 text-lg">
+            <div className="flex items-center gap-3 px-5 py-4">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full glass !rounded-full text-lg">
                 ✨
               </span>
               <div className="flex-1">
                 <div className="text-sm font-semibold">{t("title")}</div>
-                <div className="flex items-center gap-1.5 text-[11px] text-cream/70">
+                <div className="flex items-center gap-1.5 text-[11px] text-espresso/70">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
                   {t("subtitle")}
                 </div>
@@ -111,18 +111,18 @@ export default function ChatWidget() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full p-1.5 transition hover:bg-cream/10"
+                className="rounded-full p-1.5 transition hover:bg-[var(--pic)]"
                 aria-label="Close"
               >
                 ✕
               </button>
             </div>
 
-            <div ref={scrollRef} className="chat-scroll flex-1 space-y-4 overflow-y-auto bg-cream/40 p-4">
+            <div ref={scrollRef} className="chat-scroll flex-1 space-y-4 overflow-y-auto p-4">
               {messages.map((m) => (
                 <div key={m.id} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
                   {m.role === "user" ? (
-                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-espresso px-4 py-3 text-sm leading-relaxed text-cream">
+                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-[var(--azure)] px-4 py-3 text-sm leading-relaxed text-white">
                       {m.content}
                     </div>
                   ) : (
@@ -138,7 +138,7 @@ export default function ChatWidget() {
 
               {loading && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-tl-sm bg-sand px-4 py-3 text-sm text-espresso/70">
+                  <div className="glass rounded-2xl rounded-tl-sm !p-3 px-4 py-3 text-sm">
                     <span className="typing-dot" />
                     <span className="typing-dot" />
                     <span className="typing-dot" />
@@ -149,13 +149,13 @@ export default function ChatWidget() {
             </div>
 
             {messages.length <= 1 && !loading && (
-              <div className="flex flex-wrap gap-2 border-t border-espresso/10 bg-cream/60 px-4 pt-3">
+              <div className="flex flex-wrap gap-2 px-4 pt-3">
                 {suggestions.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => submit(s)}
-                    className="rounded-full border border-mocha/40 bg-white px-3 py-1.5 text-xs text-espresso transition hover:border-mocha hover:bg-mocha/10"
+                    className="chip-f !px-3 !py-1.5 !text-xs"
                   >
                     {s}
                   </button>
@@ -168,18 +168,18 @@ export default function ChatWidget() {
                 e.preventDefault();
                 submit(input);
               }}
-              className="flex items-center gap-2 border-t border-espresso/10 bg-white p-3"
+              className="flex items-center gap-2 p-3"
             >
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t("placeholder")}
-                className="flex-1 rounded-full bg-cream px-4 py-2.5 text-sm placeholder:text-espresso/40 focus:outline-none focus:ring-2 focus:ring-mocha/30"
+                className="input flex-1 !py-2.5"
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-espresso text-cream transition hover:bg-espresso/90 disabled:opacity-40"
+                className="btn btn-primary !h-10 !w-10 !p-0 disabled:opacity-40"
                 aria-label={t("send")}
               >
                 ↑

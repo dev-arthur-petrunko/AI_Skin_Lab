@@ -23,15 +23,15 @@ export default function SaleSection({ products }: Props) {
         className="flex flex-wrap items-end justify-between gap-4"
       >
         <div>
-          <span className="section-label">🔥 {t("title")}</span>
+          <span className="section-label">{t("title")}</span>
           <h2 className="section-title mt-2">{t("subtitle")}</h2>
         </div>
-        <Link href="/catalog?sale=1" className="btn-ghost">
-          {t("view_all")} →
+        <Link href="/catalog?sale=1" className="btn btn-ghost">
+          {t("view_all")}
         </Link>
       </motion.div>
 
-      <div className="mt-8">
+      <div className="tile pearl-edge is-sale mt-8">
         <ProductCarousel products={products} />
       </div>
     </section>

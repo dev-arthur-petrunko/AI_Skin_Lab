@@ -28,9 +28,9 @@ class CatalogStore:
         self._last_updated: str = ""
         self._on_reload_callbacks = []
 
-    def reload(self) -> None:
+    def reload(self, auto_translate=settings.auto_translate) -> None:
         with self._lock:
-            self._products = load_catalog()
+            self._products = load_catalog(auto_translate=auto_translate)
             self._last_updated = get_file_mtime()
         logger.info("Catalog reloaded: %d products", len(self._products))
         for cb in self._on_reload_callbacks:
@@ -79,7 +79,7 @@ class _ExcelChangeHandler(FileSystemEventHandler):
             return  # debounce rapid consecutive events
         self._last_trigger = now
         time.sleep(0.3)  # let the OS finish flushing the file
-        catalog_store.reload()
+        catalog_store.reload(auto_translate=settings.auto_translate)
 
     def on_modified(self, event) -> None:
         if not event.is_directory:
@@ -110,7 +110,7 @@ def _poll_loop(interval: float = 3.0) -> None:
         except OSError:
             mtime = None
         if mtime is not None and last_mtime is not None and mtime != last_mtime:
-            catalog_store.reload()
+            catalog_store.reload(auto_translate=settings.auto_translate)
         if mtime is not None:
             last_mtime = mtime
         _stop_poll.wait(interval)
@@ -122,7 +122,7 @@ def start_watcher() -> None:
     watch_dir = excel_path.parent
     watch_dir.mkdir(parents=True, exist_ok=True)
 
-    catalog_store.reload()
+    catalog_store.reload(auto_translate=settings.auto_translate)
 
     handler = _ExcelChangeHandler(excel_path)
     observer = Observer()

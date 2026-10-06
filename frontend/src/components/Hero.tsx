@@ -1,87 +1,81 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Image } from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { CountUp } from "./CountUp";
+import { MoodToggle } from "./MoodToggle";
+import { useMood } from "./MoodProvider";
+import { formatPrice } from "@/lib/format";
+import { localizedField, type Product } from "@/lib/types";
+import { useLocale } from "next-intl";
 
 interface Props {
   stats: { products: number; brands: number; sale: number };
+  picks: Product[];
 }
 
-export default function Hero({ stats }: Props) {
+const fade = (delay: number) => ({
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, delay },
+});
+
+export default function Hero({ stats, picks }: Props) {
   const t = useTranslations("hero");
+  const locale = useLocale();
+  const { mood } = useMood();
+  const list = picks.slice(0, 3);
 
   return (
     <section className="relative overflow-hidden">
-      {/* фоновая композиция */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-sand via-cream to-sand" />
-        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-mocha/15 blur-3xl" />
-        <div className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-berry/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(176,137,104,0.18),transparent_55%)]" />
-      </div>
-
-      <div className="container-page grid items-center gap-12 py-20 lg:grid-cols-2 lg:py-28">
+      <div className="container-page grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
         <div>
-          <motion.span
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-mocha/30 bg-white/70 px-4 py-1.5 text-xs font-medium tracking-wider text-mocha backdrop-blur"
-          >
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-berry" />
+          <motion.span {...fade(0)} className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium tracking-wider">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--sale)]" />
             {t("badge")}
           </motion.span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mt-6 font-serif text-4xl leading-[1.1] text-espresso sm:text-5xl lg:text-6xl"
-          >
+          <motion.h1 {...fade(0.1)} className="section-title mt-6">
             {t("title")}
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-espresso/70"
-          >
+          <motion.p {...fade(0.2)} className="mt-6 max-w-xl text-base leading-relaxed text-[var(--muted)]">
             {t("subtitle")}
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-8 flex flex-wrap gap-4"
-          >
-            <Link href="/catalog" className="btn-primary">
-              {t("cta_catalog")} →
+          <motion.div {...fade(0.3)} className="mt-8 flex flex-wrap items-center gap-4">
+            <Link href="/catalog" className="btn btn-primary">
+              {t("cta_catalog")}
             </Link>
-            <Link href="/catalog" className="btn-ghost">
-              ✨ {t("cta_chat")}
+            <Link href="/catalog?sale=1" className="btn btn-ghost">
+              {t("cta_chat")}
             </Link>
           </motion.div>
 
-          <motion.dl
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-espresso/10 pt-6"
-          >
-            <div>
-              <dt className="font-serif text-3xl text-espresso">{stats.products}</dt>
-              <dd className="mt-1 text-xs text-espresso/55">{t("stat_products")}</dd>
+          <motion.div {...fade(0.4)} className="mt-8">
+            <MoodToggle />
+          </motion.div>
+
+          <motion.dl {...fade(0.45)} className="mt-8 grid max-w-md grid-cols-3 gap-4">
+            <div className="tile pearl-edge p-5">
+              <dt className="font-serif text-3xl">
+                <CountUp to={stats.products} />
+              </dt>
+              <dd className="mt-1 text-xs text-[var(--muted)]">{t("stat_products")}</dd>
             </div>
-            <div>
-              <dt className="font-serif text-3xl text-espresso">{stats.brands}</dt>
-              <dd className="mt-1 text-xs text-espresso/55">{t("stat_brands")}</dd>
+            <div className="tile pearl-edge p-5">
+              <dt className="font-serif text-3xl">
+                <CountUp to={stats.brands} />
+              </dt>
+              <dd className="mt-1 text-xs text-[var(--muted)]">{t("stat_brands")}</dd>
             </div>
-            <div>
-              <dt className="font-serif text-3xl text-berry">{stats.sale}</dt>
-              <dd className="mt-1 text-xs text-espresso/55">{t("stat_sale")}</dd>
+            <div className="tile pearl-edge p-5">
+              <dt className="font-serif text-3xl text-[var(--sale)]">
+                <CountUp to={stats.sale} />
+              </dt>
+              <dd className="mt-1 text-xs text-[var(--muted)]">{t("stat_sale")}</dd>
             </div>
           </motion.dl>
         </div>
@@ -90,43 +84,54 @@ export default function Hero({ stats }: Props) {
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.25 }}
-          className="relative hidden lg:block"
+          className="relative"
         >
-          <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-[2.5rem] shadow-2xl shadow-espresso/20">
-            <div className="absolute inset-0 bg-gradient-to-br from-mocha/70 via-espresso/60 to-berry/50" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center text-cream">
-              <span className="text-5xl">🌸</span>
-              <span className="font-serif text-3xl leading-tight">
-                AI Skin Lab
-              </span>
-              <span className="text-xs uppercase tracking-[0.35em] text-cream/70">
-                premium beauty
-              </span>
-            </div>
-            <div className="absolute inset-4 rounded-[2rem] border border-cream/20" />
+          <div className="absolute right-6 top-6 z-10">
+            <motion.div {...fade(0.35)} className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium tracking-wider">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--sale)]" />
+              {t("ai_title")}
+            </motion.div>
           </div>
-
-          <motion.div
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -left-6 top-10 rounded-2xl bg-white/90 px-4 py-3 shadow-xl backdrop-blur"
-          >
-            <div className="text-[11px] uppercase tracking-wider text-espresso/50">
-              Sale
+          <div className="tile pearl-edge relative mx-auto flex aspect-square w-full max-w-md items-center justify-center overflow-hidden">
+            <div
+              aria-hidden
+              className="animate-spin60 absolute h-[130%] w-[130%] rounded-full opacity-60"
+              style={{ background: "conic-gradient(from 0deg, transparent, var(--pic), transparent 40%)" }}
+            />
+            <div
+              aria-hidden
+              className="animate-floaty relative grid h-56 w-56 place-items-center rounded-full"
+              style={{ background: "radial-gradient(circle at 35% 30%, var(--orb1), var(--orb2) 70%)", boxShadow: "0 30px 80px var(--glow)" }}
+            >
+              <Image
+               src="/logo.png"
+               alt=""
+               width={224}
+               height={224}
+               className="object-contain"
+             />
             </div>
-            <div className="text-sm font-semibold text-berry">-43%</div>
-          </motion.div>
-
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -right-4 bottom-16 rounded-2xl bg-white/90 px-4 py-3 shadow-xl backdrop-blur"
-          >
-            <div className="text-[11px] uppercase tracking-wider text-espresso/50">
-              AI
+            <div className="absolute inset-x-6 bottom-6">
+              <div className="glass rounded-3xl p-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                  {t("ai_title")}
+                </div>
+                <div className="mt-2 space-y-2" data-mood={mood}>
+                  {list.map((p) => {
+                    const price = p.promo_price ?? p.price;
+                    return (
+                      <Link key={p.id} href={`/product/${encodeURIComponent(p.id)}`} className="flex items-center justify-between gap-3 text-sm">
+                        <span className="truncate">{localizedField(p, "name", locale)}</span>
+                        <span className={p.is_on_sale ? "price-new" : "font-semibold"}>
+                          {formatPrice(price)}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-            <div className="text-sm font-semibold text-espresso">✨ 24/7</div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

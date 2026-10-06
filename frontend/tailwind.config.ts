@@ -1,38 +1,27 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
-  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+import type { Config } from 'tailwindcss';
+const v = (n: string) => `var(--${n})`;
+export default {
+  content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        cream: "#faf7f2",
-        sand: "#efe7dd",
-        mocha: "#b08968",
-        espresso: "#4a3728",
-        berry: "#b3235c",
-        gold: "#c9a227",
+        ink: v('ink'), mist: v('bg'), azure: v('azure'),
+        aqua: v('aqua'), rose: v('sale'), cream: v('bg'),
+        sand: v('pic'), mocha: v('azure'),
+        espresso: v('ink'), berry: v('sale'),
       },
       fontFamily: {
-        serif: ["var(--font-serif)", "Georgia", "serif"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        serif: ['var(--font-serif)', 'Georgia', 'serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
-      keyframes: {
-        shimmer: {
-          "0%": { transform: "translateX(-100%)" },
-          "100%": { transform: "translateX(100%)" },
-        },
-        marquee: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
-        },
-      },
+      boxShadow: { glass: 'var(--sh)', glow: '0 0 60px var(--glow)' },
       animation: {
-        shimmer: "shimmer 2.5s infinite",
-        marquee: "marquee 30s linear infinite",
+        drift: 'drift 22s ease-in-out infinite',
+        floaty: 'floaty 6s ease-in-out infinite',
+        spin60: 'spin60 50s linear infinite',
+        marquee: 'marquee 36s linear infinite',
       },
     },
   },
   plugins: [],
-};
-
-export default config;
+} satisfies Config;

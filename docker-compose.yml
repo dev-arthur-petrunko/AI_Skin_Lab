@@ -12,6 +12,7 @@ services:
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       CHAT_MODEL: ${CHAT_MODEL:-gpt-4o-mini}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      AUTO_TRANSLATE: ${AUTO_TRANSLATE:-0}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost}
     volumes:
       # live-mounted Excel file and images: edits on the host are picked up
