@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
+import Image from 'next/image';
 import LanguageSwitcher from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeProvider';
 
@@ -32,7 +33,9 @@ export default function Header() {
     >
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gl)] font-serif text-lg transition-transform group-hover:rotate-12">S</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gl)] overflow-hidden">
+            <Image src="/logo.png" alt="AI Skin Lab" width={36} height={36} className="object-contain" />
+          </span>
           <span className="font-serif text-xl tracking-wide">AI Skin Lab</span>
         </Link>
 
