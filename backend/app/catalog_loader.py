@@ -131,8 +131,12 @@ def _resolve_image(sku: str, image_value: str) -> tuple[str, bool]:
     return "/images/placeholder.svg", False
 
 
-def load_catalog() -> list[Product]:
+def load_catalog(auto_translate=False) -> list[Product]:
     """Parse the Excel workbook into a list of validated Product models."""
+    if auto_translate:
+        from scripts.translator import translate_catalog as _translate
+        _translate(load_catalog())
+
     excel_path = Path(settings.excel_path)
     if not excel_path.exists():
         logger.warning("Excel file not found at %s", excel_path)

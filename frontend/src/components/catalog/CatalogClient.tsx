@@ -85,7 +85,7 @@ export default function CatalogClient({ initial }: Props) {
         <h1 className="section-title mt-2">{t("subtitle")}</h1>
       </motion.div>
 
-      <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-espresso/5 sm:p-5">
+      <div className="tile mt-8 p-4 sm:p-5">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
           <input
             value={search}
@@ -146,19 +146,17 @@ export default function CatalogClient({ initial }: Props) {
             <button
               type="button"
               onClick={() => setOnSale((v) => !v)}
-              className={`rounded-full px-4 py-2.5 text-sm font-medium transition ${
-                onSale
-                  ? "bg-berry text-white shadow-md shadow-berry/30"
-                  : "border border-espresso/15 text-espresso/70 hover:border-berry/50 hover:text-berry"
-              }`}
+              className="chip-f"
+              aria-pressed={onSale}
             >
-              🔥 {t("on_sale")}
+              {t("on_sale")}
             </button>
             {hasFilters && (
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-full border border-espresso/15 px-4 py-2.5 text-sm text-espresso/60 transition hover:border-espresso/40"
+                className="chip-f"
+                aria-pressed={false}
               >
                 ✕
               </button>
@@ -168,7 +166,7 @@ export default function CatalogClient({ initial }: Props) {
       </div>
 
 
-      <div className="mt-6 flex items-center justify-between text-sm text-espresso/60">
+      <div className="mt-6 flex items-center justify-between text-sm text-[var(--muted)]">
         <span>
           {filtered.length} {t("results_many")}
         </span>
@@ -180,7 +178,7 @@ export default function CatalogClient({ initial }: Props) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="mt-16 text-center text-espresso/60">{t("empty")}</div>
+        <div className="mt-16 text-center text-[var(--muted)]">{t("empty")}</div>
       ) : (
         <>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -194,9 +192,9 @@ export default function CatalogClient({ initial }: Props) {
               <button
                 type="button"
                 onClick={() => setVisible((v) => v + PAGE_SIZE)}
-                className="btn-ghost"
+                className="btn btn-ghost"
               >
-                {t("load_more")} ↓
+                {t("load_more")}
               </button>
             </div>
           )}

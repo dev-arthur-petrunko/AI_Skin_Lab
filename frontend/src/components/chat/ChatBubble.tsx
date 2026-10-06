@@ -48,10 +48,10 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-sand px-4 py-3 text-sm leading-relaxed text-espresso">
+      <div className="glass max-w-[85%] rounded-2xl rounded-tl-sm !p-3 px-4 py-3 text-sm leading-relaxed">
         {displayed}
         {isTyping && displayed.length < content.length && (
-          <span className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-espresso align-middle" />
+          <span className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-[var(--azure)] align-middle" />
         )}
       </div>
 
@@ -66,9 +66,9 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
               <Link
                 key={p.id}
                 href={`/product/${encodeURIComponent(p.id)}`}
-                className="group flex items-center gap-3 rounded-xl border border-espresso/10 bg-white p-2 transition hover:border-mocha/50 hover:shadow-md"
+                className="group flex items-center gap-3 glass rounded-xl !p-2 transition hover:shadow-md"
               >
-                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-sand">
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--pic)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.image}
@@ -80,21 +80,21 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-mocha">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--azure)]">
                     {p.brand}
                   </div>
-                  <div className="truncate text-xs font-medium text-espresso group-hover:text-mocha">
+                  <div className="truncate text-xs font-medium group-hover:text-[var(--azure)]">
                     {p.name}
                   </div>
                 </div>
                 <div className="text-right">
                   {p.promo_price ? (
                     <>
-                      <div className="text-sm font-semibold text-berry">{p.promo_price} ₴</div>
-                      <div className="text-[10px] text-espresso/40 line-through">{p.price} ₴</div>
+                      <div className="price-new text-sm">{p.promo_price} ₴</div>
+                      <div className="price-old text-[10px]">{p.price} ₴</div>
                     </>
                   ) : (
-                    <div className="text-sm font-semibold text-espresso">{p.price} ₴</div>
+                    <div className="text-sm font-semibold">{p.price} ₴</div>
                   )}
                 </div>
               </Link>

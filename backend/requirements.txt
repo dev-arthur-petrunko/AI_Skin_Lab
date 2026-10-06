@@ -9,3 +9,4 @@ openai==1.44.0
 numpy==1.26.4
 python-dotenv==1.0.1
 python-multipart==0.0.9
+deep-translator==1.11.1

@@ -19,6 +19,15 @@ export default function ProductCard({ product, index = 0 }: Props) {
   const name = localizedField(product, "name", locale);
   const price = product.promo_price ?? product.price;
 
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width - 0.5) * 10;
+    const y = ((e.clientY - r.top) / r.height - 0.5) * 10;
+    el.style.setProperty("--gx", `${x}px`);
+    el.style.setProperty("--gy", `${y}px`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -27,20 +36,21 @@ export default function ProductCard({ product, index = 0 }: Props) {
       transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.4), ease: "easeOut" }}
       whileHover={{ y: -6 }}
       className="h-full"
+      onMouseMove={handleMove}
     >
       <Link
         href={`/product/${encodeURIComponent(product.id)}`}
-        className={`card group relative flex h-full flex-col overflow-hidden ${
-          product.is_on_sale ? "shimmer" : ""
+        className={`tile pearl-edge group relative flex h-full flex-col overflow-hidden !p-0 ${
+          product.is_on_sale ? "is-sale" : ""
         }`}
       >
         {product.is_on_sale && (
-          <span className="absolute left-3 top-3 z-10 animate-pulse rounded-full bg-berry px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-md shadow-berry/30">
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-[var(--sale)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
             {t("badge")}
           </span>
         )}
 
-        <div className="relative aspect-[4/5] overflow-hidden bg-sand">
+        <div className="relative aspect-[4/5] overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.image}
@@ -51,18 +61,16 @@ export default function ProductCard({ product, index = 0 }: Props) {
               (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
             }}
           />
-          <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-espresso/90 to-transparent px-4 py-3 text-center text-xs font-medium text-cream transition-transform duration-300 group-hover:translate-y-0">
+          <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/70 to-transparent px-4 py-3 text-center text-xs font-medium text-white transition-transform duration-300 group-hover:translate-y-0">
             {t("view")}
           </div>
         </div>
 
         <div className="flex flex-1 flex-col gap-2 p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-mocha">
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-[var(--azure)]">
             {product.brand}
           </div>
-          <h3 className="line-clamp-2 text-sm font-medium leading-snug text-espresso transition-colors group-hover:text-mocha">
-            {name}
-          </h3>
+          <h3 className="line-clamp-2 text-sm font-medium leading-snug">{name}</h3>
 
           <div className="mt-auto flex flex-wrap items-baseline gap-2 pt-2">
             {product.is_on_sale ? (
@@ -73,12 +81,12 @@ export default function ProductCard({ product, index = 0 }: Props) {
                 <span className="price-old">
                   {formatPrice(product.price)} {tCommon("currency")}
                 </span>
-                <span className="ml-auto rounded-full bg-berry/10 px-2 py-0.5 text-[11px] font-bold text-berry">
+                <span className="ml-auto rounded-full bg-[var(--sale)]/10 px-2 py-0.5 text-[11px] font-bold text-[var(--sale)]">
                   {t("discount", { value: product.discount_percent })}
                 </span>
               </>
             ) : (
-              <span className="price-regular">
+              <span className="text-lg font-semibold">
                 {formatPrice(product.price)} {tCommon("currency")}
               </span>
             )}

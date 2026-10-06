@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     # App
     app_name: str = "AI Skin Lab API"
     currency: str = "грн"
+    auto_translate: bool = False
 
 
 settings = Settings()

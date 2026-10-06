@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
   const router = useRouter();
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-espresso/15 bg-white/70 p-1 backdrop-blur">
+    <div className="glass flex items-center gap-1 !rounded-full p-1">
       {locales.map((l) => (
         <button
           key={l}
@@ -24,8 +24,8 @@ export default function LanguageSwitcher() {
           onClick={() => router.replace(pathname, { locale: l })}
           className={`rounded-full px-2.5 py-1 text-xs font-semibold tracking-wider transition-colors ${
             l === locale
-              ? "bg-espresso text-cream"
-              : "text-espresso/60 hover:text-espresso"
+              ? "bg-[var(--azure)] text-white"
+              : "text-[var(--muted)] hover:text-[var(--ink)]"
           }`}
           aria-label={l}
         >

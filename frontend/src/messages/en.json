@@ -17,10 +17,19 @@
     "title": "Fragrances that tell your story",
     "subtitle": "Premium perfumes and cosmetics with a carefully curated range. A fast catalog, honest discounts and a smart AI consultant by your side.",
     "cta_catalog": "Browse catalog",
-    "cta_chat": "AI consultant",
+    "cta_chat": "View discounts",
+    "ai_title": "AI picks for you",
     "stat_products": "products in catalog",
     "stat_brands": "brands",
     "stat_sale": "active discounts"
+  },
+  "mood": {
+    "label": "Mood",
+    "all": "All",
+    "daily": "Daily",
+    "evening": "Evening",
+    "fresh": "Fresh",
+    "gift": "Gift"
   },
   "marquee": {
     "item1": "Free shipping from 1500 UAH",
