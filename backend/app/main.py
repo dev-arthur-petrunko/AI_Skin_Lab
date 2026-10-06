@@ -10,6 +10,10 @@ from .config import settings
 from .ai_assistant import vector_index
 from .routers import catalog, chat
 from .store import catalog_store, start_watcher, stop_watcher
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from scripts.translator import translate_catalog
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -57,6 +61,6 @@ def admin_reload():
     return {'status': 'reloaded', 'products': len(catalog_store.products)}
 
 @app.get("/admin/translate")
-def admin_translate(to: str = "ru,en", dry_run: bool = False):
-    cells, written = translate_catalog(to=to.split(","), dry_run=dry_run)
-    return {'status': 'translated', 'to': to, 'dry_run': dry_run, 'cells': cells, 'written': written}
+def admin_translate(to: str = "ru,en", dry_run: bool = False, sku: str | None = None):
+    cells, written = translate_catalog(to=to.split(","), dry_run=dry_run, sku=sku)
+    return {'status': 'translated', 'to': to, 'dry_run': dry_run, 'sku': sku, 'cells': cells, 'written': written}
