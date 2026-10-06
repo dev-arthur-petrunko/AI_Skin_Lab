@@ -10,12 +10,14 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+import time
 from pathlib import Path
 
-from deep_translator import GoogleTranslator
+from deep_translator import GoogleTranslator, MyMemoryTranslator
 from openpyxl import load_workbook
 
 from app.catalog_loader import load_catalog
+from app.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("translator")
@@ -62,14 +64,14 @@ def translate_catalog(products=None, sku=None, dry_run=False, to=None):
     if products is None:
         products = load_catalog()
 
-    excel_path = Path("/app/data/price.xlsx")
+    excel_path = Path(settings.excel_path)
     if not excel_path.exists():
         logger.error("price.xlsx not found at %s", excel_path)
         return (0, 0)
 
     translators = {
-        "ru": GoogleTranslator(source="uk", target="ru"),
-        "en": GoogleTranslator(source="uk", target="en"),
+        "ru": MyMemoryTranslator(source="uk", target="ru"),
+        "en": MyMemoryTranslator(source="uk", target="en"),
     }
 
     wb = load_workbook(excel_path)
@@ -78,14 +80,17 @@ def translate_catalog(products=None, sku=None, dry_run=False, to=None):
 
     # (dst_excel_header_key_lower, src_product_attr, lang)
     checks = [
-        ("опис (ру)", "description_uk", "ru"),
-        ("опис (ен)", "description_uk", "en"),
-        ("назва (ру)", "name", "ru"),
-        ("назва (ен)", "name", "en"),
+        ("опис (ru)", "description_uk", "ru"),
+        ("опис (en)", "description_uk", "en"),
+        ("назва (ru)", "name", "ru"),
+        ("назва (en)", "name", "en"),
     ]
 
-    updates_by_sku = {}
-    total = 0
+    col_src_map = {(c[0], c[2]): c[1] for c in checks}
+
+    # gather rows to translate per language
+    rows_by_lang: dict[str, list[tuple[int, int, str, str, str]]] = {lang: [] for lang in targets}
+    # (row_idx, col_idx, sku, col_name, src_val)
 
     for p in products:
         if sku and p.sku != sku:
@@ -94,22 +99,38 @@ def translate_catalog(products=None, sku=None, dry_run=False, to=None):
         if not sku_cell:
             continue
         row_idx = sku_cell.row
-        for col, src_attr, lang in checks:
+        for col_name, src_attr, lang in checks:
             if lang not in targets:
                 continue
-            idx = col_index.get(col)
+            idx = col_index.get(col_name)
             if not idx:
                 continue
             src_val = getattr(p, src_attr, "")
             if not src_val:
                 continue
-            # не перезаписувати, якщо в Excel вже є переклад
             if ws.cell(row=row_idx, column=idx).value:
                 continue
-            dst_val = translators[lang].translate(src_val)
+            rows_by_lang[lang].append((row_idx, idx, p.sku, col_name, src_val))
+
+    # translate per language in batches
+    updates_by_sku: dict[str, dict[str, tuple[str, str]]] = {}
+    total = 0
+    for i, (lang, rows) in enumerate(rows_by_lang.items()):
+        if not rows:
+            continue
+        texts = [r[4] for r in rows]
+        try:
+            results = translators[lang].translate_batch(texts, batch_size=50)
+        except Exception as e:
+            logger.error("translate_batch failed for %s: %s", lang, e)
+            continue
+        for (row_idx, idx, sku_val, col_name, _src_val), dst_val in zip(rows, results):
             if dst_val:
-                updates_by_sku.setdefault(p.sku, {})[col] = (src_attr, dst_val)
+                src_attr = col_src_map[(col_name, lang)]
+                updates_by_sku.setdefault(sku_val, {})[col_name] = (src_attr, dst_val)
                 total += 1
+        if i < len(rows_by_lang) - 1:
+            time.sleep(1.5)  # respect Google rate limit
 
     if dry_run:
         logger.info("DRY RUN: would translate %d cells", total)
