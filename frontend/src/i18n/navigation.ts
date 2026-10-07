@@ -3,4 +3,5 @@ import { locales } from "./config";
 
 export const { Link, redirect, usePathname, useRouter } = createNavigation({
   locales: [...locales],
+  localePrefix: "never",
 });
