@@ -1,6 +1,6 @@
 ﻿# AI Skin Lab
 
-Премиальный каталог косметики и парфюмерии с AI-консультантом, живым фоном и современным UX.
+Premium cosmetics and perfumery catalog with AI consultant, living background, and modern UX.
 
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=for-the-badge&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
@@ -14,72 +14,72 @@
 
 ---
 
-## ✨ Особенности
+## ✨ Features
 
-- **Живой фон** — анимированные градиенты, частицы, beam-эффект, курсорное свечение, затемнение на тёмных секциях
-- **Hero с реальными вырезками** — 12 товаров с прозрачным фоном (rembg), параллакс и плавание
-- **Категории с 3D-наклоном** — hover-tilt до 8°, счетчики товаров, ссылки на каталог
-- **Секция «Горячие предложения»** — Swiper free-mode, count-up анимация «до −28%»
-- **Бренды с clip-path reveal** — анимация появления через CSS clip-path
-- **AI-консультант** — демо-чат с печатанием 26 мс/символ, поддержка `prefers-reduced-motion`
-- **Плавный скролл** — Lenis (duration 1.1, easing exp)
-- **Тёмная/светлая тема** — next-themes, localStorage, system preference
-- **Docker-ready** — standalone Next.js образ, healthchecks
+- **Living Background** — animated gradients, particles, beam effect, cursor glow, dimming on dark sections
+- **Hero with real cutouts** — 12 products with transparent backgrounds (rembg), parallax & floating animation
+- **Categories with 3D tilt** — hover tilt up to 8°, product counters, catalog links
+- **Hot Offers section** — Swiper free-mode, count-up animation "up to −28%"
+- **Brands with clip-path reveal** — entrance animation via CSS clip-path
+- **AI Consultant** — demo chat with typing effect 26 ms/char, respects `prefers-reduced-motion`
+- **Smooth scroll** — Lenis (duration 1.1, easing exp)
+- **Dark/Light theme** — next-themes, localStorage, system preference
+- **Docker-ready** — standalone Next.js image, healthchecks
 
 ---
 
-## 🛠 Технологический стек
+## 🛠 Tech Stack
 
 ### Frontend
-| Технология | Версия | Назначение |
-|------------|--------|------------|
+| Technology | Version | Purpose |
+|------------|---------|---------|
 | ![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=flat-square&logo=next.js) | 14.2 | App Router, SSR, standalone output |
-| ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react) | 18 | UI библиотека |
-| ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript) | 5 | Типизация |
-| ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss) | 3 | Утилитарные стили, дизайн-токены |
-| ![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=flat-square&logo=framer) | 11 | Анимации, scroll-reveal, gesture |
-| ![Lenis](https://img.shields.io/badge/Lenis-1-FF6B6B?style=flat-square&logo=scrollreveal) | 1 | Плавный скролл |
-| ![Swiper](https://img.shields.io/badge/Swiper-11-6332F6?style=flat-square&logo=swiper) | 11 | Карусель «Знижки» (free-mode) |
-| ![next-themes](https://img.shields.io/badge/next--themes-0.3-000000?style=flat-square&logo=vercel) | 0.3 | Переключение темы |
+| ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react) | 18 | UI library |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript) | 5 | Type safety |
+| ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss) | 3 | Utility-first styling, design tokens |
+| ![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=flat-square&logo=framer) | 11 | Animations, scroll-reveal, gestures |
+| ![Lenis](https://img.shields.io/badge/Lenis-1-FF6B6B?style=flat-square&logo=scrollreveal) | 1 | Smooth scrolling |
+| ![Swiper](https://img.shields.io/badge/Swiper-11-6332F6?style=flat-square&logo=swiper) | 11 | "Sale" carousel (free-mode) |
+| ![next-themes](https://img.shields.io/badge/next--themes-0.3-000000?style=flat-square&logo=vercel) | 0.3 | Theme switching |
 
-### Backend / Инфраструктура
-| Технология | Версия | Назначение |
-|------------|--------|------------|
-| ![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=flat-square&logo=fastapi) | 0.110 | REST API каталога |
-| ![Uvicorn](https://img.shields.io/badge/Uvicorn-0.30-000000?style=flat-square) | 0.30 | ASGI сервер |
-| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker) | 24 | Контейнеризация |
-| ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2.24-2496ED?style=flat-square&logo=docker) | 2.24 | Оркестрация |
+### Backend / Infrastructure
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| ![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=flat-square&logo=fastapi) | 0.110 | REST API for catalog |
+| ![Uvicorn](https://img.shields.io/badge/Uvicorn-0.30-000000?style=flat-square) | 0.30 | ASGI server |
+| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker) | 24 | Containerization |
+| ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2.24-2496ED?style=flat-square&logo=docker) | 2.24 | Orchestration |
 
-### Качество кода / CI
-| Инструмент | Назначение |
-|------------|------------|
-| ![ESLint](https://img.shields.io/badge/ESLint-8-4B32C3?style=flat-square&logo=eslint) | Линтинг |
-| ![Prettier](https://img.shields.io/badge/Prettier-3-F7B93E?style=flat-square&logo=prettier) | Форматирование |
-| ![Playwright](https://img.shields.io/badge/Playwright-1.44-2EAD33?style=flat-square&logo=playwright) | E2E скриншоты (375/768/1440 × light/dark) |
-| ![rembg](https://img.shields.io/badge/rembg-2.0-3776AB?style=flat-square&logo=python) | Удаление фона у товаров (u2net) |
+### Code Quality / CI
+| Tool | Purpose |
+|------|---------|
+| ![ESLint](https://img.shields.io/badge/ESLint-8-4B32C3?style=flat-square&logo=eslint) | Linting |
+| ![Prettier](https://img.shields.io/badge/Prettier-3-F7B93E?style=flat-square&logo=prettier) | Formatting |
+| ![Playwright](https://img.shields.io/badge/Playwright-1.44-2EAD33?style=flat-square&logo=playwright) | E2E screenshots (375/768/1440 × light/dark) |
+| ![rembg](https://img.shields.io/badge/rembg-2.0-3776AB?style=flat-square&logo=python) | Background removal for products (u2net) |
 
 ---
 
-## 📸 Скриншоты
+## 📸 Screenshots
 
-| Главная (Light) | Главная (Dark) | Каталог | Товар |
+| Home (Light) | Home (Dark) | Catalog | Product |
 |:---:|:---:|:---:|:---:|
 | ![Home Light](shots/home-1440-light.png) | ![Home Dark](shots/home-1440-dark.png) | ![Catalog](shots/catalog-1440-light.png) | ![Product](shots/product-1440-light.png) |
 
-> Автоматические скриншоты генерируются Playwright при каждом билде: `python shoot.py`
+> Automatic screenshots generated by Playwright on each build: `python shoot.py`
 
 ---
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### Локально (без Docker)
+### Local (without Docker)
 ```bash
 # Frontend
 cd frontend
 npm install
 npm run dev          # http://localhost:3000
 
-# Backend (отдельный терминал)
+# Backend (separate terminal)
 cd ../backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
@@ -92,7 +92,7 @@ docker compose up -d --build
 # Backend:  http://localhost:8000/docs
 ```
 
-### Переменные окружения
+### Environment Variables
 ```env
 # frontend/.env.local
 NEXT_PUBLIC_API_URL=http://localhost:8000
@@ -100,7 +100,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ---
 
-## 📁 Структура проекта
+## 📁 Project Structure
 
 ```
 AI-Skin-Lab/
@@ -113,8 +113,8 @@ AI-Skin-Lab/
 │   └── Dockerfile
 ├── frontend/                # Next.js 14
 │   ├── src/
-│   │   ├── app/            # App Router страницы
-│   │   ├── components/     # UI компоненты
+│   │   ├── app/            # App Router pages
+│   │   ├── components/     # UI components
 │   │   │   ├── Hero.tsx
 │   │   │   ├── HeroProducts.tsx
 │   │   │   ├── LivingBackground.tsx
@@ -124,22 +124,22 @@ AI-Skin-Lab/
 │   │   │   ├── AiSection.tsx
 │   │   │   ├── ProductDetailView.tsx
 │   │   │   └── ...
-│   │   ├── lib/            # API, типы, форматирование
+│   │   ├── lib/            # API, types, formatting
 │   │   ├── messages/       # i18n (uk.json)
-│   │   └── i18n/           # Роутинг с локалью
-│   ├── public/cutouts/     # WebP вырезки товаров (rembg)
+│   │   └── i18n/           # Locale routing
+│   ├── public/cutouts/     # WebP product cutouts (rembg)
 │   ├── Dockerfile
 │   └── next.config.js
 ├── docker-compose.yml
-├── shoot.py                # Playwright скриншоты
+├── shoot.py                # Playwright screenshots
 └── README.md
 ```
 
 ---
 
-## 🎨 Дизайн-система
+## 🎨 Design System
 
-### Палитра (CSS токены в `globals.css`)
+### Palette (CSS tokens in `globals.css`)
 ```css
 :root {
   --cream:       #faf7f2;
@@ -154,40 +154,40 @@ AI-Skin-Lab/
 }
 ```
 
-### Ключевые компоненты
-- `.btn-primary` — золотой градиент + анимированный блик
-- `.glass` / `.tile` — стеклянные карточки с backdrop-filter
-- `.section-noir` — тёмная полоса с золотами (в light теме — warm gradient)
-- `.pic` — `mix-blend-mode: multiply` для фото на тёплом фоне
-- `.cat-tile` — 3D-наклон (`transform-style: preserve-3d`)
+### Key Components
+- `.btn-primary` — gold gradient + animated shine
+- `.glass` / `.tile` — glassmorphism cards with backdrop-filter
+- `.section-noir` — dark band with gold accents (in light theme — warm gradient)
+- `.pic` — `mix-blend-mode: multiply` for photos on warm background
+- `.cat-tile` — 3D tilt (`transform-style: preserve-3d`)
 
 ---
 
-## ♿ Доступность
+## ♿ Accessibility
 
-- `prefers-reduced-motion` — отключает все анимации
-- Семантическая HTML-разметка
-- Фокус-стили для клавиатурной навигации
-- Контрастные цвета (WCAG AA)
-- `aria-label` / `aria-pressed` на интерактивных элементах
+- `prefers-reduced-motion` — disables all animations
+- Semantic HTML markup
+- Focus styles for keyboard navigation
+- Contrast ratios (WCAG AA)
+- `aria-label` / `aria-pressed` on interactive elements
 
 ---
 
-## 📦 Деплой
+## 📦 Deployment
 
 ```bash
-# Сборка образов
+# Build images
 docker compose build
 
-# Запуск в продакшене
+# Run in production
 docker compose up -d
 
-# Логи
+# Logs
 docker compose logs -f frontend
 docker compose logs -f backend
 ```
 
-> Frontend использует `output: standalone` — образ ~150 MB, запускается за <2 сек.
+> Frontend uses `output: standalone` — image ~150 MB, starts in <2 sec.
 
 ---
 
@@ -200,6 +200,217 @@ This project is the exclusive intellectual property of **Arthur Petrunko** (Arth
 All rights reserved. No part of this codebase may be reproduced, distributed, sublicensed, or used for commercial purposes without explicit written permission from the author.
 
 © 2026 Arthur Petrunko. All rights reserved.
+
+---
+
+<p align="center">
+  Made with ☕ by <a href="https://github.com/ArthurPetrunko">Arthur Petrunko</a>
+</p>
+
+---
+
+# AI Skin Lab (Українська)
+
+Преміальний каталог косметики та парфюмерії з AI-консультантом, живим фоном та сучасним UX.
+
+![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+![Lenis](https://img.shields.io/badge/Lenis-1-FF6B6B?style=for-the-badge&logo=scrollreveal&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-1.44-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
+
+---
+
+## ✨ Особливості
+
+- **Живий фон** — анімовані градієнти, частінки, beam-ефект, свічення курсору, затемнення на темних секціях
+- **Hero з реальними вирізками** — 12 товарів з прозорим фоном (rembg), паралакс та плавання
+- **Категорії з 3D-нахилом** — hover-tilt до 8°, лічильники товарів, посилання на каталог
+- **Секція «Гарячі пропозиції»** — Swiper free-mode, count-up анімація «до −28%»
+- **Бренди з clip-path reveal** — анімація появи через CSS clip-path
+- **AI-консультант** — демо-чат з ефектом друку 26 мс/символ, підтримка `prefers-reduced-motion`
+- **Плавний скрол** — Lenis (duration 1.1, easing exp)
+- **Темна/світла тема** — next-themes, localStorage, системні налаштування
+- **Docker-ready** — standalone Next.js образ, healthchecks
+
+---
+
+## 🛠 Технологічний стек
+
+### Frontend
+| Технологія | Версія | Призначення |
+|------------|--------|-------------|
+| ![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=flat-square&logo=next.js) | 14.2 | App Router, SSR, standalone output |
+| ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react) | 18 | UI бібліотека |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript) | 5 | Типізація |
+| ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss) | 3 | Утілітарні стилі, дизайн-токени |
+| ![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=flat-square&logo=framer) | 11 | Анімації, scroll-reveal, жести |
+| ![Lenis](https://img.shields.io/badge/Lenis-1-FF6B6B?style=flat-square&logo=scrollreveal) | 1 | Плавний скрол |
+| ![Swiper](https://img.shields.io/badge/Swiper-11-6332F6?style=flat-square&logo=swiper) | 11 | Карусель «Знижки» (free-mode) |
+| ![next-themes](https://img.shields.io/badge/next--themes-0.3-000000?style=flat-square&logo=vercel) | 0.3 | Перемикання теми |
+
+### Backend / Інфраструктура
+| Технологія | Версія | Призначення |
+|------------|--------|-------------|
+| ![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=flat-square&logo=fastapi) | 0.110 | REST API каталогу |
+| ![Uvicorn](https://img.shields.io/badge/Uvicorn-0.30-000000?style=flat-square) | 0.30 | ASGI сервер |
+| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker) | 24 | Контейнеризація |
+| ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2.24-2496ED?style=flat-square&logo=docker) | 2.24 | Оркестрація |
+
+### Якість коду / CI
+| Інструмент | Призначення |
+|------------|-------------|
+| ![ESLint](https://img.shields.io/badge/ESLint-8-4B32C3?style=flat-square&logo=eslint) | Лінтинг |
+| ![Prettier](https://img.shields.io/badge/Prettier-3-F7B93E?style=flat-square&logo=prettier) | Форматування |
+| ![Playwright](https://img.shields.io/badge/Playwright-1.44-2EAD33?style=flat-square&logo=playwright) | E2E скріншоти (375/768/1440 × light/dark) |
+| ![rembg](https://img.shields.io/badge/rembg-2.0-3776AB?style=flat-square&logo=python) | Видалення фону товарів (u2net) |
+
+---
+
+## 📸 Скріншоти
+
+| Головна (Light) | Головна (Dark) | Каталог | Товар |
+|:---:|:---:|:---:|:---:|
+| ![Home Light](shots/home-1440-light.png) | ![Home Dark](shots/home-1440-dark.png) | ![Catalog](shots/catalog-1440-light.png) | ![Product](shots/product-1440-light.png) |
+
+> Автоматичні скріншоти генеруються Playwright при кожному білді: `python shoot.py`
+
+---
+
+## 🚀 Швидкий старт
+
+### Локально (без Docker)
+```bash
+# Frontend
+cd frontend
+npm install
+npm run dev          # http://localhost:3000
+
+# Backend (окремий термінал)
+cd ../backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+### Docker (production-like)
+```bash
+docker compose up -d --build
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:8000/docs
+```
+
+### Змінні середовища
+```env
+# frontend/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+---
+
+## 📁 Структура проекту
+
+```
+AI-Skin-Lab/
+├── backend/                 # FastAPI
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── routers/
+│   │   └── schemas.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/                # Next.js 14
+│   ├── src/
+│   │   ├── app/            # App Router сторінки
+│   │   ├── components/     # UI компоненти
+│   │   │   ├── Hero.tsx
+│   │   │   ├── HeroProducts.tsx
+│   │   │   ├── LivingBackground.tsx
+│   │   │   ├── CategoriesSection.tsx
+│   │   │   ├── SaleSection.tsx
+│   │   │   ├── BrandsSection.tsx
+│   │   │   ├── AiSection.tsx
+│   │   │   ├── ProductDetailView.tsx
+│   │   │   └── ...
+│   │   ├── lib/            # API, типи, форматування
+│   │   ├── messages/       # i18n (uk.json)
+│   │   └── i18n/           # Роутинг з локалі
+│   ├── public/cutouts/     # WebP вирізки товарів (rembg)
+│   ├── Dockerfile
+│   └── next.config.js
+├── docker-compose.yml
+├── shoot.py                # Playwright скріншоти
+└── README.md
+```
+
+---
+
+## 🎨 Дизайн-система
+
+### Палітра (CSS токени в `globals.css`)
+```css
+:root {
+  --cream:       #faf7f2;
+  --sand:        #f1e9dd;
+  --champagne:   #e8d5b0;
+  --gold:        #c9a55c;
+  --gold-deep:   #a9843e;
+  --espresso:    #3a2a1e;
+  --noir:        #17110d;
+  --blush:       #f3dddd;
+  --berry:       #b3235c;
+}
+```
+
+### Ключові компоненти
+- `.btn-primary` — золотий градієнт + анімований блиск
+- `.glass` / `.tile` — скляні картки з backdrop-filter
+- `.section-noir` — темна смуга з золотими акцентами (у light темі — warm gradient)
+- `.pic` — `mix-blend-mode: multiply` для фото на теплому фоні
+- `.cat-tile` — 3D-нахил (`transform-style: preserve-3d`)
+
+---
+
+## ♿ Доступність
+
+- `prefers-reduced-motion` — вимикає всі анімації
+- Семантична HTML-розмітка
+- Фокус-стилі для клавіатурної навігації
+- Контрастність кольорів (WCAG AA)
+- `aria-label` / `aria-pressed` на інтерактивних елементах
+
+---
+
+## 📦 Деплой
+
+```bash
+# Збірка образів
+docker compose build
+
+# Запуск у продакшні
+docker compose up -d
+
+# Логи
+docker compose logs -f frontend
+docker compose logs -f backend
+```
+
+> Frontend використовує `output: standalone` — образ ~150 MB, запуск за <2 сек.
+
+---
+
+## 📄 Ліцензія
+
+**Private / Personal Use Only**
+
+Цей проект є виключною інтелектуальною власністю **Arthur Petrunko** (Arthurpetrunko@gmail.com).
+
+Усі права захищені. Жодна частина цього кодової бази не може бути відтворена, поширена, субліцензована або використана для комерційних цілей без письмового дозволу автора.
+
+© 2026 Arthur Petrunko. Усі права захищені.
 
 ---
 
