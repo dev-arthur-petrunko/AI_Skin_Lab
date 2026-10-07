@@ -191,9 +191,15 @@ docker compose logs -f backend
 
 ---
 
-## 📄 Лицензия
+## 📄 License
 
-MIT — свободно используйте, модифицируйте и распространяйте.
+**Private / Personal Use Only**
+
+This project is the exclusive intellectual property of **Arthur Petrunko** (Arthurpetrunko@gmail.com).
+
+All rights reserved. No part of this codebase may be reproduced, distributed, sublicensed, or used for commercial purposes without explicit written permission from the author.
+
+© 2026 Arthur Petrunko. All rights reserved.
 
 ---
 
