@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
-    <NT attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <NT attribute="data-theme" defaultTheme="dark" enableSystem disableTransitionOnChange>
       {children}
     </NT>
   );
