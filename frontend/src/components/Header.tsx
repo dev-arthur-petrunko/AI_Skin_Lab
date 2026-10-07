@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import Image from 'next/image';
-import LanguageSwitcher from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeProvider';
 
 export default function Header() {
@@ -55,10 +54,11 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <LanguageSwitcher />
+          
           <ThemeToggle />
         </div>
       </div>
     </header>
   );
 }
+
