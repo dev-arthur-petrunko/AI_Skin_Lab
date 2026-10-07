@@ -240,6 +240,21 @@ body {
     background: var(--noir);
     color: #f7f0e6;
   }
+  [data-theme="light"] .section-noir {
+    --ink: var(--espresso);
+    --muted: rgba(58, 42, 30, .72);
+    --ga: rgba(255, 255, 255, .85);
+    --gb: rgba(255, 255, 255, .5);
+    --gl: rgba(201, 165, 92, .35);
+    --sh: 0 24px 50px rgba(58, 42, 30, .12);
+    --azure: var(--gold-deep);
+    --aqua: var(--gold);
+    --label: var(--label);
+    --sale: var(--berry);
+    --pic: rgba(201, 165, 92, .18);
+    background: linear-gradient(180deg, var(--sand), var(--champagne));
+    color: var(--espresso);
+  }
 
   /* category tile: champagne glass with a product leaning out of the corner */
   .cat-tile {
