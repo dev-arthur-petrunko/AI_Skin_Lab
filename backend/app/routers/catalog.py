@@ -23,7 +23,9 @@ def get_catalog(
         q = search.lower()
         products = [
             p for p in products
-            if q in p.name.lower() or q in p.brand.lower() or q in p.description_uk.lower()
+            if q in p.name.lower() or q in p.brand.lower()
+            or q in p.category.lower() or q in p.description_uk.lower()
+            or q in p.sku.lower()
         ]
     if brand:
         products = [p for p in products if p.brand.lower() == brand.lower()]

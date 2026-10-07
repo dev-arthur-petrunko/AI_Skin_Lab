@@ -32,6 +32,16 @@ export default function ChatWidget() {
   }, []);
 
   useEffect(() => {
+    const open = (e: Event) => {
+      const message = (e as CustomEvent<{ message?: string }>).detail?.message;
+      setOpen(true);
+      if (message) setInput(message);
+    };
+    window.addEventListener("ai:open", open);
+    return () => window.removeEventListener("ai:open", open);
+  }, []);
+
+  useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
@@ -103,7 +113,7 @@ export default function ChatWidget() {
               </span>
               <div className="flex-1">
                 <div className="text-sm font-semibold">{t("title")}</div>
-                <div className="flex items-center gap-1.5 text-[11px] text-espresso/70">
+                <div className="flex items-center gap-1.5 text-[11px] text-[color:var(--muted)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
                   {t("subtitle")}
                 </div>

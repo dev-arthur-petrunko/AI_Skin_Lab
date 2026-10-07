@@ -17,14 +17,14 @@ export default function CatalogClient({ initial }: Props) {
   const t = useTranslations("catalog");
   const searchParams = useSearchParams();
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("");
   const [onSale, setOnSale] = useState(searchParams.get("sale") === "1");
   const [sort, setSort] = useState<SortOption>("default");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-  const items = initial?.items ?? [];
+  const items = useMemo(() => initial?.items ?? [], [initial]);
   const brands = initial?.brands ?? [];
   const categories = initial?.categories ?? [];
 
@@ -37,6 +37,7 @@ export default function CatalogClient({ initial }: Props) {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.brand.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
           p.description_uk.toLowerCase().includes(q)
       );
     }
@@ -157,6 +158,8 @@ export default function CatalogClient({ initial }: Props) {
                 onClick={reset}
                 className="chip-f"
                 aria-pressed={false}
+                aria-label={t("reset")}
+                title={t("reset")}
               >
                 ✕
               </button>

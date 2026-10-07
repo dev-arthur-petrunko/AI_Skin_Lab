@@ -117,25 +117,54 @@ def _extract_tags(name: str, description: str, brand: str) -> list[str]:
     return tags
 
 
+def _norm_name(value: str) -> str:
+    """Excel may store an image code as a float -> '700703706708711.0'."""
+    name = str(value).strip()
+    if name.endswith(".0") and name[:-2].isdigit():
+        name = name[:-2]
+    return name
+
+
 def _resolve_image(sku: str, image_value: str) -> tuple[str, bool]:
     images_dir = Path(settings.images_dir)
-    candidates = []
-    if image_value and not image_value.lower().startswith("http") and "переглянути" not in image_value.lower():
-        candidates.append(image_value)
-    candidates.append(f"{sku}.jpg")
-    candidates.append(f"{sku}.png")
+    extensions = ("", ".jpg", ".jpeg", ".png", ".webp")
 
-    for candidate in candidates:
-        if images_dir.exists() and (images_dir / candidate).exists():
-            return f"/images/{candidate}", True
+    raw: list[str] = []
+    if image_value and not image_value.lower().startswith("http") and "переглянути" not in image_value.lower():
+        raw.append(_norm_name(image_value))
+    raw.append(sku)
+    padded = sku.zfill(3)
+    if padded != sku:
+        raw.append(padded)
+
+    # An Excel "Фото" cell may hold a bare code ("700703706708711") with no
+    # extension, so every stem is tried with/without a known image extension.
+    candidates = [
+        f"{stem}{ext}"
+        for stem in raw
+        if stem and "/" not in stem and "\\" not in stem
+        for ext in extensions
+    ]
+
+    if images_dir.exists():
+        for candidate in candidates:
+            if (images_dir / candidate).exists():
+                return f"/images/{candidate}", True
     return "/images/placeholder.svg", False
 
 
 def load_catalog(auto_translate=False) -> list[Product]:
     """Parse the Excel workbook into a list of validated Product models."""
     if auto_translate:
-        from scripts.translator import translate_catalog as _translate
-        _translate(load_catalog())
+        try:
+            from scripts.translator import translate_catalog as _translate
+        except ImportError:  # pragma: no cover
+            logger.warning("Translator unavailable, skipping auto-translate")
+        else:
+            try:
+                _translate(products=load_catalog())
+            except Exception:  # noqa: BLE001
+                logger.exception("Auto-translate failed")
 
     excel_path = Path(settings.excel_path)
     if not excel_path.exists():

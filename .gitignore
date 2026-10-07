@@ -55,3 +55,14 @@ backend/data/
 # Misc
 *.log
 *.tsbuildinfo
+
+# Office lock files & one-off scripts
+~$*.xlsx
+~$*.docx
+*.tmp
+temp.*
+_fix*.py
+fix_*.py
+
+# Local price copy is synced from ./price.xlsx by the start scripts
+

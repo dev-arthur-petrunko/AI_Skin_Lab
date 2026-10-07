@@ -1,6 +1,6 @@
 ﻿# 🌿 AI Skin Lab
 
-Преміальний мультимовний (UA / RU / EN) веб‑каталог парфумерії та косметики з автоматичною синхронізацією з локального Excel‑файлу, wbudованим AI‑консультантом (RAG) та розгортанням через Docker + туннелірование.
+Преміальний веб‑каталог парфумерії та косметики з автоматичною синхронізацією з локального Excel‑файлу, вбудованим AI‑консультантом (RAG) та розгортанням через Docker + тунелювання.
 
 ---
 
@@ -11,26 +11,28 @@ AI Skin Lab/
 ├── price.xlsx              # Джерело правди (корень проєкту, редагується вручну)
 ├── data/                   # Монтується в Docker (price.xlsx + images/)
 │   ├── price.xlsx          # ← синхронізується зі скриптом запуску
-│   └── images/             # зображення товарів: <Артикул>.jpg або з колонки Image_Name
+│   └── images/             # зображення товарів: <Артикул>.jpg або з колонки Фото
 ├── backend/                # FastAPI (Python)
 │   ├── app/
-│   │   ├── main.py         # Точка входу, CORS, /api/health
+│   │   ├── main.py         # Точка входу, CORS, /api/health, /admin/*
 │   │   ├── config.py       # Налаштування з .env / змінних середовища
 │   │   ├── catalog_loader.py  # Парсинг Excel (pandas + openpyxl), маппінг колонок
-│   │   ├── store.py        # In‑memory кеш + watchdog (авто‑перезавантаження при зміні Excel)
+│   │   ├── store.py        # In‑memory кеш + watchdog + mtime‑полінг
 │   │   ├── ai_assistant.py # RAG: векторний індекс + LLM‑промпт консультанта
 │   │   ├── models.py       # Pydantic‑схеми
 │   │   └── routers/        # /api/catalog, /api/chat
+│   ├── scripts/            # translator.py (автопереклад ru/en в Excel)
 │   └── Dockerfile
-├── frontend/               # Next.js 14 (App Router) + Tailwind + next-intl
+├── frontend/               # Next.js 14 (App Router) + Tailwind + ESLint
 │   ├── src/
-│   │   ├── app/[locale]/   # /uk, /ru, /en — головна, каталог, картка товару
+│   │   ├── app/            # / (головна), /catalog, /product/[id]
 │   │   ├── components/     # Hero, ProductCard, Swiper‑карусель, ChatWidget, фільтри
-│   │   ├── messages/       # Словники uk.json / ru.json / en.json
-│   │   └── i18n/           # Конфіг next-intl + навігація
+│   │   ├── messages/       # Словник uk.json
+│   │   └── i18n/           # request.ts (useTranslations) + navigation.tsx
+│   ├── check-i18n.js       # перевірка ключів перекладів
 │   └── Dockerfile          # Multi‑stage (standalone output)
 ├── docker-compose.yml
-├── start.ps1 / start.sh    # Синхронізація Excel + docker compose + туннель
+├── start.ps1 / start.sh    # Синхронізація Excel + docker compose + тунель
 └── .env.example
 ```
 
@@ -58,7 +60,22 @@ AI Skin Lab/
 Назва (ru), Назва (en), Категорія, Опис (uk), Опис (ru), Опис (en), Image_Name
 ```
 
-Якщо колонок немає: назви/описи RU/EN беруться з UA‑полів, категорія визначається за ключовими словами, зображення шукається як `data/images/<Артикул>.jpg` (інакше — елегантний placeholder з логотипом).
+Якщо колонок немає: назви/описи RU/EN беруться з UA‑полів, категорія визначається за ключовими словами, зображення шукається як `data/images/<Фото>`, потім `data/images/<Артикул>.jpg/.png` (з урахуванням ведучих нулів: артикул `2` → `002.png`), інакше — елегантний placeholder з логотипом.
+
+---
+
+## 🔐 Адмін‑ендпоінти
+
+`GET /admin/reload` (перечитати Excel) та `GET /admin/translate` (заповнити
+порожні `Опис (ru/en)` / `Назва (ru/en)`) вимагають заголовок
+`X-Admin-Token`, значення якого задається в `.env`:
+
+```
+ADMIN_TOKEN=будь‑який_секрет
+```
+
+Якщо `ADMIN_TOKEN` порожній — обидва ендпоінти повертають `404` і повністю
+вимкнені (типова поведінка деплою).
 
 ---
 
@@ -78,6 +95,9 @@ AI Skin Lab/
 
 ## ▶️ Локальний запуск (без Docker)
 
+Конфіг backend‑а автоматично читає `.env` з **кореня проєкту**, тому
+копіювати його в `backend/` не потрібно.
+
 ```bash
 # Backend (порт 8000)
 cd backend
@@ -88,6 +108,16 @@ python -m uvicorn app.main:app --port 8000
 cd frontend
 npm install
 npm run dev
+```
+
+Перевірка якості змін:
+
+```bash
+cd frontend
+node check-i18n.js     # ключі перекладів
+npx tsc --noEmit       # типи
+npm run lint           # ESLint (next/core-web-vitals)
+npm run build          # production-збірка
 ```
 
 ---
@@ -124,25 +154,28 @@ OPENAI_API_KEY=sk-...
 
 | Сервіс               | URL                                                      |
 |----------------------|----------------------------------------------------------|
-| Frontend             | `http://localhost:3000` (UA за замовчуванням, `/ru`, `/en`) |
+| Frontend             | `http://localhost:3000`                                   |
 | Backend health       | `http://localhost:8000/api/health`                       |
 | API через Next.js rewrite | `http://localhost:3000/api/catalog`                    |
+| Каталог              | `http://localhost:3000/catalog` (`?q=` — пошуковий запит) |
+| Адмін‑reload         | `GET http://localhost:8000/admin/reload` + `X-Admin-Token` |
 
 ---
 
 ## 📦 Ключові залежності
 
-- **Backend:** FastAPI, pandas + openpyxl, watchdog, openai, numpy
-- **Frontend:** Next.js 14, Tailwind CSS, next-intl, framer-motion, swiper
+- **Backend:** FastAPI, pandas + openpyxl, watchdog, openai, numpy, deep-translator
+- **Frontend:** Next.js 14, Tailwind CSS, framer-motion, swiper, three.js, ESLint (next/core-web-vitals)
 - **Інфраструктура:** Docker Compose, cloudflared / ngrok
 
 ---
 
 ## ✅ Чек‑лист контенту
 
-1. Зображення покладіть у `data/images/` у форматі `<Артикул>.jpg` (або вкажи ім’я в колонці `Image_Name`).
-2. Для перекладів описів додай колонки `Опис (ru)` / `Опис (en)` у `price.xlsx`.
-3. Ключіві словники UI: `frontend/src/messages/{uk,ru,en}.json` (перевірка: `node check-i18n.js`).
+1. Зображення покладіть у `data/images/` у форматі `<Артикул>.jpg` (або вкажи ім’я в колонці `Фото`).
+2. Для перекладів описів додай колонки `Опис (ru)` / `Опис (en)` у `price.xlsx` (або виклич `GET /admin/translate`).
+3. Словник UI: `frontend/src/messages/uk.json` (перевірка: `node check-i18n.js`).
+4. Після правки `price.xlsx` у корені — синхронізуй копію: `Copy-Item .\price.xlsx .\data\price.xlsx -Force` (робить `start.ps1` / `start.sh`).
 
 ---
 

@@ -1,4 +1,5 @@
 import ukMessages from '@/messages/uk.json';
+import { defaultLocale } from './config';
 
 type Messages = typeof ukMessages;
 
@@ -16,7 +17,7 @@ export function useTranslations(namespace: keyof Messages) {
 }
 
 export function useLocale() {
-  return 'uk' as const;
+  return defaultLocale;
 }
 
 export function getMessages() {
