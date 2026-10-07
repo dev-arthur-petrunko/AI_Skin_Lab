@@ -352,7 +352,7 @@ body {
 [data-theme="dark"] .living-base {
   background: linear-gradient(180deg, #1d1611, var(--noir));
 }
-[data-theme="light"] .living[data-dim="1"] .living-base {
+.living[data-dim="1"] .living-base {
   background: linear-gradient(180deg, #2a1e15, var(--noir));
 }
 .blob {

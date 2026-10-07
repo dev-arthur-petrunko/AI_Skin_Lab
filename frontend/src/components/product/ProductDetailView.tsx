@@ -1,5 +1,6 @@
 "use client";
 
+import React, { Fragment } from "react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
@@ -117,7 +118,18 @@ export default function ProductDetailView({ product, related }: Props) {
 
           <div className="mt-7">
             <h2 className="section-label">{t("description")}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{description}</p>
+            <div className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
+              {description.split(/\n\s*\n/).map((para, i) => (
+                <p key={i} className="mb-4 last:mb-0">
+                  {para.split(/\n/).map((line, j) => (
+                    <Fragment key={j}>
+                      {line}
+                      {j < para.split(/\n/).length - 1 && <br />}
+                    </Fragment>
+                  ))}
+                </p>
+              ))}
+            </div>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
