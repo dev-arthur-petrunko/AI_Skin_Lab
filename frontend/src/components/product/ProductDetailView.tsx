@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
@@ -13,6 +13,10 @@ interface Props {
   related: ProductType[];
 }
 
+function cutoutSrc(id: string): string {
+  return `/cutouts/${id}.webp`;
+}
+
 export default function ProductDetailView({ product, related }: Props) {
   const t = useTranslations("product");
   const tCommon = useTranslations("common");
@@ -22,6 +26,14 @@ export default function ProductDetailView({ product, related }: Props) {
   const description = localizedField(product, "description", locale);
   const price = product.promo_price ?? product.price;
 
+  const [hasCutout, setHasCutout] = useState(false);
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasCutout(true);
+    img.onerror = () => setHasCutout(false);
+    img.src = cutoutSrc(product.id);
+  }, [product.id]);
+
   const specs: Array<{ label: string; value: string }> = [
     { label: t("brand"), value: product.brand || "—" },
     { label: t("sku"), value: product.sku },
@@ -29,6 +41,32 @@ export default function ProductDetailView({ product, related }: Props) {
     { label: t("country"), value: product.country || "—" },
     { label: t("category"), value: product.category },
   ];
+
+  // Parse description into sections: description, notes, ingredients
+  const parseDescription = (text: string) => {
+    const sections: Record<string, string[]> = {
+      description: [],
+      notes: [],
+      ingredients: [],
+    };
+    let current: keyof typeof sections = "description";
+    text.split(/\n/).forEach((line) => {
+      const trimmed = line.trim();
+      const lower = trimmed.toLowerCase();
+      if (lower.startsWith("ноти:") || lower.startsWith("notes:")) {
+        current = "notes";
+        return;
+      }
+      if (lower.startsWith("склад:") || lower.startsWith("ingredients:") || lower.startsWith("інгредієнти:")) {
+        current = "ingredients";
+        return;
+      }
+      if (trimmed) sections[current].push(trimmed);
+    });
+    return sections;
+  };
+
+  const descSections = parseDescription(description);
 
   return (
     <div className="container-page py-12">
@@ -40,30 +78,52 @@ export default function ProductDetailView({ product, related }: Props) {
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
+        {/* Product Image with Cutout */}
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="tile pearl-edge relative overflow-hidden !p-0"
+          transition={{ duration: 0.6 }}
+          className="relative"
         >
           {product.is_on_sale && (
             <span className="absolute left-4 top-4 z-10 rounded-full bg-[var(--sale)] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
-              Sale -{product.discount_percent}%
+              Sale -{Math.floor(product.discount_percent)}%
             </span>
           )}
-          <div className="aspect-square">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={product.image}
-              alt={name}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
-              }}
-            />
+
+          <div className="aspect-[3/4] relative overflow-hidden">
+            {/* Floating cutout image */}
+            {hasCutout && (
+              <motion.img
+                src={cutoutSrc(product.id)}
+                alt={name}
+                className="absolute inset-0 h-full w-full object-contain"
+                style={{ transition: "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)" }}
+                initial={{ scale: 1.02, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                onError={() => setHasCutout(false)}
+              />
+            )}
+            {/* Fallback original image with mix-blend-multiply */}
+            {!hasCutout && (
+              <div className="pic absolute inset-0">
+                <img
+                  src={product.image}
+                  alt={name}
+                  className="absolute inset-0 h-full w-full object-contain p-6"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
+                  }}
+                />
+              </div>
+            )}
+            {/* Subtle glow behind product */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-1/3 bg-gradient-to-t from-[var(--gold)]/20 to-transparent rounded-full blur-[80px]" />
           </div>
         </motion.div>
 
+        {/* Product Info */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -73,9 +133,7 @@ export default function ProductDetailView({ product, related }: Props) {
           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--azure)]">
             {product.brand}
           </div>
-          <h1 className="section-title mt-2 !text-3xl sm:!text-4xl">
-            {name}
-          </h1>
+          <h1 className="section-title mt-2 !text-3xl sm:!text-4xl">{name}</h1>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-3">
             {product.is_on_sale ? (
@@ -85,6 +143,9 @@ export default function ProductDetailView({ product, related }: Props) {
                 </span>
                 <span className="price-old !text-lg">
                   {formatPrice(product.price)} {tCommon("currency")}
+                </span>
+                <span className="ml-auto rounded-full bg-[var(--sale)]/10 px-3 py-1 text-sm font-bold text-[var(--sale)]">
+                  -{Math.floor(product.discount_percent)}%
                 </span>
               </>
             ) : (
@@ -116,26 +177,88 @@ export default function ProductDetailView({ product, related }: Props) {
             </div>
           </dl>
 
-          <div className="mt-7">
-            <h2 className="section-label">{t("description")}</h2>
-            <div className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
-              {description.split(/\n\s*\n/).map((para, i) => (
-                <p key={i} className="mb-4 last:mb-0">
-                  {para.split(/\n/).map((line, j) => (
-                    <Fragment key={j}>
-                      {line}
-                      {j < para.split(/\n/).length - 1 && <br />}
-                    </Fragment>
+          {/* Beautiful Description & Notes Section */}
+          <div className="mt-7 flex-1">
+            <h2 className="section-label flex items-center gap-2">
+              <span className="text-[var(--gold)]">●</span>
+              {t("description")}
+            </h2>
+
+            {descSections.description.length > 0 && (
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-[var(--muted)]">
+                {descSections.description.map((para, i) => (
+                  <p key={i} className="last:mb-0">
+                    {para}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {descSections.notes.length > 0 && (
+              <div className="mt-6">
+                <h3 className="section-label text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
+                  {t("notes") || "Ноти"}
+                </h3>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {descSections.notes.map((note, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.1 + i * 0.05 }}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--ga)] border border-[var(--gl)] text-xs font-medium text-[var(--ink)]"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+                      {note}
+                    </motion.span>
                   ))}
-                </p>
-              ))}
-            </div>
+                </div>
+              </div>
+            )}
+
+            {descSections.ingredients.length > 0 && (
+              <div className="mt-6">
+                <h3 className="section-label text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
+                  {t("ingredients") || "Склад"}
+                </h3>
+                <div className="mt-3">
+                  <table className="w-full text-sm text-[var(--muted)]">
+                    <tbody>
+                      {descSections.ingredients.map((ing, i) => (
+                        <tr key={i} className="border-b border-[var(--gl)]/30 last:border-0 hover:bg-[var(--ga)]">
+                          <td className="py-2 px-3 font-medium text-[var(--ink)]">{ing}</td>
+                          <td className="py-2 px-3 text-right">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]/30" />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* If no structured sections, show raw description */}
+            {Object.values(descSections).every((arr) => arr.length === 0) && (
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-[var(--muted)]">
+                {description.split(/\n\s*\n/).map((para, i) => (
+                  <p key={i} className="last:mb-0">
+                    {para.split(/\n/).map((line, j) => (
+                      <Fragment key={j}>
+                        {line}
+                        {j < para.split(/\n/).length - 1 && <br />}
+                      </Fragment>
+                    ))}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-primary flex-1 sm:flex-none"
               disabled={product.stock === 0}
               onClick={() => window.dispatchEvent(new CustomEvent("ai:open"))}
             >
@@ -143,7 +266,7 @@ export default function ProductDetailView({ product, related }: Props) {
             </button>
             <button
               type="button"
-              className="btn btn-ghost"
+              className="btn btn-ghost flex-1 sm:flex-none"
               onClick={() =>
                 window.dispatchEvent(
                   new CustomEvent("ai:open", {
@@ -171,4 +294,3 @@ export default function ProductDetailView({ product, related }: Props) {
     </div>
   );
 }
-
