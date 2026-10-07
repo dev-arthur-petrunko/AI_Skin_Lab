@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n/request";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import type { CatalogResponse, Product, SortOption } from "@/lib/types";

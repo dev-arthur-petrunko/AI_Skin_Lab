@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/lib/format";
 import { localizedField, type Product } from "@/lib/types";

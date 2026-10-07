@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n/request";
 import ProductCard from "./ProductCard";
 import type { Product } from "@/lib/types";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n/request";
 
 export default function Marquee() {
   const t = useTranslations("marquee");

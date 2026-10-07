@@ -1,5 +1,5 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n/request";
 import { useMood } from "./MoodProvider";
 import type { Mood } from "@/lib/mood";
 
@@ -8,10 +8,9 @@ export function MoodToggle() {
   const { mood, setMood } = useMood();
   const items: { v: Mood; label: string }[] = [
     { v: "all", label: t("all") },
-    { v: "daily", label: t("daily") },
-    { v: "evening", label: t("evening") },
     { v: "fresh", label: t("fresh") },
-    { v: "gift", label: t("gift") },
+    { v: "sweet", label: t("sweet") },
+    { v: "wood", label: t("wood") },
   ];
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label={t("label")}>
