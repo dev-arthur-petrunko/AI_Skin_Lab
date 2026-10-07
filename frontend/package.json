@@ -9,14 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/drei": "9.99",
+    "@react-three/fiber": "8.15",
     "framer-motion": "^11.3.19",
     "next": "14.2.35",
-    "next-intl": "^3.26.0",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "server-only": "^0.0.1",
-    "swiper": "^11.1.9"
+    "swiper": "^11.1.9",
+    "three": "^0.160.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.12",

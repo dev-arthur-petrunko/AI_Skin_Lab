@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 
 export default function Footer() {

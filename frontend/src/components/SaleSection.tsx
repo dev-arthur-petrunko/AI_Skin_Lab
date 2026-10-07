@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 import ProductCarousel from "./ProductCarousel";
 import type { Product } from "@/lib/types";

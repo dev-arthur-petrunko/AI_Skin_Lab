@@ -1,9 +1,9 @@
-// Validates that every t("key") call resolves against its nearest useTranslations namespace
+﻿// Validates that every t("key") call resolves against its nearest useTranslations namespace
 // in every locale message file.
 const fs = require("fs");
 const path = require("path");
 
-const locales = ["uk", "ru", "en"];
+const locales = ["uk"];
 const messages = {};
 for (const l of locales) {
   messages[l] = JSON.parse(
@@ -61,4 +61,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log("All translation keys OK");
+
 

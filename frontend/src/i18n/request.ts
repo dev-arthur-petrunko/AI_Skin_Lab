@@ -1,18 +1,24 @@
-import { getRequestConfig } from "next-intl/server";
-import { cookies } from "next/headers";
-import { defaultLocale, locales, type Locale } from "./config";
+import ukMessages from '@/messages/uk.json';
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const cookieStore = cookies();
-  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value as Locale | undefined;
+type Messages = typeof ukMessages;
 
-  let locale = await requestLocale;
-  if (!locale || !locales.includes(locale as Locale)) {
-    locale = cookieLocale && locales.includes(cookieLocale) ? cookieLocale : defaultLocale;
-  }
-
-  return {
-    locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+export function useTranslations(namespace: keyof Messages) {
+  const messages = ukMessages[namespace] as Record<string, string>;
+  return (key: string, values?: Record<string, string | number>) => {
+    let message = messages[key] || key;
+    if (values) {
+      Object.entries(values).forEach(([k, v]) => {
+        message = message.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      });
+    }
+    return message;
   };
-});
+}
+
+export function useLocale() {
+  return 'uk' as const;
+}
+
+export function getMessages() {
+  return ukMessages;
+}

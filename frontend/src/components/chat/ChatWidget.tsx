@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "@/i18n/request";
 import { sendChatMessage } from "@/lib/chatClient";
 import ChatBubble, { type ChatProduct } from "./ChatBubble";
 

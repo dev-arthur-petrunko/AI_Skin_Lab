@@ -1,85 +1,68 @@
-﻿"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import { CountUp } from "./CountUp";
-import { MoodToggle } from "./MoodToggle";
-import { useMood } from "./MoodProvider";
-import { formatPrice } from "@/lib/format";
-import { localizedField, type Product } from "@/lib/types";
-import { useLocale } from "next-intl";
+import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
+import { HeroVisual } from './HeroVisual';
+import { useTranslations } from "@/i18n/request";
+import { Link } from '@/i18n/navigation';
+import { useMood } from './MoodProvider';
+import { MOODS, moodOf, type Mood } from '@/lib/mood';
+import { CountUp } from './CountUp';
+import type { Product } from '@/lib/types';
 
-interface Props {
-  stats: { products: number; brands: number; sale: number };
-  picks: Product[];
-}
-
-const fade = (delay: number) => ({
-  initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay },
-});
-
-export default function Hero({ stats, picks }: Props) {
-  const t = useTranslations("hero");
-  const locale = useLocale();
-  const { mood } = useMood();
-  const list = picks.slice(0, 3);
+export function Hero({ products, stats }: { products: Product[]; stats: { items: number; brands: number; sales: number } }) {
+  const t = useTranslations('hero');
+  const { mood, setMood } = useMood();
+  const picks = products.filter(p => mood === 'all' || moodOf(p.tags.join(' ')) === mood).slice(0, 3);
+  const words = t('title').split(' ');
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="container-page grid items-center gap-8 py-16 lg:py-24">
-        <div>
-          <motion.span {...fade(0)} className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium tracking-wider">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--sale)]" />
-            {t("badge")}
-          </motion.span>
+    <section id="hero" className="relative overflow-hidden">
+      <div className="container-page grid gap-[18px] pt-12 pb-6 md:grid-cols-[1.2fr_1fr]
+        md:[grid-template-areas:'copy_stage''mood_stage''stats_stage']
+        [grid-template-areas:'copy''stage''mood''stats']">
+        {/* COPY */}
+        <div className="tile [grid-area:copy]">
+          <h1 className="font-serif font-semibold tracking-[-.03em] leading-[1.02] text-4xl md:text-6xl lg:text-7xl mb-5">
+            {words.map((w, i) => (
+              <motion.span key={i} className="inline-block mr-[.25em]"
+                initial={{ opacity: 0, y: '45%', filter: 'blur(12px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: .9, delay: .15 + i * .09, ease: [.2, .8, .2, 1] }}>{w}</motion.span>
+            ))}
+          </h1>
+          <p className="max-w-[44ch] text-[17px] mb-6" style={{ color: 'var(--muted)' }}>{t("lead")}</p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/catalog" className="btn btn-primary">{t("ctaCatalog")}</Link>
+            <a href="#ai" className="btn btn-ghost">{t("ctaAsk")}</a>
+          </div>
+        </div>
 
-          <motion.h1 {...fade(0.1)} className="section-title mt-6">
-            {t("title")}
-          </motion.h1>
+        {/* STAGE: стеклянная сфера */}
+        <div className="tile [grid-area:stage] relative grid min-h-[440px] md:min-h-[560px] place-items-center overflow-hidden">
+          <HeroVisual />
+        </div>
 
-          <motion.p {...fade(0.2)} className="mt-6 max-w-xl text-base leading-relaxed text-[var(--muted)]">
-            {t("subtitle")}
-          </motion.p>
+        {/* MOOD */}
+        <div className="tile [grid-area:mood]">
+          <h3 className="font-serif font-semibold text-[19px]">{t("moodTitle")}</h3>
+          <p className="mb-3.5 text-sm" style={{ color: 'var(--muted)' }}>{t("moodHint")}</p>
+          <div className="flex flex-wrap gap-2" role="group">
+            {(["all", "fresh", "sweet", "wood"] as Mood[]).map(m => (
+              <button key={m} className="chip-f" aria-pressed={mood === m} onClick={() => setMood(m)}>{t(`mood.${m}`)}</button>
+            ))}
+          </div>
+        </div>
 
-          <motion.div {...fade(0.3)} className="mt-8 flex flex-wrap items-center gap-4">
-            <Link href="/catalog" className="btn btn-primary">
-              {t("cta_catalog")}
-            </Link>
-            <Link href="/catalog?sale=1" className="btn btn-ghost">
-              {t("cta_chat")}
-            </Link>
-          </motion.div>
-
-          <motion.div {...fade(0.4)} className="mt-8">
-            <MoodToggle />
-          </motion.div>
-
-          <motion.dl {...fade(0.45)} className="mt-8 grid max-w-md grid-cols-3 gap-4">
-            <div className="tile pearl-edge p-5">
-              <dt className="font-serif text-3xl">
-                <CountUp to={stats.products} />
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">{t("stat_products")}</dd>
-            </div>
-            <div className="tile pearl-edge p-5">
-              <dt className="font-serif text-3xl">
-                <CountUp to={stats.brands} />
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">{t("stat_brands")}</dd>
-            </div>
-            <div className="tile pearl-edge p-5">
-              <dt className="font-serif text-3xl text-[var(--sale)]">
-                <CountUp to={stats.sale} />
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">{t("stat_sale")}</dd>
-            </div>
-          </motion.dl>
+        {/* STATS */}
+        <div className="tile [grid-area:stats] flex gap-8">
+          <Stat n={stats.items} label={t("statItems")} /><Stat n={stats.brands} label={t("statBrands")} /><Stat n={stats.sales} label={t("statSales")} sale />
         </div>
       </div>
     </section>
   );
 }
+const Stat = ({ n, label, sale }: { n: number; label: string; sale?: boolean }) => (
+  <div><b className={`block font-serif text-4xl font-semibold leading-none ${sale ? "price-new" : ""}`}><CountUp to={n} /></b>
+  <span className="text-[13px]" style={{ color: "var(--muted)" }}>{label}</span></div>
+);

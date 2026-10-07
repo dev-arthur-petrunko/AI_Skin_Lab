@@ -1,20 +1,22 @@
 ﻿import { getCatalog, getSaleProducts } from "@/lib/api";
-import Hero from "@/components/Hero";
+import { Hero } from "@/components/Hero";
 import Marquee from "@/components/Marquee";
 import SaleSection from "@/components/SaleSection";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  let stats = { products: 0, brands: 0, sale: 0 };
+  let stats = { items: 0, brands: 0, sales: 0 };
   let saleProducts: Awaited<ReturnType<typeof getSaleProducts>> = [];
+  let catalog: Awaited<ReturnType<typeof getCatalog>> | null = null;
 
   try {
-    const [catalog, sale] = await Promise.all([getCatalog(), getSaleProducts(10)]);
+    const [cat, sale] = await Promise.all([getCatalog(), getSaleProducts(10)]);
+    catalog = cat;
     stats = {
-      products: catalog.total,
+      items: catalog.total,
       brands: catalog.brands.length,
-      sale: catalog.items.filter((p) => p.is_on_sale).length,
+      sales: catalog.items.filter((p) => p.is_on_sale).length,
     };
     saleProducts = sale;
   } catch {
@@ -23,10 +25,11 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero stats={stats} picks={saleProducts} />
+      <Hero products={catalog?.items || []} stats={stats} />
       <Marquee />
 
       <SaleSection products={saleProducts} />
     </>
   );
 }
+

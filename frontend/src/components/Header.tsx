@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "@/i18n/request";
 import { Link, usePathname } from '@/i18n/navigation';
 import Image from 'next/image';
 import { ThemeToggle } from './ThemeProvider';
