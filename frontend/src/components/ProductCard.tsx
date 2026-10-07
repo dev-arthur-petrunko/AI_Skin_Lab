@@ -50,13 +50,13 @@ export default function ProductCard({ product, index = 0 }: Props) {
           </span>
         )}
 
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="pic relative aspect-[4/5] overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.image}
             alt={name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
             }}
@@ -82,7 +82,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
                   {formatPrice(product.price)} {tCommon("currency")}
                 </span>
                 <span className="ml-auto rounded-full bg-[var(--sale)]/10 px-2 py-0.5 text-[11px] font-bold text-[var(--sale)]">
-                  {t("discount", { value: product.discount_percent })}
+                  {t("discount", { value: Math.floor(product.discount_percent) })}
                 </span>
               </>
             ) : (

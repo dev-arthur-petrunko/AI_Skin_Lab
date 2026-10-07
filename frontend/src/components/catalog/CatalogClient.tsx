@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "@/i18n/request";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
+import { pluralUk } from "@/lib/format";
 import type { CatalogResponse, Product, SortOption } from "@/lib/types";
 
 interface Props {
@@ -82,11 +83,16 @@ export default function CatalogClient({ initial }: Props) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <span className="section-label">{t("title")}</span>
-        <h1 className="section-title mt-2">{t("subtitle")}</h1>
+        <h1 className="section-title">Каталог</h1>
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          {filtered.length} {pluralUk(filtered.length, [t("results_one"), t("results_few"), t("results_many")])}
+          {initial?.last_updated && (
+            <> · оновлено {new Date(initial.last_updated).toLocaleString("uk-UA", { dateStyle: "medium" })}</>
+          )}
+        </p>
       </motion.div>
 
-      <div className="tile mt-8 p-4 sm:p-5">
+      <div className="sticky top-20 z-10 tile mt-8 p-4 sm:p-5">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
           <input
             value={search}
@@ -166,18 +172,6 @@ export default function CatalogClient({ initial }: Props) {
             )}
           </div>
         </div>
-      </div>
-
-
-      <div className="mt-6 flex items-center justify-between text-sm text-[var(--muted)]">
-        <span>
-          {filtered.length} {t("results_many")}
-        </span>
-        {initial && initial.last_updated && (
-          <span className="text-xs">
-            {new Date(initial.last_updated).toLocaleString("uk-UA")}
-          </span>
-        )}
       </div>
 
       {filtered.length === 0 ? (
