@@ -13,7 +13,7 @@ export default function Marquee() {
           {row.map((label, i) => (
             <span key={i} className="text-sm text-[var(--muted)]">
               {label}
-              <span className="ml-10 text-[var(--aqua)]">o</span>
+              <span className="ml-10 text-[var(--aqua)]">•</span>
             </span>
           ))}
         </div>

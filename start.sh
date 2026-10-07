@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Skin Lab — launch script (Linux/macOS/Git Bash)
+# AI Skin Lab - launch script (Linux/macOS/Git Bash)
 # 1) Syncs the source price.xlsx into ./data (mounted into Docker)
 # 2) Starts backend + frontend via docker-compose
 # 3) Optionally starts a Cloudflare Tunnel
@@ -17,7 +17,7 @@ if [ -f "./price.xlsx" ]; then
   cp ./price.xlsx ./data/price.xlsx
   echo "price.xlsx -> data/price.xlsx"
 elif [ ! -f "./data/price.xlsx" ]; then
-  echo "WARNING: price.xlsx not found — backend will start with an empty catalog."
+  echo "WARNING: price.xlsx not found - backend will start with an empty catalog."
 fi
 
 echo "== docker compose up -d =="

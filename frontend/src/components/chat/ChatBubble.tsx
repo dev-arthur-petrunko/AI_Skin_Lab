@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "@/i18n/request";
 
 export interface ChatProduct {
   id: string;
@@ -22,6 +23,8 @@ interface Props {
 }
 
 export default function ChatBubble({ content, isTyping, onFinish, products }: Props) {
+  const tCommon = useTranslations("common");
+  const currency = tCommon("currency");
   const [displayed, setDisplayed] = useState(content);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -90,11 +93,11 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
                 <div className="text-right">
                   {p.promo_price ? (
                     <>
-                      <div className="price-new text-sm">{p.promo_price} ₴</div>
-                      <div className="price-old text-[10px]">{p.price} ₴</div>
+                      <div className="price-new text-sm">{p.promo_price} {currency}</div>
+                      <div className="price-old text-[10px]">{p.price} {currency}</div>
                     </>
                   ) : (
-                    <div className="text-sm font-semibold">{p.price} ₴</div>
+                    <div className="text-sm font-semibold">{p.price} {currency}</div>
                   )}
                 </div>
               </Link>

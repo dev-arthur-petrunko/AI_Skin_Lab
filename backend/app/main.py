@@ -1,8 +1,9 @@
 """FastAPI application entry point for AI Skin Lab backend."""
 import logging
+import secrets
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -16,6 +17,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from scripts.translator import translate_catalog
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+
+
+def _require_admin(x_admin_token: str | None) -> None:
+    """Guard /admin/* routes.
+
+    If ADMIN_TOKEN is not configured the endpoints are disabled entirely,
+    so a default deployment never exposes an unauthenticated write path.
+    """
+    if not settings.admin_token:
+        raise HTTPException(status_code=404, detail="Not found")
+    if not x_admin_token or not secrets.compare_digest(x_admin_token, settings.admin_token):
+        raise HTTPException(status_code=401, detail="Invalid admin token")
 
 
 def _rebuild_index(products) -> None:
@@ -44,6 +57,7 @@ app.add_middleware(
 app.include_router(catalog.router)
 app.include_router(chat.router)
 
+Path(settings.images_dir).mkdir(parents=True, exist_ok=True)
 app.mount("/images", StaticFiles(directory=settings.images_dir), name="images")
 
 
@@ -56,11 +70,14 @@ def health():
     }
 
 @app.get("/admin/reload")
-def admin_reload():
+def admin_reload(x_admin_token: str | None = Header(default=None)):
+    _require_admin(x_admin_token)
     catalog_store.reload()
     return {'status': 'reloaded', 'products': len(catalog_store.products)}
 
 @app.get("/admin/translate")
-def admin_translate(to: str = "ru,en", dry_run: bool = False, sku: str | None = None):
+def admin_translate(to: str = "ru,en", dry_run: bool = False, sku: str | None = None,
+                    x_admin_token: str | None = Header(default=None)):
+    _require_admin(x_admin_token)
     cells, written = translate_catalog(to=to.split(","), dry_run=dry_run, sku=sku)
     return {'status': 'translated', 'to': to, 'dry_run': dry_run, 'sku': sku, 'cells': cells, 'written': written}

@@ -5,6 +5,7 @@
 :root {
   --font-sans: "Inter", system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-disp: "Cormorant Garamond", Georgia, serif;
   --bg: #faf7f2;
   --ink: #4a3728;
   --muted: rgba(74, 55, 40, .62);
@@ -97,14 +98,14 @@ body {
     background: linear-gradient(135deg, var(--azure), var(--aqua));
     box-shadow: 0 10px 30px var(--glow);
   }
-  .btn-primary:hover { box-shadow: 0 12px 46px rgba(125,227,255,.75); }
+  .btn-primary:hover { box-shadow: 0 12px 46px rgba(201,162,39,.55); }
   .btn-ghost {
     border: 1px solid var(--gl);
     color: var(--ink);
   }
 
   .chip-f {
-    @apply rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 border border-[rgba(224,230,245,.5)] bg-gradient-to-r from-[rgba(255,255,255,.82)] to-[rgba(255,255,255,.40)];
+    @apply inline-flex items-center rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 border border-[rgba(74,55,40,.18)] bg-gradient-to-r from-[rgba(255,255,255,.82)] to-[rgba(255,255,255,.40)];
     backdrop-filter: blur(10px);
     color: var(--ink);
   }

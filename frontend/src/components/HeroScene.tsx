@@ -33,10 +33,11 @@ export default function HeroScene() {
   const { resolvedTheme } = useTheme();
   const c = useMemo(() => {
     const s = typeof document !== 'undefined' ? getComputedStyle(document.documentElement) : null;
+    const dark = resolvedTheme === 'dark';
     return {
-      a: s?.getPropertyValue('--azure').trim() || '#4F8CFF',
-      q: s?.getPropertyValue('--aqua').trim() || '#7DE3FF',
-      p: '#FFB3D4'
+      a: s?.getPropertyValue('--azure').trim() || '#b08968',
+      q: s?.getPropertyValue('--aqua').trim() || '#c9a227',
+      p: dark ? '#e57ba4' : '#b3235c',
     };
   }, [resolvedTheme]);
 

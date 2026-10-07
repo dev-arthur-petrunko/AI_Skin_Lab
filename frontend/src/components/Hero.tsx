@@ -1,20 +1,26 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { HeroVisual } from './HeroVisual';
 import { useTranslations } from "@/i18n/request";
 import { Link } from '@/i18n/navigation';
 import { useMood } from './MoodProvider';
-import { MOODS, moodOf, type Mood } from '@/lib/mood';
+import { MOOD_QUERY, type Mood } from '@/lib/mood';
 import { CountUp } from './CountUp';
 import type { Product } from '@/lib/types';
 
-export function Hero({ products, stats }: { products: Product[]; stats: { items: number; brands: number; sales: number } }) {
+const MOOD_KEYS: Mood[] = ['all', 'fresh', 'sweet', 'wood'];
+
+export function Hero({ stats }: { products: Product[]; stats: { items: number; brands: number; sales: number } }) {
   const t = useTranslations('hero');
+  const tMood = useTranslations('mood');
   const { mood, setMood } = useMood();
-  const picks = products.filter(p => mood === 'all' || moodOf(p.tags.join(' ')) === mood).slice(0, 3);
   const words = t('title').split(' ');
+  const moodLabel = (m: Mood) =>
+    m === 'all' ? tMood('all')
+      : m === 'fresh' ? tMood('fresh')
+        : m === 'sweet' ? tMood('sweet')
+          : tMood('wood');
 
   return (
     <section id="hero" className="relative overflow-hidden">
@@ -34,7 +40,9 @@ export function Hero({ products, stats }: { products: Product[]; stats: { items:
           <p className="max-w-[44ch] text-[17px] mb-6" style={{ color: 'var(--muted)' }}>{t("lead")}</p>
           <div className="flex flex-wrap gap-3">
             <Link href="/catalog" className="btn btn-primary">{t("ctaCatalog")}</Link>
-            <a href="#ai" className="btn btn-ghost">{t("ctaAsk")}</a>
+            <button type="button" className="btn btn-ghost" onClick={() => window.dispatchEvent(new CustomEvent('ai:open'))}>
+              {t("ctaAsk")}
+            </button>
           </div>
         </div>
 
@@ -48,9 +56,20 @@ export function Hero({ products, stats }: { products: Product[]; stats: { items:
           <h3 className="font-serif font-semibold text-[19px]">{t("moodTitle")}</h3>
           <p className="mb-3.5 text-sm" style={{ color: 'var(--muted)' }}>{t("moodHint")}</p>
           <div className="flex flex-wrap gap-2" role="group">
-            {(["all", "fresh", "sweet", "wood"] as Mood[]).map(m => (
-              <button key={m} className="chip-f" aria-pressed={mood === m} onClick={() => setMood(m)}>{t(`mood.${m}`)}</button>
-            ))}
+            {MOOD_KEYS.map(m => {
+              const q = MOOD_QUERY[m];
+              return (
+                <Link
+                  key={m}
+                  href={q ? `/catalog?q=${encodeURIComponent(q)}` : '/catalog'}
+                  className="chip-f"
+                  aria-pressed={mood === m}
+                  onClick={() => setMood(m)}
+                >
+                  {moodLabel(m)}
+                </Link>
+              );
+            })}
           </div>
         </div>
 

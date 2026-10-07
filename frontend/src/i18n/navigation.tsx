@@ -1,7 +1,9 @@
-import { locales } from "./config";
-
-export const Link = (props: { href: string; children: React.ReactNode; className?: string }) => (
-  <a href={props.href} className={props.className}>{props.children}</a>
+export const Link = ({
+  href,
+  children,
+  ...rest
+}: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+  <a href={href} {...rest}>{children}</a>
 );
 
 export const redirect = (href: string) => {

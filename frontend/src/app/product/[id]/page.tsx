@@ -5,7 +5,7 @@ import ProductDetailView from "@/components/product/ProductDetailView";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  params: { locale: string; id: string };
+  params: { id: string };
 }
 
 export default async function ProductPage({ params: { id } }: Props) {

@@ -1,4 +1,4 @@
-# AI Skin Lab — launch script (Windows PowerShell)
+﻿# AI Skin Lab — launch script (Windows PowerShell)
 # 1) Syncs the source price.xlsx into ./data (mounted into Docker)
 # 2) Starts backend + frontend via docker-compose
 # 3) Optionally starts a Cloudflare Tunnel (requires `cloudflared` in PATH)

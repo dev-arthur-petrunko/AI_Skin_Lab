@@ -121,12 +121,27 @@ export default function ProductDetailView({ product, related }: Props) {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button type="button" className="btn btn-primary" disabled={product.stock === 0}>
-              {product.stock > 0 ? t("in_stock") : t("out_of_stock")}
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={product.stock === 0}
+              onClick={() => window.dispatchEvent(new CustomEvent("ai:open"))}
+            >
+              {product.stock > 0 ? t("buy") : t("out_of_stock")}
             </button>
-            <Link href="/catalog" className="btn btn-ghost">
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("ai:open", {
+                    detail: { message: `${t("ask_ai")}: ${name}` },
+                  })
+                )
+              }
+            >
               {t("ask_ai")}
-            </Link>
+            </button>
           </div>
         </motion.div>
       </div>
