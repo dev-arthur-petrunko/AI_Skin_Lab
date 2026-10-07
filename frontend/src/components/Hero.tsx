@@ -1,87 +1,121 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { HeroVisual } from './HeroVisual';
+import { motion } from "framer-motion";
+import { HeroProducts, type HeroItem } from "./HeroProducts";
 import { useTranslations } from "@/i18n/request";
-import { Link } from '@/i18n/navigation';
-import { useMood } from './MoodProvider';
-import { MOOD_QUERY, type Mood } from '@/lib/mood';
-import { CountUp } from './CountUp';
-import type { Product } from '@/lib/types';
+import { Link } from "@/i18n/navigation";
+const CATEGORY_CHIPS = [
+  { label: "all", href: "/catalog" },
+  { label: "care", href: "/catalog?q=%D0%B4%D0%BE%D0%B3%D0%BB%D1%8F%D0%B4" },
+  { label: "creams", href: "/catalog?q=%D0%BA%D1%80%D0%B5%D0%BC" },
+  { label: "serums", href: "/catalog?q=%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82" },
+];
 
-const MOOD_KEYS: Mood[] = ['all', 'fresh', 'sweet', 'wood'];
+interface Props {
+  stats: { items: number; brands: number; sales: number; maxDiscount: number };
+  heroItems: HeroItem[];
+}
 
-export function Hero({ stats }: { products: Product[]; stats: { items: number; brands: number; sales: number } }) {
-  const t = useTranslations('hero');
-  const tMood = useTranslations('mood');
-  const { mood, setMood } = useMood();
-  const words = t('title').split(' ');
-  const moodLabel = (m: Mood) =>
-    m === 'all' ? tMood('all')
-      : m === 'fresh' ? tMood('fresh')
-        : m === 'sweet' ? tMood('sweet')
-          : tMood('wood');
+export function Hero({ stats, heroItems }: Props) {
+  const t = useTranslations("hero");
+  const tCats = useTranslations("categories");
+  const words = t("title").split(" ");
 
   return (
-    <section id="hero" className="relative overflow-hidden">
-      <div className="container-page grid gap-[18px] pt-12 pb-6 md:grid-cols-[1.2fr_1fr]
-        md:[grid-template-areas:'copy_stage''mood_stage''stats_stage']
-        [grid-template-areas:'copy''stage''mood''stats']">
-        {/* COPY */}
-        <div className="tile [grid-area:copy]">
-          <h1 className="font-serif font-semibold tracking-[-.03em] leading-[1.02] text-4xl md:text-6xl lg:text-7xl mb-5">
+    <section id="hero" className="relative">
+      <div className="container-page grid items-center gap-y-8 pt-8 pb-4 lg:min-h-[calc(100svh-190px)] lg:grid-cols-[46fr_54fr] lg:gap-x-6 lg:pt-4">
+        {/* copy — lives directly on the living background, no card */}
+        <div className="relative z-10 max-w-2xl">
+          <motion.span
+            initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+            className="chip-f !cursor-default !px-4 !py-1.5 !text-xs font-semibold tracking-wide"
+          >
+            {t("badge")}
+          </motion.span>
+
+          <h1 className="h1-hero mt-5">
             {words.map((w, i) => (
-              <motion.span key={i} className="inline-block mr-[.25em]"
-                initial={{ opacity: 0, y: '45%', filter: 'blur(12px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: .9, delay: .15 + i * .09, ease: [.2, .8, .2, 1] }}>{w}</motion.span>
+              <motion.span
+                key={i}
+                className="mr-[.24em] inline-block"
+                initial={{ opacity: 0, y: "45%", filter: "blur(14px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.9, delay: 0.15 + i * 0.09, ease: [0.2, 0.8, 0.2, 1] }}
+              >
+                {w}
+              </motion.span>
             ))}
           </h1>
-          <p className="max-w-[44ch] text-[17px] mb-6" style={{ color: 'var(--muted)' }}>{t("lead")}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/catalog" className="btn btn-primary">{t("ctaCatalog")}</Link>
-            <button type="button" className="btn btn-ghost" onClick={() => window.dispatchEvent(new CustomEvent('ai:open'))}>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            className="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-[var(--muted)]"
+          >
+            {t("lead")}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.62 }}
+            className="mt-7 flex flex-wrap gap-3"
+          >
+            <Link href="/catalog" className="btn btn-primary">
+              {t("ctaCatalog")}
+            </Link>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => window.dispatchEvent(new CustomEvent("ai:open"))}
+            >
               {t("ctaAsk")}
             </button>
-          </div>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.8 }}
+            className="mt-7 text-[13px] tracking-wide text-[var(--muted)]"
+          >
+            {t("microItems", { n: stats.items })} <span className="mx-1 text-[var(--gold)]">·</span>{" "}
+            {t("microBrands", { n: stats.brands })} <span className="mx-1 text-[var(--gold)]">·</span>{" "}
+            <span className="text-[var(--sale)]">{t("microSale", { n: Math.floor(stats.maxDiscount) })}</span>
+          </motion.p>
         </div>
 
-        {/* STAGE: стеклянная сфера */}
-        <div className="tile [grid-area:stage] relative grid min-h-[440px] md:min-h-[560px] place-items-center overflow-hidden">
-          <HeroVisual />
+        {/* stage — real cut-out products, no frame */}
+        <div className="relative z-0 lg:justify-self-end lg:w-full">
+          <HeroProducts items={heroItems} />
         </div>
+      </div>
 
-        {/* MOOD */}
-        <div className="tile [grid-area:mood]">
-          <h3 className="font-serif font-semibold text-[19px]">{t("moodTitle")}</h3>
-          <p className="mb-3.5 text-sm" style={{ color: 'var(--muted)' }}>{t("moodHint")}</p>
-          <div className="flex flex-wrap gap-2" role="group">
-            {MOOD_KEYS.map(m => {
-              const q = MOOD_QUERY[m];
-              return (
-                <Link
-                  key={m}
-                  href={q ? `/catalog?q=${encodeURIComponent(q)}` : '/catalog'}
-                  className="chip-f"
-                  aria-pressed={mood === m}
-                  onClick={() => setMood(m)}
-                >
-                  {moodLabel(m)}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* STATS */}
-        <div className="tile [grid-area:stats] flex gap-8">
-          <Stat n={stats.items} label={t("statItems")} /><Stat n={stats.brands} label={t("statBrands")} /><Stat n={stats.sales} label={t("statSales")} sale />
-        </div>
+      {/* floating glass category rail at the bottom of the hero */}
+      <div className="container-page relative z-10 pb-8 pt-2">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          className="glass mx-auto flex w-fit max-w-full items-center gap-1.5 overflow-x-auto rounded-full p-1.5"
+        >
+          <span className="hidden shrink-0 pl-3 pr-1 text-[13px] font-medium text-[var(--muted)] sm:inline">
+            {tCats("rail_label")}
+          </span>
+          {CATEGORY_CHIPS.map((c) => (
+            <Link
+              key={c.label}
+              href={c.href}
+              className="shrink-0 rounded-full px-4 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:bg-[rgba(232,213,176,.55)]"
+            >
+              {tCats(c.label)}
+            </Link>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
 }
-const Stat = ({ n, label, sale }: { n: number; label: string; sale?: boolean }) => (
-  <div><b className={`block font-serif text-4xl font-semibold leading-none ${sale ? "price-new" : ""}`}><CountUp to={n} /></b>
-  <span className="text-[13px]" style={{ color: "var(--muted)" }}>{label}</span></div>
-);
