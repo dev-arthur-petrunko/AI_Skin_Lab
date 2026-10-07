@@ -1,184 +1,202 @@
-﻿# 🌿 AI Skin Lab
+﻿# AI Skin Lab
 
-Преміальний веб‑каталог парфумерії та косметики з автоматичною синхронізацією з локального Excel‑файлу, вбудованим AI‑консультантом (RAG) та розгортанням через Docker + тунелювання.
+Премиальный каталог косметики и парфюмерии с AI-консультантом, живым фоном и современным UX.
 
----
-
-## 📦 Структура проєкту
-
-```
-AI Skin Lab/
-├── price.xlsx              # Джерело правди (корень проєкту, редагується вручну)
-├── data/                   # Монтується в Docker (price.xlsx + images/)
-│   ├── price.xlsx          # ← синхронізується зі скриптом запуску
-│   └── images/             # зображення товарів: <Артикул>.jpg або з колонки Фото
-├── backend/                # FastAPI (Python)
-│   ├── app/
-│   │   ├── main.py         # Точка входу, CORS, /api/health, /admin/*
-│   │   ├── config.py       # Налаштування з .env / змінних середовища
-│   │   ├── catalog_loader.py  # Парсинг Excel (pandas + openpyxl), маппінг колонок
-│   │   ├── store.py        # In‑memory кеш + watchdog + mtime‑полінг
-│   │   ├── ai_assistant.py # RAG: векторний індекс + LLM‑промпт консультанта
-│   │   ├── models.py       # Pydantic‑схеми
-│   │   └── routers/        # /api/catalog, /api/chat
-│   ├── scripts/            # translator.py (автопереклад ru/en в Excel)
-│   └── Dockerfile
-├── frontend/               # Next.js 14 (App Router) + Tailwind + ESLint
-│   ├── src/
-│   │   ├── app/            # / (головна), /catalog, /product/[id]
-│   │   ├── components/     # Hero, ProductCard, Swiper‑карусель, ChatWidget, фільтри
-│   │   ├── messages/       # Словник uk.json
-│   │   └── i18n/           # request.ts (useTranslations) + navigation.tsx
-│   ├── check-i18n.js       # перевірка ключів перекладів
-│   └── Dockerfile          # Multi‑stage (standalone output)
-├── docker-compose.yml
-├── start.ps1 / start.sh    # Синхронізація Excel + docker compose + тунель
-└── .env.example
-```
+![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+![Lenis](https://img.shields.io/badge/Lenis-1-FF6B6B?style=for-the-badge&logo=scrollreveal&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-1.44-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 
 ---
 
-## 🗂 Схема даних (аркуш **«Зручна таблиця»** у `price.xlsx`)
+## ✨ Особенности
 
-| Колонка                | Обов’язкова | Опис                                                            |
-|------------------------|-------------|-----------------------------------------------------------------|
-| Артикул                | ✅          | Унікальний ID товару                                            |
-| Назва товару           | ✅          | Назва (UA)                                                      |
-| Бренд                  |             | Використовується в фільтрах та AI‑промпті                       |
-| Ціна, грн              | ✅          | Стара ціна                                                      |
-| Промо ціна, грн        |             | Якщо менша за стару — товар потрапляє у «Sale»                  |
-| Знижка, %              |             | Якщо порожньо — розраховується автоматично                     |
-| Залишок, шт            |             | > 0 → «В наявності»                                            |
-| Об’єм, Країна‑виробник |             | Характеристики в картці товару                                  |
-| Короткий опис (ноти)   |             | Опис + семантика для AI‑пошуку                                  |
-| Фото / Image_Name      |             | Ім’я файлу з `data/images/` (не вбудовувати зображення в Excel) |
-
-### Опціональні колонки для багатомовності та категорій
-Додайте їх у Excel – backend підхопить їх без змін коду:
-
-```
-Назва (ru), Назва (en), Категорія, Опис (uk), Опис (ru), Опис (en), Image_Name
-```
-
-Якщо колонок немає: назви/описи RU/EN беруться з UA‑полів, категорія визначається за ключовими словами, зображення шукається як `data/images/<Фото>`, потім `data/images/<Артикул>.jpg/.png` (з урахуванням ведучих нулів: артикул `2` → `002.png`), інакше — елегантний placeholder з логотипом.
+- **Живой фон** — анимированные градиенты, частицы, beam-эффект, курсорное свечение, затемнение на тёмных секциях
+- **Hero с реальными вырезками** — 12 товаров с прозрачным фоном (rembg), параллакс и плавание
+- **Категории с 3D-наклоном** — hover-tilt до 8°, счетчики товаров, ссылки на каталог
+- **Секция «Горячие предложения»** — Swiper free-mode, count-up анимация «до −28%»
+- **Бренды с clip-path reveal** — анимация появления через CSS clip-path
+- **AI-консультант** — демо-чат с печатанием 26 мс/символ, поддержка `prefers-reduced-motion`
+- **Плавный скролл** — Lenis (duration 1.1, easing exp)
+- **Тёмная/светлая тема** — next-themes, localStorage, system preference
+- **Docker-ready** — standalone Next.js образ, healthchecks
 
 ---
 
-## 🔐 Адмін‑ендпоінти
+## 🛠 Технологический стек
 
-`GET /admin/reload` (перечитати Excel) та `GET /admin/translate` (заповнити
-порожні `Опис (ru/en)` / `Назва (ru/en)`) вимагають заголовок
-`X-Admin-Token`, значення якого задається в `.env`:
+### Frontend
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| ![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=flat-square&logo=next.js) | 14.2 | App Router, SSR, standalone output |
+| ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react) | 18 | UI библиотека |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript) | 5 | Типизация |
+| ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss) | 3 | Утилитарные стили, дизайн-токены |
+| ![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=flat-square&logo=framer) | 11 | Анимации, scroll-reveal, gesture |
+| ![Lenis](https://img.shields.io/badge/Lenis-1-FF6B6B?style=flat-square&logo=scrollreveal) | 1 | Плавный скролл |
+| ![Swiper](https://img.shields.io/badge/Swiper-11-6332F6?style=flat-square&logo=swiper) | 11 | Карусель «Знижки» (free-mode) |
+| ![next-themes](https://img.shields.io/badge/next--themes-0.3-000000?style=flat-square&logo=vercel) | 0.3 | Переключение темы |
 
-```
-ADMIN_TOKEN=будь‑який_секрет
-```
+### Backend / Инфраструктура
+| Технология | Версия | Назначение |
+|------------|--------|------------|
+| ![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=flat-square&logo=fastapi) | 0.110 | REST API каталога |
+| ![Uvicorn](https://img.shields.io/badge/Uvicorn-0.30-000000?style=flat-square) | 0.30 | ASGI сервер |
+| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker) | 24 | Контейнеризация |
+| ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2.24-2496ED?style=flat-square&logo=docker) | 2.24 | Оркестрация |
 
-Якщо `ADMIN_TOKEN` порожній — обидва ендпоінти повертають `404` і повністю
-вимкнені (типова поведінка деплою).
+### Качество кода / CI
+| Инструмент | Назначение |
+|------------|------------|
+| ![ESLint](https://img.shields.io/badge/ESLint-8-4B32C3?style=flat-square&logo=eslint) | Линтинг |
+| ![Prettier](https://img.shields.io/badge/Prettier-3-F7B93E?style=flat-square&logo=prettier) | Форматирование |
+| ![Playwright](https://img.shields.io/badge/Playwright-1.44-2EAD33?style=flat-square&logo=playwright) | E2E скриншоты (375/768/1440 × light/dark) |
+| ![rembg](https://img.shields.io/badge/rembg-2.0-3776AB?style=flat-square&logo=python) | Удаление фона у товаров (u2net) |
 
 ---
 
-## 🔄 Синхронізація Excel
-`watchdog` моніторить `data/price.xlsx`. При будь‑якому збереженні каталог перечитається автоматично — без перезапуску сервера (Docker‑volume робить те саме). Перевірити: `GET /api/health` → оновиться поле `last_updated`.
+## 📸 Скриншоты
+
+| Главная (Light) | Главная (Dark) | Каталог | Товар |
+|:---:|:---:|:---:|:---:|
+| ![Home Light](shots/home-1440-light.png) | ![Home Dark](shots/home-1440-dark.png) | ![Catalog](shots/catalog-1440-light.png) | ![Product](shots/product-1440-light.png) |
+
+> Автоматические скриншоты генерируются Playwright при каждом билде: `python shoot.py`
 
 ---
 
-## 🤖 AI‑консультант (RAG)
-1. При завантаженні/пересинхронізації каталогу будується векторний індекс (OpenAI `text-embedding-3-small`, косинусна схожість на NumPy — без окремої БД; при рості можна перейти на ChromaDB/FAISS).
-2. Запит користувача → топ‑5 товарів → системний промпт «Ти консультант…» + список товарів з Excel → GPT‑4o‑mini → природна відповідь + міні‑картки товарів у чаті.
-3. UI: плаваючий віджет праворуч внизу, анімація друку, швидкі підказки, емодзі.
+## 🚀 Быстрый старт
 
-**Без `OPENAI_API_KEY`** усе працює у fallback‑режимі: ключові слова замість ембеддингів та заготовлені відповіді з картками товарів (доступно для демо/офлайн).
-
----
-
-## ▶️ Локальний запуск (без Docker)
-
-Конфіг backend‑а автоматично читає `.env` з **кореня проєкту**, тому
-копіювати його в `backend/` не потрібно.
-
+### Локально (без Docker)
 ```bash
-# Backend (порт 8000)
-cd backend
-pip install -r requirements.txt
-python -m uvicorn app.main:app --port 8000
-
-# Frontend (порт 3000)
+# Frontend
 cd frontend
 npm install
-npm run dev
+npm run dev          # http://localhost:3000
+
+# Backend (отдельный терминал)
+cd ../backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-Перевірка якості змін:
+### Docker (production-like)
+```bash
+docker compose up -d --build
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:8000/docs
+```
+
+### Переменные окружения
+```env
+# frontend/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+---
+
+## 📁 Структура проекта
+
+```
+AI-Skin-Lab/
+├── backend/                 # FastAPI
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── routers/
+│   │   └── schemas.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/                # Next.js 14
+│   ├── src/
+│   │   ├── app/            # App Router страницы
+│   │   ├── components/     # UI компоненты
+│   │   │   ├── Hero.tsx
+│   │   │   ├── HeroProducts.tsx
+│   │   │   ├── LivingBackground.tsx
+│   │   │   ├── CategoriesSection.tsx
+│   │   │   ├── SaleSection.tsx
+│   │   │   ├── BrandsSection.tsx
+│   │   │   ├── AiSection.tsx
+│   │   │   ├── ProductDetailView.tsx
+│   │   │   └── ...
+│   │   ├── lib/            # API, типы, форматирование
+│   │   ├── messages/       # i18n (uk.json)
+│   │   └── i18n/           # Роутинг с локалью
+│   ├── public/cutouts/     # WebP вырезки товаров (rembg)
+│   ├── Dockerfile
+│   └── next.config.js
+├── docker-compose.yml
+├── shoot.py                # Playwright скриншоты
+└── README.md
+```
+
+---
+
+## 🎨 Дизайн-система
+
+### Палитра (CSS токены в `globals.css`)
+```css
+:root {
+  --cream:       #faf7f2;
+  --sand:        #f1e9dd;
+  --champagne:   #e8d5b0;
+  --gold:        #c9a55c;
+  --gold-deep:   #a9843e;
+  --espresso:    #3a2a1e;
+  --noir:        #17110d;
+  --blush:       #f3dddd;
+  --berry:       #b3235c;
+}
+```
+
+### Ключевые компоненты
+- `.btn-primary` — золотой градиент + анимированный блик
+- `.glass` / `.tile` — стеклянные карточки с backdrop-filter
+- `.section-noir` — тёмная полоса с золотами (в light теме — warm gradient)
+- `.pic` — `mix-blend-mode: multiply` для фото на тёплом фоне
+- `.cat-tile` — 3D-наклон (`transform-style: preserve-3d`)
+
+---
+
+## ♿ Доступность
+
+- `prefers-reduced-motion` — отключает все анимации
+- Семантическая HTML-разметка
+- Фокус-стили для клавиатурной навигации
+- Контрастные цвета (WCAG AA)
+- `aria-label` / `aria-pressed` на интерактивных элементах
+
+---
+
+## 📦 Деплой
 
 ```bash
-cd frontend
-node check-i18n.js     # ключі перекладів
-npx tsc --noEmit       # типи
-npm run lint           # ESLint (next/core-web-vitals)
-npm run build          # production-збірка
+# Сборка образов
+docker compose build
+
+# Запуск в продакшене
+docker compose up -d
+
+# Логи
+docker compose logs -f frontend
+docker compose logs -f backend
 ```
+
+> Frontend использует `output: standalone` — образ ~150 MB, запускается за <2 сек.
 
 ---
 
-## 🐳 Docker + туннелювання
+## 📄 Лицензия
 
-### Windows (PowerShell)
-```powershell
-.\start.ps1                    # docker compose up -d --build
-.\start.ps1 -Tunnel my-tunnel  # + cloudflared tunnel run my-tunnel
-```
-
-### Linux / macOS
-```bash
-./start.sh                 # docker compose up -d --build
-./start.sh my-tunnel-name  # + cloudflared tunnel run
-```
-
-**Ручний варіант**
-```bash
-docker-compose up -d && cloudflared tunnel run <tunnel-name>
-# або для швидкого тесту:
-ngrok http 3000
-```
-
-Перед запуском додайте ключ у `.env` (див. `.env.example`):
-```
-OPENAI_API_KEY=sk-...
-```
+MIT — свободно используйте, модифицируйте и распространяйте.
 
 ---
 
-## 🌐 Публічні URL (після запуску)
-
-| Сервіс               | URL                                                      |
-|----------------------|----------------------------------------------------------|
-| Frontend             | `http://localhost:3000`                                   |
-| Backend health       | `http://localhost:8000/api/health`                       |
-| API через Next.js rewrite | `http://localhost:3000/api/catalog`                    |
-| Каталог              | `http://localhost:3000/catalog` (`?q=` — пошуковий запит) |
-| Адмін‑reload         | `GET http://localhost:8000/admin/reload` + `X-Admin-Token` |
-
----
-
-## 📦 Ключові залежності
-
-- **Backend:** FastAPI, pandas + openpyxl, watchdog, openai, numpy, deep-translator
-- **Frontend:** Next.js 14, Tailwind CSS, framer-motion, swiper, three.js, ESLint (next/core-web-vitals)
-- **Інфраструктура:** Docker Compose, cloudflared / ngrok
-
----
-
-## ✅ Чек‑лист контенту
-
-1. Зображення покладіть у `data/images/` у форматі `<Артикул>.jpg` (або вкажи ім’я в колонці `Фото`).
-2. Для перекладів описів додай колонки `Опис (ru)` / `Опис (en)` у `price.xlsx` (або виклич `GET /admin/translate`).
-3. Словник UI: `frontend/src/messages/uk.json` (перевірка: `node check-i18n.js`).
-4. Після правки `price.xlsx` у корені — синхронізуй копію: `Copy-Item .\price.xlsx .\data\price.xlsx -Force` (робить `start.ps1` / `start.sh`).
-
----
-
-> **AI Skin Lab** — це не просто каталог, це інтелектуальний помічник, який допомагає знайти ідеальний аромат або засіб догляду, враховуючи твої уподобania, бюджет та настрій. Ласкаво просимо до світу преміальної парфумерії та косметики з штучним інтелектом!  
-> 
-> — Arthur Petrunko <arthurpetrunko@gmail.com>
+<p align="center">
+  Made with ☕ by <a href="https://github.com/ArthurPetrunko">Arthur Petrunko</a>
+</p>
