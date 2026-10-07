@@ -33,8 +33,9 @@ export default function Header() {
     >
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gl)] overflow-hidden">
-            <Image src="/logo.png" alt="AI Skin Lab" width={36} height={36} className="object-contain" />
+          <span className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 backdrop-blur-md shadow-[0_0_12px_rgba(255,255,255,0.25),inset_0_0_8px_rgba(255,255,255,0.15)] overflow-hidden group">
+            <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+            <Image src="/logo.png" alt="AI Skin Lab" width={36} height={36} className="object-contain relative z-10" />
           </span>
           <span className="font-serif text-xl tracking-wide">AI Skin Lab</span>
         </Link>
