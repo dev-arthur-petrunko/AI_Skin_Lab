@@ -8,11 +8,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Bake the u2net segmentation model so cutout generation works offline
+# (rembg would otherwise download it on first use).
+RUN python -c "from rembg import new_session; new_session('u2net')"
+
 COPY app ./app
 COPY scripts ./scripts
 
-# Data (price.xlsx + images) is mounted as a volume at runtime.
-RUN mkdir -p /app/data/images
+# Data (price.xlsx + images + cutouts) is mounted as a volume at runtime.
+RUN mkdir -p /app/data/images /app/data/cutouts
 
 EXPOSE 8000
 
