@@ -21,10 +21,11 @@ interface Props {
   content: string;
   isTyping: boolean;
   onFinish: () => void;
+  onGrow?: () => void;
   products: ChatProduct[];
 }
 
-export default function ChatBubble({ content, isTyping, onFinish, products }: Props) {
+export default function ChatBubble({ content, isTyping, onFinish, onGrow, products }: Props) {
   const tCommon = useTranslations("common");
   const currency = tCommon("currency");
   const [displayed, setDisplayed] = useState(content);
@@ -40,6 +41,7 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
     timerRef.current = setInterval(() => {
       i += 2;
       setDisplayed(content.slice(0, i));
+      onGrow?.();
       if (i >= content.length) {
         if (timerRef.current) clearInterval(timerRef.current);
         onFinish();
@@ -53,7 +55,7 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="glass max-w-[85%] rounded-2xl rounded-tl-sm !p-3 px-4 py-3 text-sm leading-relaxed">
+      <div className="glass max-w-[85%] rounded-2xl rounded-tl-sm !p-3 px-4 py-3 text-sm leading-relaxed break-words">
         {displayed}
         {isTyping && displayed.length < content.length && (
           <span className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-[var(--azure)] align-middle" />

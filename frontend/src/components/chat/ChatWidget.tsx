@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
 import { sendChatMessage } from "@/lib/chatClient";
+import { CHAT_TTL_MS, clearChat, loadChat, saveChat } from "@/lib/chatStorage";
 import ChatBubble, { type ChatProduct } from "./ChatBubble";
 
 interface Message {
@@ -25,9 +26,45 @@ export default function ChatWidget() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(0);
+  const lastActivityRef = useRef(Date.now());
+
+  const welcomeMessage = (): Message => ({
+    id: 0,
+    role: "assistant",
+    content: t("welcome"),
+    products: [],
+  });
 
   useEffect(() => {
-    setMessages([{ id: 0, role: "assistant", content: t("welcome"), products: [] }]);
+    const stored = loadChat<Message>();
+    if (stored && stored.length > 0) {
+      setMessages(stored);
+      idRef.current = stored.reduce((max, m) => Math.max(max, m.id), 0);
+    } else {
+      setMessages([welcomeMessage()]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // persist history on every change (20-minute sliding window)
+  useEffect(() => {
+    if (messages.length === 0) return;
+    lastActivityRef.current = Date.now();
+    saveChat(messages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
+  // wipe the conversation once it has been idle for 20 minutes
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (Date.now() - lastActivityRef.current <= CHAT_TTL_MS) return;
+      setMessages((prev) => {
+        if (prev.length <= 1) return prev;
+        clearChat();
+        return [welcomeMessage()];
+      });
+    }, 30_000);
+    return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -41,12 +78,16 @@ export default function ChatWidget() {
     return () => window.removeEventListener("ai:open", open);
   }, []);
 
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior });
+  };
+
+  // follow new content: messages, loading indicator, typing animation
+  // (products appear only when the typing finishes) and panel open
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages, loading]);
+    scrollToBottom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, loading, typingId, open]);
 
   const suggestions = [t("suggestion1"), t("suggestion2"), t("suggestion3")];
 
@@ -132,7 +173,7 @@ export default function ChatWidget() {
               {messages.map((m) => (
                 <div key={m.id} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
                   {m.role === "user" ? (
-                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-[var(--azure)] px-4 py-3 text-sm leading-relaxed text-white">
+                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-[var(--azure)] px-4 py-3 text-sm leading-relaxed text-white break-words">
                       {m.content}
                     </div>
                   ) : (
@@ -140,6 +181,7 @@ export default function ChatWidget() {
                       content={m.content}
                       isTyping={typingId === m.id}
                       onFinish={() => setTypingId((cur) => (cur === m.id ? null : cur))}
+                      onGrow={() => scrollToBottom("auto")}
                       products={m.products}
                     />
                   )}
