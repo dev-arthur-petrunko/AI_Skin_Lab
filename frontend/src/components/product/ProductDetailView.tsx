@@ -5,16 +5,13 @@ import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/lib/format";
+import { cutoutSrc } from "@/lib/cutouts";
 import { localizedField, type Product as ProductType } from "@/lib/types";
 import ProductCard from "@/components/ProductCard";
 
 interface Props {
   product: ProductType;
   related: ProductType[];
-}
-
-function cutoutSrc(id: string): string {
-  return `/cutouts/${id}.webp`;
 }
 
 export default function ProductDetailView({ product, related }: Props) {

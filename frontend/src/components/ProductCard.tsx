@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/lib/format";
+import { cutoutSrc } from "@/lib/cutouts";
 import { localizedField, type Product } from "@/lib/types";
 
 interface Props {
@@ -53,12 +54,18 @@ export default function ProductCard({ product, index = 0 }: Props) {
         <div className="pic relative aspect-[4/5] overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={product.image}
+            src={cutoutSrc(product.id)}
             alt={name}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
+              const el = e.currentTarget as HTMLImageElement;
+              if (el.dataset.fallback !== "original") {
+                el.dataset.fallback = "original";
+                el.src = product.image;
+              } else {
+                el.src = "/images/placeholder.svg";
+              }
             }}
           />
           <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/70 to-transparent px-4 py-3 text-center text-xs font-medium text-white transition-transform duration-300 group-hover:translate-y-0">

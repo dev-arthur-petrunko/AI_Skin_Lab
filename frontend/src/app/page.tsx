@@ -1,6 +1,7 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
 import { getCatalog, getSaleProducts } from "@/lib/api";
+import { cutoutName, cutoutSrc } from "@/lib/cutouts";
 import { Hero } from "@/components/Hero";
 import type { HeroItem } from "@/components/HeroProducts";
 import type { CategoryTileData } from "@/components/CategoriesSection";
@@ -15,8 +16,8 @@ export const dynamic = "force-dynamic";
 
 function cutoutFor(id: string): string | null {
   try {
-    const file = path.join(process.cwd(), "public", "cutouts", `${id}.webp`);
-    return fs.existsSync(file) ? `/cutouts/${id}.webp` : null;
+    const file = path.join(process.cwd(), "public", "cutouts", `${cutoutName(id)}.webp`);
+    return fs.existsSync(file) ? cutoutSrc(id) : null;
   } catch {
     return null;
   }
