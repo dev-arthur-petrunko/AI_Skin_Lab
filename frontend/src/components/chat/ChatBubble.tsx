@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "@/i18n/request";
+import { cutoutSrc } from "@/lib/cutouts";
 
 export interface ChatProduct {
   id: string;
@@ -75,11 +76,17 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--pic)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={p.image}
+                    src={cutoutSrc(p.id)}
                     alt={p.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
+                      const el = e.currentTarget as HTMLImageElement;
+                      if (el.dataset.fallback !== "original") {
+                        el.dataset.fallback = "original";
+                        el.src = p.image;
+                      } else {
+                        el.src = "/images/placeholder.svg";
+                      }
                     }}
                   />
                 </div>
