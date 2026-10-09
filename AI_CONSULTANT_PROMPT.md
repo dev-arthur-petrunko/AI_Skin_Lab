@@ -326,6 +326,24 @@ export async function getAIRecommendation(
 
 ---
 
+### Recommended Models (updated 2026-10-09)
+| Model | Status on our key | Notes |
+|-------|-------------------|-------|
+| `openai/gpt-oss-120b` | ✅ primary | JSON mode works, ~0.7–3 s |
+| `openai/gpt-oss-20b` | ✅ fallback | faster/cheaper |
+| `llama-3.3-70b-versatile`, `llama-3.1-8b-instant` | ❌ 404 | decommissioned / no access |
+| `deepseek-r1-distill-llama-70b` | ❌ 400 | decommissioned |
+
+### Implementation status (live)
+- **Endpoint:** `frontend/src/app/api/chat/route.ts` (Next.js route handler; takes precedence over the `/api/:path*` rewrite, verified by `x-ai-skin-lab-source: next-route` header).
+- **Key:** `GROQ_API_KEY` — root `.env` (gitignored) → `docker-compose.yml` frontend environment. Never baked into the Docker image (`frontend/.dockerignore` excludes `.env*`).
+- **TPM limit = 8000 tokens**, so the full 80-product catalog (~15.6k tokens) cannot be sent. The route first does **server-side keyword retrieval of top-15 candidates** (`retrieve()`), and only they go into `context.products`.
+- **Validation:** product ids are intersected with the live catalog, prices/images come from the catalog (never from the model), max 3 cards, `reason` ≤ 300 chars; `follow_up_questions` are appended to `reply`.
+- **Fallback:** if the key is missing, Groq errors (e.g. 413 TPM burst) or JSON parsing fails, the route answers with a localized message + 3 keyword-matched products with description-based reasons.
+- **UI:** `ChatBubble` renders `reason` under each product card (`💡`).
+
+---
+
 *Last updated: 2026-10-08*  
 *Version: 1.0*  
 *Author: Arthur Petrunko*

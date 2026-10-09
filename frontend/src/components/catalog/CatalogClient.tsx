@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "@/i18n/request";
 import { useSearchParams } from "next/navigation";
@@ -20,10 +20,17 @@ export default function CatalogClient({ initial }: Props) {
 
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
   const [brand, setBrand] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(() => searchParams.get("category") ?? "");
   const [onSale, setOnSale] = useState(searchParams.get("sale") === "1");
   const [sort, setSort] = useState<SortOption>("default");
   const [visible, setVisible] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    setSearch(searchParams.get("q") ?? "");
+    setCategory(searchParams.get("category") ?? "");
+    setOnSale(searchParams.get("sale") === "1");
+    setVisible(PAGE_SIZE);
+  }, [searchParams]);
 
   const items = useMemo(() => initial?.items ?? [], [initial]);
   const brands = initial?.brands ?? [];
@@ -85,7 +92,11 @@ export default function CatalogClient({ initial }: Props) {
       >
         <h1 className="section-title">Каталог</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          {filtered.length} {pluralUk(filtered.length, [t("results_one"), t("results_few"), t("results_many")])}
+          {initial !== null && (
+            <>
+              {filtered.length} {pluralUk(filtered.length, [t("results_one"), t("results_few"), t("results_many")])}
+            </>
+          )}
           {initial?.last_updated && (
             <> · оновлено {new Date(initial.last_updated).toLocaleString("uk-UA", { dateStyle: "medium" })}</>
           )}
@@ -174,7 +185,14 @@ export default function CatalogClient({ initial }: Props) {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {initial === null ? (
+        <div className="mt-16 flex flex-col items-center gap-4 text-center">
+          <p className="text-[var(--muted)]">{t("load_error")}</p>
+          <button type="button" onClick={() => window.location.reload()} className="btn btn-primary">
+            {t("retry")}
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="mt-16 text-center text-[var(--muted)]">{t("empty")}</div>
       ) : (
         <>
