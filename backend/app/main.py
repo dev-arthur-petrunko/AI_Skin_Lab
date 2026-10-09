@@ -1,5 +1,6 @@
 """FastAPI application entry point for AI Skin Lab backend."""
 import logging
+import mimetypes
 import secrets
 from contextlib import asynccontextmanager
 
@@ -9,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .ai_assistant import vector_index
+from .cutouts import cutout_name, cutouts_dir, schedule_generate
 from .routers import catalog, chat
 from .store import catalog_store, start_watcher, stop_watcher
 import sys
@@ -38,6 +40,7 @@ def _rebuild_index(products) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     catalog_store.on_reload(_rebuild_index)
+    catalog_store.on_reload(schedule_generate)
     start_watcher()
     _rebuild_index(catalog_store.products)
     yield
@@ -59,6 +62,23 @@ app.include_router(chat.router)
 
 Path(settings.images_dir).mkdir(parents=True, exist_ok=True)
 app.mount("/images", StaticFiles(directory=settings.images_dir), name="images")
+
+# python:3.11-slim's mime database has no .webp mapping
+mimetypes.add_type("image/webp", ".webp")
+
+_cutouts_dir = cutouts_dir()
+_cutouts_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/cutouts", StaticFiles(directory=str(_cutouts_dir)), name="cutouts")
+
+
+@app.get("/api/cutouts")
+def cutout_ids():
+    ids = [
+        p.id
+        for p in catalog_store.products
+        if (_cutouts_dir / f"{cutout_name(p.id)}.webp").exists()
+    ]
+    return {"ids": ids}
 
 
 @app.get("/api/health")

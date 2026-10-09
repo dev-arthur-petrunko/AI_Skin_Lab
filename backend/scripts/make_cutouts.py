@@ -1,9 +1,10 @@
 """Generate transparent-background WebP cutouts for every catalog product.
 
 Reads the live catalog from the backend, runs rembg (u2net) over each
-source image and writes frontend/public/cutouts/<id>.webp (trimmed,
-max 900px, quality 86). Existing cutouts are skipped, so the script is
-safe to re-run / resume.
+source image and writes data/cutouts/<id>.webp (trimmed, max 900px,
+quality 86). Existing cutouts are skipped, so the script is safe to
+re-run / resume. Normally the backend generates cutouts automatically
+(app/cutouts.py); this script is a manual backfill helper.
 
 Usage:  python backend/scripts/make_cutouts.py [--limit N]
 """
@@ -20,7 +21,7 @@ from rembg import new_session, remove
 
 ROOT = Path(__file__).resolve().parents[2]
 IMAGES = ROOT / "data" / "images"
-OUT = ROOT / "frontend" / "public" / "cutouts"
+OUT = ROOT / "data" / "cutouts"
 API = "http://localhost:8000/api/catalog"
 MAX_SIDE = 900
 

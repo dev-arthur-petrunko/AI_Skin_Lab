@@ -25,4 +25,13 @@ export async function getSaleProducts(limit = 10): Promise<Product[]> {
   return fetchJson<Product[]>(`${BACKEND_URL}/api/catalog/sale?limit=${limit}`, 30);
 }
 
+export async function getCutoutIds(): Promise<Set<string>> {
+  try {
+    const data = await fetchJson<{ ids: string[] }>(`${BACKEND_URL}/api/cutouts`, 60);
+    return new Set(data.ids);
+  } catch {
+    return new Set<string>();
+  }
+}
+
 export { BACKEND_URL };

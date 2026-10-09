@@ -1,7 +1,5 @@
-﻿import fs from "node:fs";
-import path from "node:path";
-import { getCatalog, getSaleProducts } from "@/lib/api";
-import { cutoutName, cutoutSrc } from "@/lib/cutouts";
+﻿import { getCatalog, getSaleProducts, getCutoutIds } from "@/lib/api";
+import { cutoutSrc } from "@/lib/cutouts";
 import { Hero } from "@/components/Hero";
 import type { HeroItem } from "@/components/HeroProducts";
 import type { CategoryTileData } from "@/components/CategoriesSection";
@@ -14,15 +12,6 @@ import AiSection from "@/components/AiSection";
 
 export const dynamic = "force-dynamic";
 
-function cutoutFor(id: string): string | null {
-  try {
-    const file = path.join(process.cwd(), "public", "cutouts", `${cutoutName(id)}.webp`);
-    return fs.existsSync(file) ? cutoutSrc(id) : null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function HomePage() {
   let stats = { items: 0, brands: 0, sales: 0, maxDiscount: 0 };
   let saleProducts: Awaited<ReturnType<typeof getSaleProducts>> = [];
@@ -31,8 +20,15 @@ export default async function HomePage() {
   let brands: BrandGroup[] = [];
 
   try {
-    const [cat, sale] = await Promise.all([getCatalog(), getSaleProducts(10)]);
+    const [cat, sale, cutoutIds] = await Promise.all([
+      getCatalog(),
+      getSaleProducts(10),
+      getCutoutIds(),
+    ]);
     saleProducts = sale;
+
+    const cutoutFor = (id: string): string | null =>
+      cutoutIds.has(id) ? cutoutSrc(id) : null;
 
     const maxDiscount = cat.items.reduce(
       (max, p) => (p.is_on_sale ? Math.max(max, p.discount_percent) : max),

@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     app_name: str = "AI Skin Lab"
     excel_path: str = str(PROJECT_ROOT / "data" / "price.xlsx")
     images_dir: str = str(PROJECT_ROOT / "data" / "images")
+    # empty = <parent of images_dir>/cutouts (i.e. data/cutouts on the host)
+    cutouts_dir: str = ""
     openai_api_key: str = ""
     openai_base_url: str = "https://api.openai.com/v1"
     embedding_model: str = "text-embedding-3-small"
