@@ -38,6 +38,7 @@ export interface ChatProductCard {
   promo_price: number | null;
   image: string;
   discount_percent: number;
+  reason?: string;
 }
 
 export interface ChatResponse {

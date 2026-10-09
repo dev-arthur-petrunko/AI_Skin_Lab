@@ -13,6 +13,7 @@ export interface ChatProduct {
   promo_price: number | null;
   image: string;
   discount_percent: number;
+  reason?: string;
 }
 
 interface Props {
@@ -89,6 +90,11 @@ export default function ChatBubble({ content, isTyping, onFinish, products }: Pr
                   <div className="truncate text-xs font-medium group-hover:text-[var(--azure)]">
                     {p.name}
                   </div>
+                  {p.reason && (
+                    <div className="mt-0.5 text-[10px] leading-snug text-[color:var(--muted)]">
+                      💡 {p.reason}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   {p.promo_price ? (
