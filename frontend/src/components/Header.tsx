@@ -29,6 +29,7 @@ export default function Header() {
     { href: "/", label: t("home") },
     { href: "/catalog", label: t("catalog") },
     { href: "/catalog?sale=1", label: t("sale") },
+    { href: "/catalog?sets=1", label: t("sets") },
   ];
 
   const isActive = (href: string) => pathname === href.split("?")[0];

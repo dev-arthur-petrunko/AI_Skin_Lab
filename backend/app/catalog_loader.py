@@ -54,9 +54,13 @@ CATEGORY_KEYWORDS = [
     ("Догляд за тілом", ["тіло", "тіла"]),
 ]
 
-# optional second sheet: one row = one gift set built from existing SKUs
+# optional second sheet — gift sets; two supported formats:
+#   1) composition: has "Склад (артикули через кому)" -> build set products from SKUs
+#   2) mark list:   has "Артикул" column only -> those main-sheet SKUs become
+#                   gift sets (is_set=True, category "Набори")
 SETS_SHEET = "sets"
 SET_COLUMN_ALIASES = {
+    "sku": ["Артикул", "SKU", "ID"],
     "name": ["Назва набору", "Назва", "Name"],
     "items": ["Склад (артикули через кому)", "Склад", "Артикули", "Items"],
     "price": ["Ціна набору, грн", "Ціна набору", "Ціна"],
@@ -164,22 +168,36 @@ def _resolve_image(sku: str, image_value: str) -> tuple[str, bool]:
     return "/images/placeholder.svg", False
 
 
-def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> list[Product]:
-    """Read the optional "sets" sheet: one row = one gift set of existing SKUs.
+def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> tuple[list[Product], set[str]]:
+    """Read the optional "sets" sheet. Returns (synthetic set products, skus to mark).
 
-    Columns: Назва набору | Склад (артикули через кому) | Ціна набору, грн |
-             Знижка, % | Фото | Опис
-    Missing sheet / bad rows are skipped silently; price falls back to the
-    sum of items, stock = min(stock), image = first item's image.
+    Format 1 — composition (has "Склад (артикули через кому)" column):
+        one row = one gift set of existing SKUs; columns:
+        Назва набору | Склад (артикули через кому) | Ціна набору, грн |
+        Знижка, % | Фото | Опис
+        Price falls back to the sum of items, stock = min(stock), image = first item's.
+    Format 2 — mark list (has "Артикул" column, no composition column):
+        each row's sku marks the matching main-sheet product as a gift set
+        (is_set=True, category "Набори").
+    Missing sheet / bad rows are skipped silently.
     """
     try:
         df = pd.read_excel(excel_path, sheet_name=SETS_SHEET, engine="openpyxl").fillna("")
     except (ValueError, KeyError):  # no "sets" sheet in this workbook
-        return []
+        return [], set()
     columns = list(df.columns)
     col = {key: _find_column(columns, aliases) for key, aliases in SET_COLUMN_ALIASES.items()}
+
     if not col["items"]:
-        return []
+        # format 2: plain list of SKUs to mark as gift sets
+        if not col["sku"]:
+            return [], set()
+        skus: set[str] = set()
+        for _, row in df.iterrows():
+            sku = _clean_text(row.get(col["sku"])) if col["sku"] else ""
+            if sku and sku.lower() not in ("артикул", "sku", "id"):
+                skus.add(sku)
+        return [], skus
 
     out: list[Product] = []
     for _, row in df.iterrows():
@@ -250,7 +268,7 @@ def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> list[Product]:
                 set_items=[p.id for p in items],
             )
         )
-    return out
+    return out, set()
 
 
 def load_catalog(auto_translate=False) -> list[Product]:
@@ -361,7 +379,17 @@ def load_catalog(auto_translate=False) -> list[Product]:
     by_sku: dict[str, Product] = {}
     for p in products:
         by_sku.setdefault(p.sku, p)
-    sets = load_sets(excel_path, by_sku)
+    sets, mark_skus = load_sets(excel_path, by_sku)
+    if mark_skus:
+        marked = 0
+        for p in products:
+            if p.sku in mark_skus:
+                p.is_set = True
+                p.category = "Набори"
+                if "набір" not in p.tags:
+                    p.tags.append("набір")
+                marked += 1
+        logger.info("Marked %d products as gift sets from the sets sheet", marked)
     if sets:
         logger.info("Loaded %d gift sets", len(sets))
         products.extend(sets)
