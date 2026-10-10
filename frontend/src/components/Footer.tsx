@@ -59,6 +59,11 @@ export default function Footer() {
                 {t("sale")}
               </Link>
             </li>
+            <li>
+              <Link href="/catalog?sets=1" className="transition hover:text-[#e3c46a]">
+                🎁 {t("sets")}
+              </Link>
+            </li>
           </ul>
         </div>
 

@@ -22,6 +22,7 @@ export default function CatalogClient({ initial }: Props) {
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState(() => searchParams.get("category") ?? "");
   const [onSale, setOnSale] = useState(searchParams.get("sale") === "1");
+  const [onlySets, setOnlySets] = useState(searchParams.get("sets") === "1");
   const [sort, setSort] = useState<SortOption>("default");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -29,6 +30,7 @@ export default function CatalogClient({ initial }: Props) {
     setSearch(searchParams.get("q") ?? "");
     setCategory(searchParams.get("category") ?? "");
     setOnSale(searchParams.get("sale") === "1");
+    setOnlySets(searchParams.get("sets") === "1");
     setVisible(PAGE_SIZE);
   }, [searchParams]);
 
@@ -52,6 +54,7 @@ export default function CatalogClient({ initial }: Props) {
     if (brand) result = result.filter((p) => p.brand === brand);
     if (category) result = result.filter((p) => p.category === category);
     if (onSale) result = result.filter((p) => p.is_on_sale);
+    if (onlySets) result = result.filter((p) => p.is_set);
 
     switch (sort) {
       case "price_asc":
@@ -69,18 +72,19 @@ export default function CatalogClient({ initial }: Props) {
     }
 
     return result;
-  }, [items, search, brand, category, onSale, sort]);
+  }, [items, search, brand, category, onSale, onlySets, sort]);
 
   const reset = () => {
     setSearch("");
     setBrand("");
     setCategory("");
     setOnSale(false);
+    setOnlySets(false);
     setSort("default");
     setVisible(PAGE_SIZE);
   };
 
-  const hasFilters = search || brand || category || onSale || sort !== "default";
+  const hasFilters = search || brand || category || onSale || onlySets || sort !== "default";
 
 
   return (
@@ -168,6 +172,14 @@ export default function CatalogClient({ initial }: Props) {
               aria-pressed={onSale}
             >
               {t("on_sale")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setOnlySets((v) => !v)}
+              className="chip-f"
+              aria-pressed={onlySets}
+            >
+              🎁 {t("sets_chip")}
             </button>
             {hasFilters && (
               <button
