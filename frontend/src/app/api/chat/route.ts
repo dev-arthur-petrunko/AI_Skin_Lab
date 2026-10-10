@@ -20,11 +20,15 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 
 ЖОРСТКІ ПРАВИЛА:
 1. Рекомендуй ТІЛЬКИ товари з наданого списку context.products. Заборонено вигадувати товари, бренди чи ціни.
-2. Максимум 3 товари на відповідь (якщо підходить лише 1 — поверни 1).
+2. Завжди давай РОВНО 3 товари, якщо серед кандидатів є щонайменше 3 наявні (stock>0); якщо менше — стільки, скільки є.
 3. Відповідай виключно мовою запиту користувача (uk — українською, ru — російською, en — англійською).
 4. Ціни та знижки — лише ті, що в context.products. Якщо is_on_sale=true, згадай promo_price та відсоток знижки.
 5. Не давай медичних порад; за серйозних проблем зі шкірою (розацеа, екзема, сильне акне) ввічливо порадь звернутись до дерматолога і запропонуй м'який догляд.
-6. Ми працюємо лише з брендами CEF Lab та Smart4Derma — якщо клієнт питає інший бренд, запропонуй схоже з нашого асортименту.
+6. Ми працюємо лише з брендами {{BRANDS}} — якщо клієнт питає інший бренд, запропонуй схоже з нашого асортименту.
+7. Якщо товар має is_set=true — це подарунковий набір: коротко зазнач його склад (є в description) і рекомендуй його, коли клієнт шукає подарунок або готовий комплект.
+8. Не пропонуй товари з stock<=0 та не радь чекати на постачання.
+9. Наприкінці відповіді одним рядком додай Instagram-контакт: «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ua_cosmetics_lab».
+10. ТОН: теплий, як уважний консультант бутику; конкретний (інгредієнти, ціни); без агресивних продажів; можна використовувати емодзі.
 
 ФОРМАТ ВІДПОВІДІ — ТІЛЬКИ ВАЛІДНИЙ JSON (без markdown, без тексту до або після):
 {
@@ -39,10 +43,8 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 ПРАВИЛЯ ПОЛІВ:
 - products[].id має точно відповідати id товару з context.products.
 - reason — мовою відповіді, з конкретикою (інгредієнт, тип шкіри, текстура, бюджет, знижка).
-- Якщо в каталозі немає нічого підходящого: "products": [] і питання для уточнення в follow_up_questions.
-- Якщо confidence не "high" — обов'язково додай follow_up_questions.
-
-ТОН: теплий, як уважний консультант бутику; конкретний (інгредієнти, ціни); без агресивних продажів; можна використовувати емодзі.`;
+- products[] НЕ має бути порожнім, якщо в кандидатах є наявні товари: візьми найближчі за запитом (ціна, тип, знижка) і поясни в reason, чому це компроміс. Порожній products — лише якщо кандидатів немає взагалі, і тоді додай follow_up_questions.
+- Якщо confidence не "high" — обов'язково додай follow_up_questions.`;
 
 function localized(p: Product, lang: string, field: "name" | "description"): string {
   if (field === "name") {
@@ -81,6 +83,7 @@ function buildContext(products: Product[], lang: string): string {
       promo_price: p.promo_price,
       discount_percent: p.discount_percent,
       is_on_sale: p.is_on_sale,
+      is_set: p.is_set,
       volume: p.volume,
       description: localized(p, lang, "description").slice(0, 130),
     }));
@@ -188,11 +191,40 @@ const STOP_WORDS = new Set([
   "you", "what", "is", "are", "те", "мне", "подскажите", "пожалуйста",
 ]);
 
+// stems appended to the query when any of the group's words is mentioned,
+// so "жирна шкіра" also matches tags/descriptions with себо/матув/олійн…
+const SKIN_SYNONYMS: string[][] = [
+  ["жирн", "олійн", "себо", "матув", "глянц", "пори"],
+  ["сух", "влажн", "зневодн", "комфорт"],
+  ["комбін", "змішан", "т-зон"],
+  ["чутлив", "подразн", "заспок"],
+  ["акне", "вугр", "запален", "антисепт"],
+  ["зморшк", "антивіков", "підтяг", "еластин", "anti-age"],
+  ["влажн", "гіалурон", "hydrat"],
+];
+
+function expandQuery(message: string): string {
+  const lower = message.toLowerCase();
+  const extra = new Set<string>();
+  for (const group of SKIN_SYNONYMS) {
+    if (group.some((w) => lower.includes(w))) {
+      group.forEach((w) => extra.add(w));
+    }
+  }
+  return extra.size ? `${message} ${Array.from(extra).join(" ")}` : message;
+}
+
 function retrieve(products: Product[], message: string, lang: string, limit: number): Product[] {
-  const words = message
+  const words = expandQuery(message)
     .toLowerCase()
-    .split(/[^a-zа-яёіїєґ0-9]+/i)
+    .split(/[^a-zа-яёіїєґ0-9-]+/i)
     .filter((w) => w.length > 0 && !STOP_WORDS.has(w));
+  // "до 500 грн" / "до 1000" — always surface products within the budget
+  const budgetNums = (message.match(/\d[\d\s]{1,7}\d|\d{3,}/g) || [])
+    .map((s) => Number(s.replace(/\s/g, "")))
+    .filter((n) => n >= 50 && n <= 100_000);
+  const budget = budgetNums.length ? Math.min(...budgetNums) : undefined;
+  const wantsSale = /знижк|акці|дешев|sale|discount/i.test(message);
   const scored: { p: Product; score: number }[] = [];
   for (const p of products) {
     if (p.stock <= 0) continue;
@@ -211,6 +243,8 @@ function retrieve(products: Product[], message: string, lang: string, limit: num
       if (hay.includes(w)) score += w.length >= 5 ? 3 : 2;
       else if (w.length >= 5 && hay.includes(w.slice(0, 5))) score += 1;
     }
+    if (budget && (p.promo_price ?? p.price) <= budget) score += 5;
+    if (wantsSale && p.is_on_sale) score += 2;
     if (score > 0) scored.push({ p, score });
   }
   scored.sort((a, b) => b.score - a.score);
@@ -237,6 +271,17 @@ const CATALOG_UNAVAILABLE: Record<string, string> = {
   en: "The catalog is unavailable right now. Please try again in a minute 🙏",
 };
 
+const INSTAGRAM_LINE: Record<string, string> = {
+  uk: "Не знайшли потрібне? Напишіть нам в Instagram 👉 @ua_cosmetics_lab",
+  ru: "Не нашли нужное? Напишите нам в Instagram 👉 @ua_cosmetics_lab",
+  en: "Didn't find what you need? Message us on Instagram 👉 @ua_cosmetics_lab",
+};
+
+function withInstagram(reply: string, lang: string): string {
+  if (/instagram/i.test(reply)) return reply;
+  return `${reply}\n\n${INSTAGRAM_LINE[lang] || INSTAGRAM_LINE.uk}`;
+}
+
 function firstSentence(text: string, max = 160): string | undefined {
   const s = text.split(/[\n.!?]/).map((x) => x.trim()).find((x) => x.length > 15);
   if (!s) return undefined;
@@ -246,7 +291,7 @@ function firstSentence(text: string, max = 160): string | undefined {
 function fallbackResponse(message: string, lang: string, products: Product[]): ChatResponse {
   const picks = retrieve(products, message, lang, 3);
   return {
-    reply: FALLBACK_REPLY[lang] || FALLBACK_REPLY.uk,
+    reply: withInstagram(FALLBACK_REPLY[lang] || FALLBACK_REPLY.uk, lang),
     products: picks.map((p) => ({
       id: p.id,
       name: nameOf(p, lang),
@@ -306,21 +351,47 @@ export async function POST(req: NextRequest) {
     products = await loadCatalog();
   } catch (err) {
     console.error("[chat] catalog load failed:", err);
-    return respond({ reply: CATALOG_UNAVAILABLE[lang] || CATALOG_UNAVAILABLE.uk, products: [] });
+    return respond({ reply: withInstagram(CATALOG_UNAVAILABLE[lang] || CATALOG_UNAVAILABLE.uk, lang), products: [] });
   }
 
   const key = env("GROQ_API_KEY");
   if (key) {
     try {
       const candidates = retrieve(products, message, lang, 15);
-      const system = `${SYSTEM_PROMPT}\n\ncontext.products — це відібрані за запитом кандидати (JSON). Обери з них 1-3 найкращі:\n${buildContext(candidates, lang)}`;
+      const brands = Array.from(new Set(products.map((p) => p.brand).filter(Boolean))).join(", ");
+      const system =
+        `${SYSTEM_PROMPT.replace("{{BRANDS}}", brands || "CEF Lab, Smart4Derma")}` +
+        `\n\ncontext.products — це відібрані за запитом кандидати (JSON). Обери з них 1-3 найкращі:\n${buildContext(candidates, lang)}`;
       const messages: { role: string; content: string }[] = [
         { role: "system", content: system },
         ...history.map((h) => ({ role: h.role, content: h.content })),
         { role: "user", content: message },
       ];
       const raw = await callGroq(key, messages);
-      return respond(parseReply(raw, products, lang));
+      const resp = parseReply(raw, products, lang);
+      // guarantee up to 3 cards when the model returned only 1-2
+      if (resp.products.length > 0 && resp.products.length < 3) {
+        const have = new Set(resp.products.map((c) => c.id));
+        for (const c of candidates) {
+          if (resp.products.length >= 3) break;
+          if (have.has(c.id)) continue;
+          have.add(c.id);
+          resp.products.push({
+            id: c.id,
+            name: nameOf(c, lang),
+            brand: c.brand,
+            price: c.price,
+            promo_price: c.promo_price,
+            image: c.image,
+            discount_percent: c.discount_percent,
+            reason:
+              firstSentence(localized(c, lang, "description")) ||
+              `${c.category} · ${c.brand}`,
+          });
+        }
+      }
+      resp.reply = withInstagram(resp.reply, lang);
+      return respond(resp);
     } catch (err) {
       console.error("[chat] Groq call failed, using fallback:", err);
     }

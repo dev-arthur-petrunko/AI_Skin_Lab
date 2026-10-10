@@ -45,8 +45,13 @@ export default function ProductCard({ product, index = 0 }: Props) {
           product.is_on_sale ? "is-sale" : ""
         }`}
       >
+        {product.is_set && (
+          <span className="glass absolute left-3 top-3 z-10 rounded-full border border-[var(--gl)] px-2.5 py-1 text-[11px] font-semibold text-[var(--gold)]">
+            🎁 {t("set_badge")}
+          </span>
+        )}
         {product.is_on_sale && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-[var(--sale)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+          <span className="absolute right-3 top-3 z-10 rounded-full bg-[var(--sale)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
             {t("badge")}
           </span>
         )}
