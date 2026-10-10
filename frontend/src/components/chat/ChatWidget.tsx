@@ -216,13 +216,13 @@ export default function ChatWidget() {
             )}
 
             <a
-              href="https://www.instagram.com/ua_cosmetics_lab/"
+              href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
               target="_blank"
               rel="noopener noreferrer"
               className="block px-4 pb-1 text-center text-[11px] text-[var(--muted)] transition hover:text-[var(--azure)]"
             >
               {t("instagram_hint")}{" "}
-              <span className="font-semibold text-[var(--gold)]">@ua_cosmetics_lab →</span>
+              <span className="font-semibold text-[var(--gold)]">@ai_skin_lab →</span>
             </a>
 
             <form
