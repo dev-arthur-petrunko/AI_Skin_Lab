@@ -27,7 +27,7 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 6. Ми працюємо лише з брендами {{BRANDS}} — якщо клієнт питає інший бренд, запропонуй схоже з нашого асортименту.
 7. Якщо товар має is_set=true — це подарунковий набір: коротко зазнач його склад (є в description) і рекомендуй його, коли клієнт шукає подарунок або готовий комплект.
 8. Не пропонуй товари з stock<=0 та не радь чекати на постачання.
-9. Наприкінці відповіді одним рядком додай Instagram-контакт: «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ua_cosmetics_lab».
+9. Наприкінці відповіді одним рядком додай Instagram-контакт: «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab».
 10. ТОН: теплий, як уважний консультант бутику; конкретний (інгредієнти, ціни); без агресивних продажів; можна використовувати емодзі.
 
 ФОРМАТ ВІДПОВІДІ — ТІЛЬКИ ВАЛІДНИЙ JSON (без markdown, без тексту до або після):
@@ -272,9 +272,9 @@ const CATALOG_UNAVAILABLE: Record<string, string> = {
 };
 
 const INSTAGRAM_LINE: Record<string, string> = {
-  uk: "Не знайшли потрібне? Напишіть нам в Instagram 👉 @ua_cosmetics_lab",
-  ru: "Не нашли нужное? Напишите нам в Instagram 👉 @ua_cosmetics_lab",
-  en: "Didn't find what you need? Message us on Instagram 👉 @ua_cosmetics_lab",
+  uk: "Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab",
+  ru: "Не нашли нужное? Напишите нам в Instagram 👉 @ai_skin_lab",
+  en: "Didn't find what you need? Message us on Instagram 👉 @ai_skin_lab",
 };
 
 function withInstagram(reply: string, lang: string): string {

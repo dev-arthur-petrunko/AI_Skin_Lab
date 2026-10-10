@@ -208,7 +208,7 @@ ChatWidget лежит в root layout (но state всё равно теряет�
   (`.glass` + `--gold`, чтобы не конфликтовать с SALE)
 
 ### Футер/мелочи
-`Footer.tsx` (+ Instagram-блок `@ua_cosmetics_lab` в первой колонке — hardcoded-цвета футера,
+`Footer.tsx` (+ Instagram-блок `@ai_skin_lab` в первой колонке — hardcoded-цвета футера,
 не токены темы!), `CountUp.tsx`, `SaleRail.tsx`, `ThemeProvider.tsx` (localStorage + `data-theme` на `<html>`)
 
 ---
@@ -327,7 +327,7 @@ ChatWidget (state в layout, persist §9)
     → ensureThree(): если модель вернула 1-2 карточки (но не 0) — добивка кандидатами
       (reason = первое предложение описания)
     → withInstagram(): если в reply нет "instagram" — дописывается строка
-      «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ua_cosmetics_lab» (per-lang)
+      «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab» (per-lang)
     → ответ {reply, products[{id,name,brand,price,promo_price,image,discount_percent,reason}]}
   Ответ при ошибке ключа/сети/JSON → fallbackResponse(): локализованная отбивка
   + retrieve(топ-3) + reason = первое предложение описания (или «категория · бренд») + Instagram-строка
@@ -401,7 +401,7 @@ ChatWidget (state в layout, persist §9)
 6. Ми працюємо лише з брендами {{BRANDS}} — якщо клієнт питає інший бренд, запропонуй схоже з нашого асортименту.
 7. Якщо товар має is_set=true — це подарунковий набір: коротко зазнач його склад (є в description) і рекомендуй його, коли клієнт шукає подарунок або готовий комплект.
 8. Не пропонуй товари з stock<=0 та не радь чекати на постачання.
-9. Наприкінці відповіді одним рядком додай Instagram-контакт: «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ua_cosmetics_lab».
+9. Наприкінці відповіді одним рядком додай Instagram-контакт: «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab».
 10. ТОН: теплий, як уважний консультант бутику; конкретний (інгредієнти, ціни); без агресивних продажів; можна використовувати емодзі.
 
 ФОРМАТ ВІДПОВІДІ — ТІЛЬКИ ВАЛІДНИЙ JSON (без markdown, без тексту до або після):
@@ -434,13 +434,14 @@ context.products — це відібрані за запитом кандида�
 - `ensureThree` — если модель вернула 1-2 карточки (но не 0), добивает кандидатами из retrieve
   (reason = первое предложение описания или «категория · бренд»)
 - `withInstagram` — если в reply нет подстроки "instagram", дописывается локализованная строка
-  `INSTAGRAM_LINE` с @ua_cosmetics_lab (работает и для fallback/catalog-down)
+  `INSTAGRAM_LINE` с @ai_skin_lab (работает и для fallback/catalog-down)
 
 Локализованные fallback-тексты (нет ключа / ошибка Groq / битый JSON):
 - uk: «На жаль, AI-сервіс зараз недоступний, але я підібрав варіанти з нашого каталогу під ваш запит 👇 Під кожним — чому саме він підходить. Уточніть тип шкіри та бюджет, і я звужу добірку.» + топ-3 по ретривалу
 - ru/en — эквиваленты; каталог недоступен → «Каталог зараз недоступний… 🙏»
 
-Instagram-ссылки в UI (https://www.instagram.com/ua_cosmetics_lab/):
+Instagram-ссылки в UI (https://www.instagram.com/ai_skin_lab — в href футера и чата полный URL
+с qr-параметрами `?exln=…&utm_source=qr`):
 - футер: блок «Консультація та замовлення» (`footer.instagram_label`) в первой колонке
 - чат: строка над формой ввода (`chat.instagram_hint`)
 

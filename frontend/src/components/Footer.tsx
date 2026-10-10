@@ -25,7 +25,7 @@ export default function Footer() {
           </p>
 
           <a
-            href="https://www.instagram.com/ua_cosmetics_lab/"
+            href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
             target="_blank"
             rel="noopener noreferrer"
             className="tile mt-6 flex items-center gap-3 !p-3 transition hover:border-[var(--gold)]"
@@ -38,7 +38,7 @@ export default function Footer() {
                 {t("instagram_label")}
               </span>
               <span className="block truncate text-sm font-semibold text-[#e3c46a]">
-                @ua_cosmetics_lab →
+                @ai_skin_lab →
               </span>
             </span>
           </a>
