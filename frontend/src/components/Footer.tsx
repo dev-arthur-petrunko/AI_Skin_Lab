@@ -23,6 +23,25 @@ export default function Footer() {
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[rgba(247,240,230,.72)]">
             {t("tagline")}
           </p>
+
+          <a
+            href="https://www.instagram.com/ua_cosmetics_lab/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tile mt-6 flex items-center gap-3 !p-3 transition hover:border-[var(--gold)]"
+          >
+            <span className="text-2xl" aria-hidden>
+              📸
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[11px] uppercase tracking-wider text-[rgba(247,240,230,.6)]">
+                {t("instagram_label")}
+              </span>
+              <span className="block truncate text-sm font-semibold text-[#e3c46a]">
+                @ua_cosmetics_lab →
+              </span>
+            </span>
+          </a>
         </div>
 
         <div>

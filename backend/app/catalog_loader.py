@@ -54,6 +54,17 @@ CATEGORY_KEYWORDS = [
     ("Догляд за тілом", ["тіло", "тіла"]),
 ]
 
+# optional second sheet: one row = one gift set built from existing SKUs
+SETS_SHEET = "sets"
+SET_COLUMN_ALIASES = {
+    "name": ["Назва набору", "Назва", "Name"],
+    "items": ["Склад (артикули через кому)", "Склад", "Артикули", "Items"],
+    "price": ["Ціна набору, грн", "Ціна набору", "Ціна"],
+    "discount": ["Знижка, %", "Знижка"],
+    "image": ["Фото", "Image_Name", "Image"],
+    "description": ["Опис", "Description"],
+}
+
 
 def _find_column(columns: list[str], aliases: list[str]) -> str | None:
     norm_cols = {c.strip().lower(): c for c in columns}
@@ -151,6 +162,95 @@ def _resolve_image(sku: str, image_value: str) -> tuple[str, bool]:
             if (images_dir / candidate).exists():
                 return f"/images/{candidate}", True
     return "/images/placeholder.svg", False
+
+
+def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> list[Product]:
+    """Read the optional "sets" sheet: one row = one gift set of existing SKUs.
+
+    Columns: Назва набору | Склад (артикули через кому) | Ціна набору, грн |
+             Знижка, % | Фото | Опис
+    Missing sheet / bad rows are skipped silently; price falls back to the
+    sum of items, stock = min(stock), image = first item's image.
+    """
+    try:
+        df = pd.read_excel(excel_path, sheet_name=SETS_SHEET, engine="openpyxl").fillna("")
+    except (ValueError, KeyError):  # no "sets" sheet in this workbook
+        return []
+    columns = list(df.columns)
+    col = {key: _find_column(columns, aliases) for key, aliases in SET_COLUMN_ALIASES.items()}
+    if not col["items"]:
+        return []
+
+    out: list[Product] = []
+    for _, row in df.iterrows():
+        items_raw = _clean_text(row.get(col["items"])) if col["items"] else ""
+        skus = [s.strip() for s in re.split(r"[;,]", items_raw) if s.strip()]
+        items = [by_sku[s] for s in skus if s in by_sku]
+        if not items:
+            continue
+
+        set_id = "set-" + "-".join(re.sub(r"[^\w.-]+", "-", s).strip("-") for s in skus)
+        if set_id in {p.id for p in out}:
+            continue
+
+        name = _clean_text(row.get(col["name"])) if col["name"] else ""
+        if not name:
+            name = "Набір " + " + ".join(i.name for i in items[:3])
+
+        total = sum(p.price for p in items)
+        set_price = _to_float(row.get(col["price"])) if col["price"] else 0.0
+        set_price = set_price if 0 < set_price < total else None
+        discount = _to_float(row.get(col["discount"])) if col.get("discount") else 0.0
+        if not set_price and discount:
+            set_price = round(total * (1 - discount / 100), 2)
+        if not discount and set_price:
+            discount = round((1 - set_price / total) * 100, 1)
+        promo_price = set_price if set_price and set_price < total else None
+
+        stock = min(p.stock for p in items)
+        brand = items[0].brand
+        image, has_image = items[0].image, items[0].has_image
+        if col.get("image"):
+            image_value = _clean_text(row.get(col["image"]))
+            if image_value:
+                resolved, ok = _resolve_image(set_id, image_value)
+                if ok:
+                    image, has_image = resolved, True
+
+        desc = _clean_text(row.get(col["description"])) if col.get("description") else ""
+        composition = " + ".join(p.name for p in items)
+        description_uk = f"Подарунковий набір: {composition}." + (f" {desc}" if desc else "")
+
+        tags = _extract_tags(name, description_uk, brand) + ["набір"]
+
+        out.append(
+            Product(
+                id=set_id,
+                sku=set_id,
+                name=name,
+                name_uk=name,
+                name_ru=name,
+                name_en=name,
+                brand=brand,
+                category="Набори",
+                price=total,
+                promo_price=promo_price,
+                discount_percent=discount,
+                stock=stock,
+                volume="",
+                country="",
+                description_uk=description_uk,
+                description_ru=description_uk,
+                description_en=description_uk,
+                image=image,
+                has_image=has_image,
+                is_on_sale=bool(promo_price),
+                tags=tags,
+                is_set=True,
+                set_items=[p.id for p in items],
+            )
+        )
+    return out
 
 
 def load_catalog(auto_translate=False) -> list[Product]:
@@ -257,6 +357,14 @@ def load_catalog(auto_translate=False) -> list[Product]:
                 tags=tags,
             )
         )
+
+    by_sku: dict[str, Product] = {}
+    for p in products:
+        by_sku.setdefault(p.sku, p)
+    sets = load_sets(excel_path, by_sku)
+    if sets:
+        logger.info("Loaded %d gift sets", len(sets))
+        products.extend(sets)
 
     logger.info("Loaded %d products from %s", len(products), excel_path)
     return products

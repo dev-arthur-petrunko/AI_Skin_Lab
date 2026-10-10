@@ -25,6 +25,8 @@ class Product(BaseModel):
     has_image: bool
     is_on_sale: bool
     tags: list[str] = []
+    is_set: bool = False
+    set_items: list[str] = []
 
     def localized_name(self, lang: str) -> str:
         return {"uk": self.name_uk, "ru": self.name_ru, "en": self.name_en}.get(lang, self.name_uk)

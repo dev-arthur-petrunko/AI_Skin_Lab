@@ -20,6 +20,8 @@ export interface Product {
   has_image: boolean;
   is_on_sale: boolean;
   tags: string[];
+  is_set?: boolean;
+  set_items?: string[];
 }
 
 export interface CatalogResponse {

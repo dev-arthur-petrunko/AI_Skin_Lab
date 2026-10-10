@@ -215,6 +215,16 @@ export default function ChatWidget() {
               </div>
             )}
 
+            <a
+              href="https://www.instagram.com/ua_cosmetics_lab/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-4 pb-1 text-center text-[11px] text-[var(--muted)] transition hover:text-[var(--azure)]"
+            >
+              {t("instagram_hint")}{" "}
+              <span className="font-semibold text-[var(--gold)]">@ua_cosmetics_lab →</span>
+            </a>
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();

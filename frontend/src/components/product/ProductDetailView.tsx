@@ -12,9 +12,10 @@ import ProductCard from "@/components/ProductCard";
 interface Props {
   product: ProductType;
   related: ProductType[];
+  setComponents?: ProductType[];
 }
 
-export default function ProductDetailView({ product, related }: Props) {
+export default function ProductDetailView({ product, related, setComponents = [] }: Props) {
   const t = useTranslations("product");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -82,8 +83,13 @@ export default function ProductDetailView({ product, related }: Props) {
           transition={{ duration: 0.6 }}
           className="relative"
         >
+          {product.is_set && (
+            <span className="glass absolute left-4 top-4 z-10 rounded-full border border-[var(--gl)] px-3 py-1.5 text-xs font-semibold text-[var(--gold)]">
+              🎁 {t("set_badge")}
+            </span>
+          )}
           {product.is_on_sale && (
-            <span className="absolute left-4 top-4 z-10 rounded-full bg-[var(--sale)] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+            <span className="absolute right-4 top-4 z-10 rounded-full bg-[var(--sale)] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
               Sale -{Math.floor(product.discount_percent)}%
             </span>
           )}
@@ -151,6 +157,42 @@ export default function ProductDetailView({ product, related }: Props) {
               </span>
             )}
           </div>
+
+          {product.is_set && setComponents.length > 0 && (
+            <div className="mt-7">
+              <h2 className="section-label flex items-center gap-2">
+                <span className="text-[var(--gold)]">●</span>
+                {t("set_contents")}
+              </h2>
+              <ul className="mt-3 space-y-2">
+                {setComponents.map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      href={`/product/${encodeURIComponent(item.id)}`}
+                      className="tile flex items-center gap-3 !p-2 transition hover:border-[var(--azure)]"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image}
+                        alt={localizedField(item, "name", locale)}
+                        loading="lazy"
+                        className="h-12 w-12 shrink-0 object-contain"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
+                        }}
+                      />
+                      <span className="line-clamp-2 flex-1 text-sm">
+                        {localizedField(item, "name", locale)}
+                      </span>
+                      <span className="shrink-0 text-sm font-medium">
+                        {formatPrice(item.promo_price ?? item.price)} {tCommon("currency")}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <dl className="mt-7 grid grid-cols-2 gap-4 border-y border-[var(--gl)] py-5 text-sm">
             {specs.map((s) => (
