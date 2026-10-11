@@ -21,7 +21,9 @@ class Settings(BaseSettings):
     chat_model: str = "gpt-4o-mini"
     auto_translate: bool = False
     allowed_origins: str = "http://localhost:3000,http://localhost:8000"
-    sheet_name: str = "Зручна таблиця"
+    # EUR -> UAH conversion applied to sheets whose price headers are in €
+    # (e.g. the Anubis sheet with "Ціна, €"). 0 disables conversion.
+    eur_rate: float = 48.0
     currency: str = "грн"
     admin_token: str = ""
 

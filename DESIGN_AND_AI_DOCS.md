@@ -218,7 +218,7 @@ ChatWidget лежит в root layout (но state всё равно теряет�
 
 ### Пайплайн
 ```
-data/price.xlsx (sheet «Зручна таблиця» + опц. sheet «sets»)
+data/price.xlsx (все листы-прайсы, merged + опц. лист «sets»)
   → catalog_loader.load_catalog()   [pandas + openpyxl]
   → Product[] (Pydantic, in-memory)
   → CatalogStore (RLock) + on_reload коллбэки:
@@ -238,10 +238,18 @@ data/price.xlsx (sheet «Зручна таблиця» + опц. sheet «sets»)
 `Знижка, %`, `Залишок, шт`, `Об'єм`, `Країна-виробник`, `Короткий опис (ноти)|Опис`,
 `Фото|Image_Name|Image`, опционально `Назва (ru)/(en)`, `Категорія`, `Опис (uk/ru/en)`.
 
+**Мультисheet + валюта (с 2026-10):** лоадер читает **все листы книги**, кроме листа `sets`
+(регистронезависимо), и мержит их в один каталог. Лист без колонок Артикул/Назва пропускается.
+Текущая структура `price.xlsx`:
+- `Smart4derma, Anna Logon, Cif La` — цены в грн (колонки `Ціна, грн`)
+- `Anubis` — цены в **€** (колонки `Ціна, €`) → конвертируются в грн по `settings.eur_rate`
+  (env `EUR_RATE`, default 48, 0 = отключить); тovарам добавляется тег `eur`
+- `sets` — подарочные наборы (см. ниже)
+
 - Категория: из колонки `Категорія`, иначе `_guess_category()` по ключевым словам названия+описания
   (крем/сироватка/обличч/тіло/парфум…), иначе `Інше`
 - Цены: promo берётся если `< price`; скидка = `(1-promo/price)*100` если не указана
-- Дубликаты SKU → id с суффиксом `-2`, `-3`…
+- Дубликаты SKU (в т.ч. между листами) → id с суффиксом `-2`, `-3`…
 - Изображение: `_resolve_image(sku, image_value)` ищет файл в `data/images/` по кандидатам
   (значение ячейки, sku, sku.zfill(3)) × расширения ("" | .jpg | .jpeg | .png | .webp);
   не найдено → `/images/placeholder.svg`, `has_image=false`
@@ -472,6 +480,7 @@ GROQ_API_KEY=gsk_...        # frontend (обязателен для AI-чата)
 GROQ_MODEL=                 # опциональный override списка моделей
 OPENAI_API_KEY=, OPENAI_BASE_URL=, CHAT_MODEL=, EMBEDDING_MODEL=  # backend (ai_assistant)
 ADMIN_TOKEN=                # без него /admin/* → 404
+EUR_RATE=48                 # курс €→₴ для листов с колонками «Ціна, €» (Anubis); 0 = off
 ```
 **docker-compose:** backend — `EXCEL_PATH=/app/data/price.xlsx`, `IMAGES_DIR=/app/data/images`,
 volume `./data:/app/data`, healthcheck `/api/health` (15с);

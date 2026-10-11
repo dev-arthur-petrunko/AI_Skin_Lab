@@ -14,6 +14,8 @@ services:
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
       AUTO_TRANSLATE: ${AUTO_TRANSLATE:-0}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost}
+      # EUR -> UAH rate for price sheets denominated in € (e.g. Anubis)
+      EUR_RATE: ${EUR_RATE:-48}
     volumes:
       # live-mounted Excel file and images: edits on the host are picked up
       # by watchdog without restarting the container

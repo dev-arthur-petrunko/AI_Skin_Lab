@@ -32,8 +32,8 @@ COLUMN_ALIASES = {
     "name_en": ["Назва (en)", "Назва_EN", "Name_EN"],
     "brand": ["Бренд", "Brand"],
     "category": ["Категорія", "Category", "Тип"],
-    "price": ["Ціна, грн", "Ціна", "Price"],
-    "promo_price": ["Промо ціна, грн", "Промо ціна", "Promo Price"],
+    "price": ["Ціна, грн", "Ціна", "Price", "Ціна, €", "Ціна (€)", "Price, EUR"],
+    "promo_price": ["Промо ціна, грн", "Промо ціна", "Promo Price", "Промо ціна, €", "Промо ціна (€)"],
     "discount_percent": ["Знижка, %", "Знижка", "Discount"],
     "stock": ["Залишок, шт", "Залишок", "Stock"],
     "volume": ["Об'єм", "Обʼєм", "Volume"],
@@ -182,8 +182,12 @@ def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> tuple[list[Produc
     Missing sheet / bad rows are skipped silently.
     """
     try:
-        df = pd.read_excel(excel_path, sheet_name=SETS_SHEET, engine="openpyxl").fillna("")
-    except (ValueError, KeyError):  # no "sets" sheet in this workbook
+        xl = pd.ExcelFile(excel_path, engine="openpyxl")
+        sheet = next((s for s in xl.sheet_names if s.strip().lower() == SETS_SHEET), None)
+        if sheet is None:
+            return [], set()
+        df = xl.parse(sheet).fillna("")
+    except Exception:  # noqa: BLE001 — no workbook / unreadable sheet
         return [], set()
     columns = list(df.columns)
     col = {key: _find_column(columns, aliases) for key, aliases in SET_COLUMN_ALIASES.items()}
@@ -271,36 +275,14 @@ def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> tuple[list[Produc
     return out, set()
 
 
-def load_catalog(auto_translate=False) -> list[Product]:
-    """Parse the Excel workbook into a list of validated Product models."""
-    if auto_translate:
-        try:
-            from scripts.translator import translate_catalog as _translate
-        except ImportError:  # pragma: no cover
-            logger.warning("Translator unavailable, skipping auto-translate")
-        else:
-            try:
-                _translate(products=load_catalog())
-            except Exception:  # noqa: BLE001
-                logger.exception("Auto-translate failed")
-
-    excel_path = Path(settings.excel_path)
-    if not excel_path.exists():
-        logger.warning("Excel file not found at %s", excel_path)
-        return []
-
-    try:
-        df = pd.read_excel(excel_path, sheet_name=settings.sheet_name, engine="openpyxl")
-    except ValueError:
-        # fallback to first sheet if configured sheet name is missing
-        df = pd.read_excel(excel_path, sheet_name=0, engine="openpyxl")
-
-    columns = list(df.columns)
-    col = {key: _find_column(columns, aliases) for key, aliases in COLUMN_ALIASES.items()}
-
+def _parse_products(
+    df: pd.DataFrame,
+    col: dict[str, str | None],
+    seen_ids: set[str],
+    price_rate: float = 1.0,
+) -> list[Product]:
+    """Convert one product sheet into Product models (price_rate scales € -> ₴)."""
     products: list[Product] = []
-    seen_ids: set[str] = set()
-
     for _, row in df.iterrows():
         sku_raw = row.get(col["sku"]) if col["sku"] else None
         if sku_raw is None or (isinstance(sku_raw, float) and math.isnan(sku_raw)):
@@ -326,8 +308,8 @@ def load_catalog(auto_translate=False) -> list[Product]:
         if not category:
             category = _guess_category(name, description_uk)
 
-        price = _to_float(row.get(col["price"])) if col["price"] else 0.0
-        promo_raw = _to_float(row.get(col["promo_price"])) if col["promo_price"] else 0.0
+        price = round(_to_float(row.get(col["price"])) * price_rate, 2) if col["price"] else 0.0
+        promo_raw = round(_to_float(row.get(col["promo_price"])) * price_rate, 2) if col["promo_price"] else 0.0
         promo_price = promo_raw if promo_raw and promo_raw < price else None
 
         discount_percent = _to_float(row.get(col["discount_percent"])) if col.get("discount_percent") else 0.0
@@ -349,6 +331,8 @@ def load_catalog(auto_translate=False) -> list[Product]:
         seen_ids.add(product_id)
 
         tags = _extract_tags(name, description_uk, brand)
+        if price_rate != 1.0:
+            tags.append("eur")
 
         products.append(
             Product(
@@ -375,6 +359,61 @@ def load_catalog(auto_translate=False) -> list[Product]:
                 tags=tags,
             )
         )
+    return products
+
+
+def load_catalog(auto_translate=False) -> list[Product]:
+    """Parse the Excel workbook into a list of validated Product models.
+
+    Every sheet except "sets" (case-insensitive) is treated as a product sheet
+    and must contain Артикул + Назва columns; sheets are merged into one
+    catalog. Sheets whose price headers are denominated in € (e.g. "Ціна, €")
+    are converted to UAH with settings.eur_rate.
+    """
+    if auto_translate:
+        try:
+            from scripts.translator import translate_catalog as _translate
+        except ImportError:  # pragma: no cover
+            logger.warning("Translator unavailable, skipping auto-translate")
+        else:
+            try:
+                _translate(products=load_catalog())
+            except Exception:  # noqa: BLE001
+                logger.exception("Auto-translate failed")
+
+    excel_path = Path(settings.excel_path)
+    if not excel_path.exists():
+        logger.warning("Excel file not found at %s", excel_path)
+        return []
+
+    try:
+        xl = pd.ExcelFile(excel_path, engine="openpyxl")
+    except Exception:  # noqa: BLE001
+        logger.exception("Cannot open workbook %s", excel_path)
+        return []
+
+    product_sheets = [s for s in xl.sheet_names if s.strip().lower() != SETS_SHEET]
+    products: list[Product] = []
+    seen_ids: set[str] = set()
+
+    for sheet in product_sheets:
+        df = xl.parse(sheet).fillna("")
+        columns = list(df.columns)
+        col = {key: _find_column(columns, aliases) for key, aliases in COLUMN_ALIASES.items()}
+        if not col["sku"] or not col["name"]:
+            logger.info("Skipping sheet %r — no sku/name columns", sheet)
+            continue
+        price_header = str(col["price"] or "")
+        is_eur = "€" in price_header or "eur" in price_header.lower()
+        rate = settings.eur_rate if (is_eur and settings.eur_rate > 0) else 1.0
+        sheet_products = _parse_products(df, col, seen_ids, rate)
+        logger.info(
+            "Sheet %r: %d products%s",
+            sheet,
+            len(sheet_products),
+            f" (EUR x{rate:g})" if rate != 1.0 else "",
+        )
+        products.extend(sheet_products)
 
     by_sku: dict[str, Product] = {}
     for p in products:
