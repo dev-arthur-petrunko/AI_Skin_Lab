@@ -149,6 +149,14 @@ body {
   }
   .btn-ghost:hover { border-color: var(--azure); }
 
+  .btn-secondary {
+    color: var(--noir);
+    background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 50%, #0284c7 100%);
+    box-shadow: 0 10px 30px rgba(14, 165, 233, .35);
+  }
+  .btn-secondary:hover { box-shadow: 0 14px 44px rgba(14, 165, 233, .55); }
+  .btn-secondary:disabled { opacity: .5; cursor: not-allowed; }
+
   .chip-f {
     @apply inline-flex items-center rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 border;
     border-color: rgba(58, 42, 30, .18);

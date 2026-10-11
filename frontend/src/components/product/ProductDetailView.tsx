@@ -8,6 +8,8 @@ import { formatPrice } from "@/lib/format";
 import { cutoutSrc } from "@/lib/cutouts";
 import { localizedField, type Product as ProductType } from "@/lib/types";
 import ProductCard from "@/components/ProductCard";
+import TelegramOrderModal from "@/components/TelegramOrderModal";
+import { MessageSquare, Link as LinkIcon } from "lucide-react";
 
 interface Props {
   product: ProductType;
@@ -25,6 +27,7 @@ export default function ProductDetailView({ product, related, setComponents = []
   const price = product.promo_price ?? product.price;
 
   const [hasCutout, setHasCutout] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   useEffect(() => {
     const img = new Image();
     img.onload = () => setHasCutout(true);
@@ -305,6 +308,15 @@ export default function ProductDetailView({ product, related, setComponents = []
             </button>
             <button
               type="button"
+              className="btn btn-secondary flex-1 sm:flex-none"
+              onClick={() => setShowOrderModal(true)}
+              disabled={product.stock === 0}
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Замовити в Telegram
+            </button>
+            <button
+              type="button"
               className="btn btn-ghost flex-1 sm:flex-none"
               onClick={() =>
                 window.dispatchEvent(
@@ -316,6 +328,15 @@ export default function ProductDetailView({ product, related, setComponents = []
             >
               {t("ask_ai")}
             </button>
+            <a
+              href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-2"
+            >
+              <LinkIcon className="w-4 h-4" />
+              Instagram
+            </a>
           </div>
         </motion.div>
       </div>
@@ -330,6 +351,19 @@ export default function ProductDetailView({ product, related, setComponents = []
           </div>
         </section>
       )}
+
+      <TelegramOrderModal
+        isOpen={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        product={{
+          id: product.id,
+          name: name,
+          sku: product.sku,
+          price: product.promo_price ?? product.price,
+          promo_price: product.promo_price,
+          brand: product.brand,
+        }}
+      />
     </div>
   );
 }

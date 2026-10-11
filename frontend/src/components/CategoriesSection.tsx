@@ -11,14 +11,58 @@ export type CategoryTileData = {
   count: number;
   image: string;
   isCutout: boolean;
+  href?: string; // optional custom href for custom categories
 };
 
 interface Props {
   categories: CategoryTileData[];
+  customCategories?: CategoryTileData[]; // additional curated categories
 }
 
-export default function CategoriesSection({ categories }: Props) {
+export default function CategoriesSection({ categories, customCategories = [] }: Props) {
   const t = useTranslations("categories");
+
+  // Custom curated categories for "Оберіть напрям"
+  const placeholderImages = [
+    "/images/002.png",
+    "/images/003.png",
+    "/images/005.png",
+    "/images/1201.png",
+  ];
+
+  const generatedCustomCategories: CategoryTileData[] = [
+    {
+      name: t("custom.gifts"),
+      count: 0,
+      image: placeholderImages[0],
+      isCutout: false,
+      href: "/catalog?sets=1",
+    },
+    {
+      name: t("custom.new"),
+      count: 0,
+      image: placeholderImages[1],
+      isCutout: false,
+      href: "/catalog?sort=new",
+    },
+    {
+      name: t("custom.bestsellers"),
+      count: 0,
+      image: placeholderImages[2],
+      isCutout: false,
+      href: "/catalog?sort=popular",
+    },
+    {
+      name: t("custom.sensitive"),
+      count: 0,
+      image: placeholderImages[3],
+      isCutout: false,
+      href: "/catalog?q=чутлив",
+    },
+  ];
+
+  // Combine auto-generated with custom categories
+  const allCategories = [...categories, ...generatedCustomCategories, ...customCategories];
 
   return (
     <section className="container-page mt-14 sm:mt-20">
@@ -37,7 +81,7 @@ export default function CategoriesSection({ categories }: Props) {
       </motion.div>
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {categories.map((cat, i) => (
+        {allCategories.map((cat, i) => (
           <CategoryTile key={cat.name} cat={cat} index={i} />
         ))}
       </div>
@@ -66,6 +110,9 @@ function CategoryTile({ cat, index }: { cat: CategoryTileData; index: number }) 
     e.currentTarget.style.transform = "rotateX(0deg) rotateY(0deg)";
   };
 
+  // Use custom href for custom categories, otherwise search by category name
+  const href = cat.href ?? `/catalog?q=${encodeURIComponent(cat.name)}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 26 }}
@@ -75,7 +122,7 @@ function CategoryTile({ cat, index }: { cat: CategoryTileData; index: number }) 
       style={{ perspective: "900px", ...tileStyle }}
     >
       <Link
-        href={`/catalog?q=${encodeURIComponent(cat.name)}`}
+        href={href}
         onMouseMove={handleMove}
         onMouseLeave={reset}
         className="cat-tile group relative flex h-full min-h-[190px] flex-col justify-between overflow-hidden rounded-[28px] p-5 sm:min-h-[230px] sm:p-6"
