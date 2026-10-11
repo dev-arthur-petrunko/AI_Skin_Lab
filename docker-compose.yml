@@ -16,6 +16,9 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost}
       # EUR -> UAH rate for price sheets denominated in € (e.g. Anubis)
       EUR_RATE: ${EUR_RATE:-48}
+      # Telegram bot for orders
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
     volumes:
       # live-mounted Excel file and images: edits on the host are picked up
       # by watchdog without restarting the container
@@ -39,6 +42,7 @@ services:
       BACKEND_URL: http://backend:8000
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_MODEL: ${GROQ_MODEL:-}
+      NEXT_PUBLIC_INSTAGRAM_URL: ${NEXT_PUBLIC_INSTAGRAM_URL:-}
     depends_on:
       backend:
         condition: service_healthy

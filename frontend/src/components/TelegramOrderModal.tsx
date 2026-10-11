@@ -33,9 +33,7 @@ interface Props {
   onAddProduct?: () => void;
 }
 
-const BOT_TOKEN = "REDACTED_BOT_TOKEN";
-const CHAT_ID = "480749021";
-const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+const ORDERS_API = "/api/orders";
 
 export default function TelegramOrderModal({ isOpen, onClose, initialProduct, onAddProduct }: Props) {
   const t = useTranslations("order");
@@ -104,8 +102,8 @@ export default function TelegramOrderModal({ isOpen, onClose, initialProduct, on
     const itemsCount = getCartCount();
 
     const itemsMessage = cart.map(item => 
-      `📦 <b>${item.name}</b>\n🏷 Артикул: ${item.sku}\n💰 ${item.price} грн × ${item.quantity} = ${item.price * item.quantity} грн`
-    ).join("\n\n");
+      `${item.name} (${item.sku}) × ${item.quantity} = ${item.price * item.quantity} грн`
+    ).join("\n");
 
     const message = `
 🛒 <b>Нове замовлення з AI Skin Lab</b>
@@ -120,17 +118,22 @@ ${itemsMessage}
     `.trim();
 
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(ORDERS_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: message,
-          parse_mode: "HTML",
+          items: cart.map(item => ({ id: item.id, qty: item.quantity })),
+          name: formData.name,
+          phone: formData.phone,
+          comment: formData.comment,
+          locale: "uk",
         }),
       });
 
-      if (!res.ok) throw new Error("Telegram API error");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Telegram API error");
+      }
       setStep("success");
       clearCart();
     } catch {

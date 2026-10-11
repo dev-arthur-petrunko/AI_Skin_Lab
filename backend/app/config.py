@@ -26,5 +26,7 @@ class Settings(BaseSettings):
     eur_rate: float = 48.0
     currency: str = "грн"
     admin_token: str = ""
+    telegram_bot_token: str = ""
+    telegram_chat_ids: list[str] = []
 
 settings = Settings()

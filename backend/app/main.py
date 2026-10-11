@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import settings
 from .ai_assistant import vector_index
 from .cutouts import cutout_name, cutouts_dir, schedule_generate
-from .routers import catalog, chat
+from .routers import catalog, chat, orders
 from .store import catalog_store, start_watcher, stop_watcher
 import sys
 from pathlib import Path
@@ -59,6 +59,7 @@ app.add_middleware(
 
 app.include_router(catalog.router)
 app.include_router(chat.router)
+app.include_router(orders.router)
 
 Path(settings.images_dir).mkdir(parents=True, exist_ok=True)
 app.mount("/images", StaticFiles(directory=settings.images_dir), name="images")
