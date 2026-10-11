@@ -103,6 +103,12 @@ export default function ProductCard({ product, index = 0 }: Props) {
               </span>
             )}
           </div>
+          <Link
+            href={`/product/${encodeURIComponent(product.id)}?order=1`}
+            className="btn btn-secondary w-full text-center py-2 text-xs sm:text-sm"
+          >
+            Замовити в Telegram
+          </Link>
         </div>
       </Link>
     </motion.div>

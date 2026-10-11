@@ -15,9 +15,11 @@ interface Props {
   product: ProductType;
   related: ProductType[];
   setComponents?: ProductType[];
+  initialOpenOrder?: boolean;
+  onCloseOrder?: () => void;
 }
 
-export default function ProductDetailView({ product, related, setComponents = [] }: Props) {
+export default function ProductDetailView({ product, related, setComponents = [], initialOpenOrder = false, onCloseOrder }: Props) {
   const t = useTranslations("product");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -27,7 +29,7 @@ export default function ProductDetailView({ product, related, setComponents = []
   const price = product.promo_price ?? product.price;
 
   const [hasCutout, setHasCutout] = useState(false);
-  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(initialOpenOrder);
   useEffect(() => {
     const img = new Image();
     img.onload = () => setHasCutout(true);
@@ -302,18 +304,9 @@ export default function ProductDetailView({ product, related, setComponents = []
               type="button"
               className="btn btn-primary flex-1 sm:flex-none"
               disabled={product.stock === 0}
-              onClick={() => window.dispatchEvent(new CustomEvent("ai:open"))}
+              onClick={() => setShowOrderModal(true)}
             >
               {product.stock > 0 ? t("buy") : t("out_of_stock")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary flex-1 sm:flex-none"
-              onClick={() => setShowOrderModal(true)}
-              disabled={product.stock === 0}
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Замовити в Telegram
             </button>
             <button
               type="button"
@@ -354,15 +347,17 @@ export default function ProductDetailView({ product, related, setComponents = []
 
       <TelegramOrderModal
         isOpen={showOrderModal}
-        onClose={() => setShowOrderModal(false)}
-        product={{
+        onClose={() => { setShowOrderModal(false); onCloseOrder?.(); }}
+        initialProduct={{
           id: product.id,
           name: name,
           sku: product.sku,
           price: product.promo_price ?? product.price,
           promo_price: product.promo_price,
           brand: product.brand,
+          image: product.image,
         }}
+        onAddProduct={() => window.dispatchEvent(new CustomEvent("order:add-product"))}
       />
     </div>
   );

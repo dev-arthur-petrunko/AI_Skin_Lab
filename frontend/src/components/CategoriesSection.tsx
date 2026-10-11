@@ -28,6 +28,10 @@ export default function CategoriesSection({ categories, customCategories = [] }:
     "/images/003.png",
     "/images/005.png",
     "/images/1201.png",
+    "/images/1202.png",
+    "/images/1203.png",
+    "/images/1401.png",
+    "/images/1402.png",
   ];
 
   const generatedCustomCategories: CategoryTileData[] = [
@@ -58,6 +62,34 @@ export default function CategoriesSection({ categories, customCategories = [] }:
       image: placeholderImages[3],
       isCutout: false,
       href: "/catalog?q=чутлив",
+    },
+    {
+      name: t("custom.oily"),
+      count: 0,
+      image: placeholderImages[4],
+      isCutout: false,
+      href: "/catalog?q=жирна+шкіра",
+    },
+    {
+      name: t("custom.acne"),
+      count: 0,
+      image: placeholderImages[5],
+      isCutout: false,
+      href: "/catalog?q=акне",
+    },
+    {
+      name: t("custom.dry"),
+      count: 0,
+      image: placeholderImages[6],
+      isCutout: false,
+      href: "/catalog?q=суха+шкіра",
+    },
+    {
+      name: t("custom.antiage"),
+      count: 0,
+      image: placeholderImages[7],
+      isCutout: false,
+      href: "/catalog?q=антивіковий",
     },
   ];
 
