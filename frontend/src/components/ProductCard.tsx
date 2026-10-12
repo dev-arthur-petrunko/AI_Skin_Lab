@@ -1,11 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
-import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/lib/format";
 import { cutoutSrc } from "@/lib/cutouts";
 import { localizedField, type Product } from "@/lib/types";
+import { useCart } from "@/providers/CartProvider";
+import { useOrderModal } from "@/providers/OrderModalProvider";
+import { ShoppingCart, MessageSquare } from "lucide-react";
 
 interface Props {
   product: Product;
@@ -16,6 +17,8 @@ export default function ProductCard({ product, index = 0 }: Props) {
   const t = useTranslations("card");
   const tCommon = useTranslations("common");
   const locale = useLocale();
+  const { add } = useCart();
+  const { open } = useOrderModal();
 
   const name = localizedField(product, "name", locale);
   const price = product.promo_price ?? product.price;
@@ -29,18 +32,27 @@ export default function ProductCard({ product, index = 0 }: Props) {
     el.style.setProperty("--gy", `${y}px`);
   };
 
+  const handleOrderClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    add({
+      id: product.id,
+      name: localizedField(product, "name", locale),
+      sku: product.sku,
+      price: product.promo_price ?? product.price,
+      promo_price: product.promo_price,
+      brand: product.brand,
+      image: product.image,
+    }, 1);
+    open(product);
+  };
+
+  const productUrl = `/product/${encodeURIComponent(product.id)}`;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.4), ease: "easeOut" }}
-      whileHover={{ y: -6 }}
-      className="h-full"
-      onMouseMove={handleMove}
-    >
-      <Link
-        href={`/product/${encodeURIComponent(product.id)}`}
+    <div className="h-full" onMouseMove={handleMove}>
+      <a
+        href={productUrl}
         className={`tile pearl-edge group relative flex h-full flex-col overflow-hidden !p-0 ${
           product.is_on_sale ? "is-sale" : ""
         }`}
@@ -103,14 +115,37 @@ export default function ProductCard({ product, index = 0 }: Props) {
               </span>
             )}
           </div>
-          <Link
-            href={`/product/${encodeURIComponent(product.id)}?order=1`}
-            className="btn btn-secondary w-full text-center py-2 text-xs sm:text-sm"
-          >
-            Замовити в Telegram
-          </Link>
         </div>
-      </Link>
-    </motion.div>
+      </a>
+
+      <div className="flex flex-col gap-2 px-4 pb-4">
+        <button
+          type="button"
+          className="btn btn-primary w-full text-center py-2 text-xs sm:text-sm"
+          onClick={handleOrderClick}
+          disabled={product.stock === 0}
+        >
+          {product.stock > 0 ? t("buy") : t("out_of_stock")}
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary w-full text-center py-2 text-xs sm:text-sm"
+          onClick={handleOrderClick}
+          disabled={product.stock === 0}
+        >
+          <ShoppingCart className="w-4 h-4 mr-2" />
+          Замовити в Telegram
+        </button>
+        <a
+          href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-ghost w-full text-center py-2 text-xs sm:text-sm flex items-center justify-center gap-2"
+        >
+          <MessageSquare className="w-4 h-4" />
+          Instagram
+        </a>
+      </div>
+    </div>
   );
 }

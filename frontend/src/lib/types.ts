@@ -22,6 +22,7 @@ export interface Product {
   tags: string[];
   is_set?: boolean;
   set_items?: string[];
+  qty?: number;
 }
 
 export interface CatalogResponse {

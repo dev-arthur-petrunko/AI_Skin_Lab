@@ -1,0 +1,598 @@
+SKU: A16080200
+  Name: Аква мус потрійної дії з алое вера / Excellence Aqua Mousse 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Aqua Mousse – Аква мус потрійної дії з алое вера ✨
+
+💧 Ніжна мусова текстура делікатно видаляє макіяж, глибоко очищає та тонізує шкіру, даруючи їй свіжість і комфорт. Завдяки бетаїну, соку
+
+SKU: А16060300
+  Name: Гідруючий пілінг / Excellence Hydra Peel 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Hydra Peel – Гідруючий пілінг ✨
+
+💧 Інноваційна формула для делікатного, але ефективного оновлення шкіри. Поєднання целюлози, корунду, Peelmoist®, вітаміну В5, сечовини та амінокислот (про
+
+SKU: A16010060
+  Name: Омолоджуючий крем «Q10 Ретинол» / Excellence Q10-Retinol Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Q10-Retinol Cream – Омолоджуючий крем «Q10 Ретинол» ✨
+
+💧 Легка та ніжна текстура крему дарує шкірі відновлення молодості та сяйво. Формула з убіхіноном-Q10, ретинолом, стабільним вітаміно
+
+SKU: A21070060
+  Name: Крем «Морська есенція» з олігоелементами / Excellence Marine Essence Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Marine Essence Cream – Крем «Морська есенція» з олігоелементами ✨
+
+🌊 Це справжнє море в баночці – потужний комплекс для ліфтингу, зволоження та зміцнення шкіри. Формула з екстрактом планк
+
+SKU: A21070200
+  Name: Крем «Морська есенція» з олігоелементами / Excellence Marine Essence Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Marine Essence Cream – Крем «Морська есенція» з олігоелементами ✨
+
+🌊 Це справжнє море в баночці – потужний комплекс для ліфтингу, зволоження та зміцнення шкіри. Формула з екстрактом планк
+
+SKU: A20020000
+  Name: Набір для повік (крем 20ml, маска 20ml) / Excellence Eye Contour Pack 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Eye Contour Pack – Набір для повік (крем + маска) ✨
+
+💧 Комплексний догляд для ніжної зони навколо очей, що поєднує контур-крем з ефектом ботокса та гелеподібну маску з ліфтинг-ефектом.
+
+🌿
+
+SKU: A18050060
+  Name: Ліфтинг крем з DMAE / Sublime D-Lift DMAE Lift Cream   
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift DMAE Lift Cream – Ліфтинг-крем з DMAE ✨
+
+⏳ Час іде вперед, але твоя шкіра може залишатися молодою! Лінія Sublime D-LIFT кидає виклик законам гравітації та повертає біологічний годинни
+
+SKU: А18060060
+  Name: Нічний ліфтинг крем з Ретинолом та Dmae / Sublime D-Lift Retinol Rest-Up Night cream  
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift Retinol Rest-Up Night Cream – Нічний ліфтинг-крем з ретинолом та DMAE ✨
+
+🌙 Ідеальний союзник у боротьбі з ознаками старіння. Формула з високою концентрацією активних інгредієнтів прац
+
+SKU: A18070015
+  Name: Ліфтинг крем навколо очей з Ретиналь та Dmae / Sublime D-Lift Lift-Up Eye Contour  
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift Lift-Up Eye Contour – Ліфтинг-крем з Retinal та DMAE ✨
+
+👁 Інноваційна формула для боротьби зі старінням у найделікатнішій зоні – навколо очей. Крем забезпечує виражений ліфтинг-ефект,
+
+SKU: A18040030
+  Name: Ліфтинг концентрат з DMAE 2,5% / Sublime D-Lift DMAE Lift Serum 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift DMAE Lift Serum – Ліфтинг-концентрат з DMAE 2,5% ✨
+
+⏳ Час іде вперед, але твоя шкіра може залишатися молодою! Лінія Sublime D-LIFT кидає виклик законам гравітації та повертає біологіч
+
+SKU: A25060060
+  Name: Ліфтінг-крем з пептидами / Effectivity Tenso Gold 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Effectivity Tenso Gold – Ліфтинг-крем з пептидами ✨
+
+💎 Секрет молодості з ефектом BOTOKS без ін’єкцій! Формула на основі трьох потужних пептидів – Argireline®, Matrixyl®, Antarcticine® – у поєднанні
+
+SKU: A25080050
+  Name: Маска подвійної дії «Золоте світіння» / Effectivity Gold Mask 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Effectivity Gold Mask – Маска подвійної дії «Золоте світіння» ✨
+
+💎 Інтенсивна антивікова маска з ефектом ліфтингу та відновлення. Потужна комбінація активних інгредієнтів – каолін, екстракт рису, ек
+
+SKU: A26010060
+  Name: Підтягуючий крем з екстрактом ікри та пудрою перлин SPF 15 / Effectivity Caviar & Pearl 
+Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Effectivity Caviar & Pearl Cream – Підтягуючий крем з екстрактом ікри та пудрою перлин SPF 15 ✨
+
+👑 Це справжній королівський ритуал догляду за шкірою. Вишукана текстура та аромат у поєднанні з цінни
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: A16080200
+  Name: Аква мус потрійної дії з алое вера / Excellence Aqua Mousse 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Aqua Mousse – Аква мус потрійної дії з алое вера ✨
+
+💧 Ніжна мусова текстура делікатно видаляє макіяж, глибоко очищає та тонізує шкіру, даруючи їй свіжість і комфорт. Завдяки бетаїну, соку
+
+SKU: А16060300
+  Name: Гідруючий пілінг / Excellence Hydra Peel 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Hydra Peel – Гідруючий пілінг ✨
+
+💧 Інноваційна формула для делікатного, але ефективного оновлення шкіри. Поєднання целюлози, корунду, Peelmoist®, вітаміну В5, сечовини та амінокислот (про
+
+SKU: A16010060
+  Name: Омолоджуючий крем «Q10 Ретинол» / Excellence Q10-Retinol Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Q10-Retinol Cream – Омолоджуючий крем «Q10 Ретинол» ✨
+
+💧 Легка та ніжна текстура крему дарує шкірі відновлення молодості та сяйво. Формула з убіхіноном-Q10, ретинолом, стабільним вітаміно
+
+SKU: A21070060
+  Name: Крем «Морська есенція» з олігоелементами / Excellence Marine Essence Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Marine Essence Cream – Крем «Морська есенція» з олігоелементами ✨
+
+🌊 Це справжнє море в баночці – потужний комплекс для ліфтингу, зволоження та зміцнення шкіри. Формула з екстрактом планк
+
+SKU: A21070200
+  Name: Крем «Морська есенція» з олігоелементами / Excellence Marine Essence Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Marine Essence Cream – Крем «Морська есенція» з олігоелементами ✨
+
+🌊 Це справжнє море в баночці – потужний комплекс для ліфтингу, зволоження та зміцнення шкіри. Формула з екстрактом планк
+
+SKU: A20020000
+  Name: Набір для повік (крем 20ml, маска 20ml) / Excellence Eye Contour Pack 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Excellence Eye Contour Pack – Набір для повік (крем + маска) ✨
+
+💧 Комплексний догляд для ніжної зони навколо очей, що поєднує контур-крем з ефектом ботокса та гелеподібну маску з ліфтинг-ефектом.
+
+🌿
+
+SKU: A18050060
+  Name: Ліфтинг крем з DMAE / Sublime D-Lift DMAE Lift Cream   
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift DMAE Lift Cream – Ліфтинг-крем з DMAE ✨
+
+⏳ Час іде вперед, але твоя шкіра може залишатися молодою! Лінія Sublime D-LIFT кидає виклик законам гравітації та повертає біологічний годинни
+
+SKU: А18060060
+  Name: Нічний ліфтинг крем з Ретинолом та Dmae / Sublime D-Lift Retinol Rest-Up Night cream  
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift Retinol Rest-Up Night Cream – Нічний ліфтинг-крем з ретинолом та DMAE ✨
+
+🌙 Ідеальний союзник у боротьбі з ознаками старіння. Формула з високою концентрацією активних інгредієнтів прац
+
+SKU: A18070015
+  Name: Ліфтинг крем навколо очей з Ретиналь та Dmae / Sublime D-Lift Lift-Up Eye Contour  
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift Lift-Up Eye Contour – Ліфтинг-крем з Retinal та DMAE ✨
+
+👁 Інноваційна формула для боротьби зі старінням у найделікатнішій зоні – навколо очей. Крем забезпечує виражений ліфтинг-ефект,
+
+SKU: A18040030
+  Name: Ліфтинг концентрат з DMAE 2,5% / Sublime D-Lift DMAE Lift Serum 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Sublime D-Lift DMAE Lift Serum – Ліфтинг-концентрат з DMAE 2,5% ✨
+
+⏳ Час іде вперед, але твоя шкіра може залишатися молодою! Лінія Sublime D-LIFT кидає виклик законам гравітації та повертає біологіч
+
+SKU: A25060060
+  Name: Ліфтінг-крем з пептидами / Effectivity Tenso Gold 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Effectivity Tenso Gold – Ліфтинг-крем з пептидами ✨
+
+💎 Секрет молодості з ефектом BOTOKS без ін’єкцій! Формула на основі трьох потужних пептидів – Argireline®, Matrixyl®, Antarcticine® – у поєднанні
+
+SKU: A25080050
+  Name: Маска подвійної дії «Золоте світіння» / Effectivity Gold Mask 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Effectivity Gold Mask – Маска подвійної дії «Золоте світіння» ✨
+
+💎 Інтенсивна антивікова маска з ефектом ліфтингу та відновлення. Потужна комбінація активних інгредієнтів – каолін, екстракт рису, ек
+
+SKU: A26010060
+  Name: Підтягуючий крем з екстрактом ікри та пудрою перлин SPF 15 / Effectivity Caviar & Pearl 
+Cream 
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: ✨ Effectivity Caviar & Pearl Cream – Підтягуючий крем з екстрактом ікри та пудрою перлин SPF 15 ✨
+
+👑 Це справжній королівський ритуал догляду за шкірою. Вишукана текстура та аромат у поєднанні з цінни
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
+SKU: None
+  Name: None
+  Type: None (empty: True)
+  Purpose: None (empty: True)
+  Desc: None
+
