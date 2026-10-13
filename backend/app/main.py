@@ -63,8 +63,21 @@ app.include_router(chat.router)
 app.include_router(orders.router)
 app.include_router(products.router)
 
+class _NoCacheStaticFiles(StaticFiles):
+    """Static files that always revalidate (ETag/Last-Modified), never heuristically cached.
+
+    Product photos are updated in place; without Cache-Control browsers apply
+    heuristic freshness and keep showing stale images.
+    """
+
+    def file_response(self, *args, **kwargs):  # type: ignore[override]
+        resp = super().file_response(*args, **kwargs)
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
+
 Path(settings.images_dir).mkdir(parents=True, exist_ok=True)
-app.mount("/images", StaticFiles(directory=settings.images_dir), name="images")
+app.mount("/images", _NoCacheStaticFiles(directory=settings.images_dir), name="images")
 
 # python:3.11-slim's mime database has no .webp mapping
 mimetypes.add_type("image/webp", ".webp")

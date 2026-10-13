@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import math
 import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -230,6 +231,38 @@ def _norm_name(value: str) -> str:
     return name
 
 
+# Cyrillic lookalikes that regularly sneak into photo filenames (Windows
+# Explorer keyboard layout) — "А09010200.png" vs sku "A09010200".
+_LOOKALIKE_TABLE = str.maketrans({
+    "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H",
+    "О": "O", "Р": "P", "С": "C", "Т": "T", "Х": "X", "а": "a",
+    "о": "o", "с": "c", "е": "e", "р": "p", "х": "x",
+})
+_IMG_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
+_IMG_INDEX: dict[str, Any] = {"key": None, "map": {}}
+
+
+def _canon_stem(name: str) -> str:
+    return unicodedata.normalize("NFC", name).translate(_LOOKALIKE_TABLE).lower().strip()
+
+
+def _image_index(images_dir: Path) -> dict[str, str]:
+    """Stem -> filename map, refreshed when files are added/removed."""
+    try:
+        key = (str(images_dir), images_dir.stat().st_mtime)
+    except OSError:
+        return {}
+    if _IMG_INDEX["key"] != key:
+        mapping: dict[str, str] = {}
+        if images_dir.exists():
+            for f in images_dir.iterdir():
+                if f.is_file() and f.suffix.lower() in _IMG_EXTS:
+                    mapping.setdefault(_canon_stem(f.stem), f.name)
+        _IMG_INDEX["key"] = key
+        _IMG_INDEX["map"] = mapping
+    return _IMG_INDEX["map"]
+
+
 def _resolve_image(sku: str, image_value: str) -> tuple[str, bool]:
     images_dir = Path(settings.images_dir)
     extensions = ("", ".jpg", ".jpeg", ".png", ".webp")
@@ -255,6 +288,11 @@ def _resolve_image(sku: str, image_value: str) -> tuple[str, bool]:
         for candidate in candidates:
             if (images_dir / candidate).exists():
                 return f"/images/{candidate}", True
+        index = _image_index(images_dir)
+        for stem in raw:
+            hit = index.get(_canon_stem(stem))
+            if hit:
+                return f"/images/{hit}", True
     return "/images/placeholder.svg", False
 
 
