@@ -8,15 +8,15 @@ import { formatPrice, pluralUk } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
 const SKIN_TYPES = [
-  "РќРѕСЂРјР°Р»СЊРЅР°", "РЎСѓС…Р°", "Р–РёСЂРЅР°", "РљРѕРјР±С–РЅРѕРІР°РЅР°", "Р§СѓС‚Р»РёРІР°", "РџСЂРѕР±Р»РµРјРЅР°", "Р’СЃС– С‚РёРїРё",
+  "Нормальна", "Суха", "Жирна", "Комбінована", "Чутлива", "Проблемна", "Всі типи",
 ];
 
 const PURPOSES = [
-  "Р—РІРѕР»РѕР¶РµРЅРЅСЏ", "Р’С–РґРЅРѕРІР»РµРЅРЅСЏ", "Р—Р°СЃРїРѕРєРѕС”РЅРЅСЏ С‚Р° РїРѕС‡РµСЂРІРѕРЅС–РЅРЅСЏ",
-  "РћСЃРІС–С‚Р»РµРЅРЅСЏ С‚Р° РїС–РіРјРµРЅС‚Р°С†С–СЏ", "РђРЅС‚РёРІС–РєРѕРІРёР№ РґРѕРіР»СЏРґ", "РђРЅС‚РёРѕРєСЃРёРґР°РЅС‚РЅРёР№ Р·Р°С…РёСЃС‚",
-  "РћС‡РёС‰РµРЅРЅСЏ", "РћСЃРІС–Р¶РµРЅРЅСЏ С‚Р° С‚РѕРЅС–Р·Р°С†С–СЏ", "РњР°С‚СѓРІР°РЅРЅСЏ С‚Р° РїРѕСЂРё",
-  "РђРєРЅРµ С‚Р° РїСЂРѕР±Р»РµРјРЅР° С€РєС–СЂР°", "РЎРѕРЅС†РµР·Р°С…РёСЃС‚", "Р”РѕРіР»СЏРґ Р·Р° РѕС‡РёРјР°",
-  "Р”РµР»С–РєР°С‚РЅС– Р·РѕРЅРё",
+  "Зволоження", "Відновлення", "Заспокоєння та почервоніння",
+  "Освітлення та пігментація", "Антивіковий догляд", "Антиоксидантний захист",
+  "Очищення", "Освіження та тонізація", "Матування та пори",
+  "Акне та проблемна шкіра", "Сонцезахист", "Догляд за очима",
+  "Делікатні зони",
 ];
 
 export default function DirectionsSection() {
@@ -97,10 +97,10 @@ export default function DirectionsSection() {
         <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">{t("subtitle")}</p>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
-          {/* Panel 1 вЂ” skin type */}
+          {/* Panel 1 — skin type */}
           <div className="tile glass p-5">
             <h3 className="section-label flex items-center gap-2">
-              <span className="text-[var(--gold)]">в—Џ</span>
+              <span className="text-[var(--gold)]">◆</span>
               {t("skin_title")}
             </h3>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -119,10 +119,10 @@ export default function DirectionsSection() {
             </div>
           </div>
 
-          {/* Panel 2 вЂ” purpose */}
+          {/* Panel 2 — purpose */}
           <div className="tile glass p-5">
             <h3 className="section-label flex items-center gap-2">
-              <span className="text-[var(--gold)]">в—Џ</span>
+              <span className="text-[var(--gold)]">◆</span>
               {t("purpose_title")}
             </h3>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -166,7 +166,7 @@ export default function DirectionsSection() {
               }}
               className="chip-f"
             >
-              вњ• {t("reset")}
+              ✕ {t("reset")}
             </button>
           )}
           {count === 0 && <span className="text-sm text-[var(--muted)]">{t("no_results")}</span>}

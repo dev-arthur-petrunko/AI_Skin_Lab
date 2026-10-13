@@ -61,10 +61,10 @@ export default function ProductDetailView({ product, related, setComponents = []
   };
 
   const specs: Array<{ label: string; value: string }> = [
-    { label: t("brand"), value: product.brand || "вЂ”" },
+    { label: t("brand"), value: product.brand || "—" },
     { label: t("sku"), value: product.sku },
-    { label: t("volume"), value: product.volume || "вЂ”" },
-    { label: t("country"), value: product.country || "вЂ”" },
+    { label: t("volume"), value: product.volume || "—" },
+    { label: t("country"), value: product.country || "—" },
     { label: t("category"), value: product.category },
   ];
 
@@ -79,11 +79,11 @@ export default function ProductDetailView({ product, related, setComponents = []
     text.split(/\n/).forEach((line) => {
       const trimmed = line.trim();
       const lower = trimmed.toLowerCase();
-      if (lower.startsWith("РЅРѕС‚Рё:") || lower.startsWith("notes:")) {
+      if (lower.startsWith("ноти:") || lower.startsWith("notes:")) {
         current = "notes";
         return;
       }
-      if (lower.startsWith("СЃРєР»Р°Рґ:") || lower.startsWith("ingredients:") || lower.startsWith("С–РЅРіСЂРµРґС–С”РЅС‚Рё:")) {
+      if (lower.startsWith("склад:") || lower.startsWith("ingredients:") || lower.startsWith("інгредієнти:")) {
         current = "ingredients";
         return;
       }
@@ -177,7 +177,7 @@ export default function ProductDetailView({ product, related, setComponents = []
           {product.is_set && setComponents.length > 0 && (
             <div className="mt-7">
               <h2 className="section-label flex items-center gap-2">
-                <span className="text-[var(--gold)]">в—Џ</span>
+                <span className="text-[var(--gold)]">◆</span>
                 {t("set_contents")}
               </h2>
               <ul className="mt-3 space-y-2">
@@ -235,7 +235,7 @@ export default function ProductDetailView({ product, related, setComponents = []
           {/* Beautiful Description & Notes Section */}
           <div className="mt-7 flex-1">
             <h2 className="section-label flex items-center gap-2">
-              <span className="text-[var(--gold)]">в—Џ</span>
+              <span className="text-[var(--gold)]">◆</span>
               {t("description")}
             </h2>
 
@@ -252,7 +252,7 @@ export default function ProductDetailView({ product, related, setComponents = []
             {descSections.notes.length > 0 && (
               <div className="mt-6">
                 <h3 className="section-label text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
-                  {t("notes") || "РќРѕС‚Рё"}
+                  {t("notes") || "Ноти"}
                 </h3>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {descSections.notes.map((note, i) => (
@@ -274,7 +274,7 @@ export default function ProductDetailView({ product, related, setComponents = []
             {descSections.ingredients.length > 0 && (
               <div className="mt-6">
                 <h3 className="section-label text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
-                  {t("ingredients") || "РЎРєР»Р°Рґ"}
+                  {t("ingredients") || "Склад"}
                 </h3>
                 <div className="mt-3">
                   <table className="w-full text-sm text-[var(--muted)]">
