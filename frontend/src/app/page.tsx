@@ -19,9 +19,9 @@ export default async function HomePage() {
   try {
     const [cat, sale] = await Promise.all([
       getCatalog(),
-      getSaleProducts(10),
+      getSaleProducts(24),
     ]);
-    saleProducts = sale;
+    saleProducts = sale.filter((p) => p.has_image).slice(0, 10);
 
     const maxDiscount = cat.items.reduce(
       (max, p) => (p.is_on_sale ? Math.max(max, p.discount_percent) : max),
@@ -55,6 +55,7 @@ export default async function HomePage() {
     brands = cat.brands.map((name) => {
       const items = cat.items.filter((p) => p.brand === name);
       const top = [...items]
+        .filter((p) => p.has_image)
         .sort(
           (a, b) =>
             Number(b.is_on_sale) - Number(a.is_on_sale) ||

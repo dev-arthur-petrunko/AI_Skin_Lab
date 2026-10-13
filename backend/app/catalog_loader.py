@@ -50,7 +50,8 @@ COLUMN_ALIASES = {
 }
 
 CATEGORY_KEYWORDS = [
-    ("Парфумована вода", ["парфумован", "edp", "eau de parfum"]),
+    # bare "парфумован" also matches creams ("парфумований крем") — keep phrases
+    ("Парфумована вода", ["парфумована вода", "парфюмована вода", "eau de parfum", "edp"]),
     ("Туалетна вода", ["туалетна вода", "edt", "eau de toilette"]),
     ("Крем", ["крем"]),
     ("Сироватка", ["сироватка", "serum"]),
@@ -525,7 +526,14 @@ def load_catalog(auto_translate=False) -> list[Product]:
         logger.exception("Cannot open workbook %s", excel_path)
         return []
 
-    product_sheets = [s for s in xl.sheet_names if s.strip().lower() != SETS_SHEET]
+    excluded = {s.strip().lower() for s in settings.excluded_sheets.split(",") if s.strip()}
+    product_sheets = [
+        s for s in xl.sheet_names
+        if s.strip().lower() != SETS_SHEET and s.strip().lower() not in excluded
+    ]
+    for skipped in xl.sheet_names:
+        if skipped.strip().lower() in excluded:
+            logger.info("Sheet %r excluded by EXCLUDED_SHEETS setting", skipped)
     products: list[Product] = []
     seen_ids: set[str] = set()
 

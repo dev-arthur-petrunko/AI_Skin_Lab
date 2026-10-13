@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     embedding_model: str = "text-embedding-3-small"
     chat_model: str = "gpt-4o-mini"
     auto_translate: bool = False
+    # Comma-separated Excel sheet names to skip at load (case-insensitive).
+    # "Perfume" is hidden from the site until the owner re-enables it.
+    excluded_sheets: str = "Perfume"
     allowed_origins: str = "http://localhost:3000,http://localhost:8000"
     # Fallback EUR -> UAH rate for sheets with € price headers (e.g. Anubis).
     # Normally the backend fetches the official NBU rate daily and uses it

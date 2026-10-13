@@ -44,11 +44,12 @@ export default function DirectionsSection() {
       try {
         const [c, list] = await Promise.all([
           fetch(`/api/products/count${qs ? `?${qs}` : ""}`).then((r) => r.json()),
-          fetch(`/api/products?limit=4&sort=match${qs ? `&${qs}` : ""}`).then((r) => r.json()),
+          fetch(`/api/products?limit=8&sort=match${qs ? `&${qs}` : ""}`).then((r) => r.json()),
         ]);
         if (!alive) return;
         setCount(typeof c.count === "number" ? c.count : null);
-        setPreview(Array.isArray(list) ? list : []);
+        const items: Product[] = Array.isArray(list) ? list : [];
+        setPreview(items.filter((p) => p.has_image).slice(0, 4));
       } catch {
         if (alive) {
           setCount(null);
