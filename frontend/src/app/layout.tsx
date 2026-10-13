@@ -7,6 +7,7 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import { LivingBackground } from "@/components/LivingBackground";
 import { CartProvider } from "@/providers/CartProvider";
 import { OrderModalProvider } from "@/providers/OrderModalProvider";
+import OrderDrawerShell from "@/components/OrderDrawerShell";
 
 export default function RootLayout({
   children,
@@ -25,6 +26,7 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
                 <ChatWidget />
+                <OrderDrawerShell />
               </OrderModalProvider>
             </CartProvider>
           </LenisProvider>

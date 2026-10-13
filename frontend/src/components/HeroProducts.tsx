@@ -19,7 +19,6 @@ export type HeroItem = {
   price: number;
   promo_price: number | null;
   discount: number;
-  cutout: string;
   image: string;
 };
 
@@ -99,7 +98,6 @@ function Layer({
   const sale = item.promo_price != null && item.promo_price < item.price;
   const price = sale ? (item.promo_price as number) : item.price;
   const href = `/product/${encodeURIComponent(item.id)}`;
-  const isCutout = Boolean(item.cutout);
 
   return (
     <motion.div
@@ -120,16 +118,12 @@ function Layer({
           aria-label={item.name}
         >
           <Image
-            src={isCutout ? item.cutout : item.image}
+            src={item.image}
             alt={item.name}
             fill
             sizes="(max-width: 768px) 45vw, 26vw"
             priority={i === 1}
-            className={`object-contain transition-transform duration-500 ${
-              isCutout
-                ? "drop-shadow-[0_30px_30px_rgba(58,42,30,.28)]"
-                : "rounded-3xl bg-white p-3 mix-blend-multiply"
-            }`}
+            className="object-contain rounded-3xl bg-white p-3 mix-blend-multiply transition-transform duration-500"
           />
         </Link>
         <span className="glass pointer-events-none absolute -bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-2xl px-3 py-1.5 text-xs">

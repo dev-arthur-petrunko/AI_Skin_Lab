@@ -1,15 +1,21 @@
-"use client";
+﻿"use client";
 
 import React, { Fragment, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/lib/format";
-import { cutoutSrc } from "@/lib/cutouts";
 import { localizedField, type Product as ProductType } from "@/lib/types";
 import ProductCard from "@/components/ProductCard";
-import TelegramOrderModal from "@/components/TelegramOrderModal";
-import { MessageSquare, Link as LinkIcon } from "lucide-react";
+import { useCart } from "@/providers/CartProvider";
+import {
+  Camera,
+  MessageSquare,
+  Minus,
+  Plus,
+  ShoppingCart,
+} from "lucide-react";
+import { INSTAGRAM_URL, INSTAGRAM_GRADIENT } from "@/lib/instagram";
 
 interface Props {
   product: ProductType;
@@ -28,20 +34,37 @@ export default function ProductDetailView({ product, related, setComponents = []
   const description = localizedField(product, "description", locale);
   const price = product.promo_price ?? product.price;
 
-  const [hasCutout, setHasCutout] = useState(false);
-  const [showOrderModal, setShowOrderModal] = useState(initialOpenOrder);
+  const [qty, setQty] = useState(1);
+  const { add, open: openCart, items } = useCart();
+  const inCart = items.find((x) => x.id === product.id);
+
   useEffect(() => {
-    const img = new Image();
-    img.onload = () => setHasCutout(true);
-    img.onerror = () => setHasCutout(false);
-    img.src = cutoutSrc(product.id);
-  }, [product.id]);
+    if (initialOpenOrder) window.dispatchEvent(new CustomEvent("cart:open"));
+  }, [initialOpenOrder]);
+
+  const addToCart = () => {
+    if (product.stock === 0) return;
+    if (navigator.vibrate) navigator.vibrate(15);
+    add(
+      {
+        id: product.id,
+        name,
+        sku: product.sku,
+        price: product.promo_price ?? product.price,
+        promo_price: product.promo_price,
+        brand: product.brand,
+        image: product.image,
+      },
+      qty
+    );
+    openCart();
+  };
 
   const specs: Array<{ label: string; value: string }> = [
-    { label: t("brand"), value: product.brand || "—" },
+    { label: t("brand"), value: product.brand || "вЂ”" },
     { label: t("sku"), value: product.sku },
-    { label: t("volume"), value: product.volume || "—" },
-    { label: t("country"), value: product.country || "—" },
+    { label: t("volume"), value: product.volume || "вЂ”" },
+    { label: t("country"), value: product.country || "вЂ”" },
     { label: t("category"), value: product.category },
   ];
 
@@ -56,11 +79,11 @@ export default function ProductDetailView({ product, related, setComponents = []
     text.split(/\n/).forEach((line) => {
       const trimmed = line.trim();
       const lower = trimmed.toLowerCase();
-      if (lower.startsWith("ноти:") || lower.startsWith("notes:")) {
+      if (lower.startsWith("РЅРѕС‚Рё:") || lower.startsWith("notes:")) {
         current = "notes";
         return;
       }
-      if (lower.startsWith("склад:") || lower.startsWith("ingredients:") || lower.startsWith("інгредієнти:")) {
+      if (lower.startsWith("СЃРєР»Р°Рґ:") || lower.startsWith("ingredients:") || lower.startsWith("С–РЅРіСЂРµРґС–С”РЅС‚Рё:")) {
         current = "ingredients";
         return;
       }
@@ -77,11 +100,11 @@ export default function ProductDetailView({ product, related, setComponents = []
         href="/catalog"
         className="inline-flex items-center gap-1 text-sm text-[var(--muted)] transition hover:text-[var(--azure)]"
       >
-        ← {t("back")}
+        в†ђ {t("back")}
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
-        {/* Product Image with Cutout */}
+        {/* Product Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -90,7 +113,7 @@ export default function ProductDetailView({ product, related, setComponents = []
         >
           {product.is_set && (
             <span className="glass absolute left-4 top-4 z-10 rounded-full border border-[var(--gl)] px-3 py-1.5 text-xs font-semibold text-[var(--gold)]">
-              🎁 {t("set_badge")}
+              рџЋЃ {t("set_badge")}
             </span>
           )}
           {product.is_on_sale && (
@@ -100,32 +123,20 @@ export default function ProductDetailView({ product, related, setComponents = []
           )}
 
           <div className="aspect-[3/4] relative overflow-hidden">
-            {/* Floating cutout image */}
-            {hasCutout && (
+            <div className="pic absolute inset-0">
               <motion.img
-                src={cutoutSrc(product.id)}
+                src={product.image}
                 alt={name}
-                className="absolute inset-0 h-full w-full object-contain"
+                className="absolute inset-0 h-full w-full object-contain p-6"
                 style={{ transition: "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)" }}
                 initial={{ scale: 1.02, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                onError={() => setHasCutout(false)}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
+                }}
               />
-            )}
-            {/* Fallback original image with mix-blend-multiply */}
-            {!hasCutout && (
-              <div className="pic absolute inset-0">
-                <img
-                  src={product.image}
-                  alt={name}
-                  className="absolute inset-0 h-full w-full object-contain p-6"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
-                  }}
-                />
-              </div>
-            )}
+            </div>
             {/* Subtle glow behind product */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-1/3 bg-gradient-to-t from-[var(--gold)]/20 to-transparent rounded-full blur-[80px]" />
           </div>
@@ -166,7 +177,7 @@ export default function ProductDetailView({ product, related, setComponents = []
           {product.is_set && setComponents.length > 0 && (
             <div className="mt-7">
               <h2 className="section-label flex items-center gap-2">
-                <span className="text-[var(--gold)]">●</span>
+                <span className="text-[var(--gold)]">в—Џ</span>
                 {t("set_contents")}
               </h2>
               <ul className="mt-3 space-y-2">
@@ -224,7 +235,7 @@ export default function ProductDetailView({ product, related, setComponents = []
           {/* Beautiful Description & Notes Section */}
           <div className="mt-7 flex-1">
             <h2 className="section-label flex items-center gap-2">
-              <span className="text-[var(--gold)]">●</span>
+              <span className="text-[var(--gold)]">в—Џ</span>
               {t("description")}
             </h2>
 
@@ -241,7 +252,7 @@ export default function ProductDetailView({ product, related, setComponents = []
             {descSections.notes.length > 0 && (
               <div className="mt-6">
                 <h3 className="section-label text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
-                  {t("notes") || "Ноти"}
+                  {t("notes") || "РќРѕС‚Рё"}
                 </h3>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {descSections.notes.map((note, i) => (
@@ -263,7 +274,7 @@ export default function ProductDetailView({ product, related, setComponents = []
             {descSections.ingredients.length > 0 && (
               <div className="mt-6">
                 <h3 className="section-label text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
-                  {t("ingredients") || "Склад"}
+                  {t("ingredients") || "РЎРєР»Р°Рґ"}
                 </h3>
                 <div className="mt-3">
                   <table className="w-full text-sm text-[var(--muted)]">
@@ -299,39 +310,112 @@ export default function ProductDetailView({ product, related, setComponents = []
             )}
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="btn btn-primary flex-1 sm:flex-none"
-              disabled={product.stock === 0}
-              onClick={() => setShowOrderModal(true)}
-            >
-              {product.stock > 0 ? t("buy") : t("out_of_stock")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost flex-1 sm:flex-none"
-              onClick={() =>
-                window.dispatchEvent(
-                  new CustomEvent("ai:open", {
-                    detail: { message: `${t("ask_ai")}: ${name}` },
-                  })
-                )
-              }
-            >
-              {t("ask_ai")}
-            </button>
-            <a
-              href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-2"
-            >
-              <LinkIcon className="w-4 h-4" />
-              Instagram
-            </a>
+          {/* Buy block */}
+          <div className="mt-8 space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-[var(--muted)]">{t("quantity")}</span>
+              <div className="flex items-center gap-1 rounded-full border border-[var(--gl)] px-1.5 py-1">
+                <button
+                  type="button"
+                  aria-label="-"
+                  onClick={() => setQty((v) => Math.max(1, v - 1))}
+                  disabled={qty <= 1}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[var(--ga)] hover:text-[var(--gold)] disabled:opacity-40"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <motion.span
+                  key={qty}
+                  initial={{ scale: 1.25 }}
+                  animate={{ scale: 1 }}
+                  className="w-8 text-center font-semibold"
+                >
+                  {qty}
+                </motion.span>
+                <button
+                  type="button"
+                  aria-label="+"
+                  onClick={() => setQty((v) => Math.min(99, v + 1))}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[var(--ga)] hover:text-[var(--gold)]"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              {inCart && (
+                <span className="text-xs text-[var(--gold)]">
+                  {t("in_cart_badge", { count: inCart.qty })}
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                className="btn btn-primary flex-1 sm:flex-none"
+                disabled={product.stock === 0}
+                onClick={addToCart}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {product.stock > 0 ? t("add_to_cart") : t("out_of_stock")}
+              </button>
+              <button
+                type="button"
+                className="btn btn-telegram flex-1 sm:flex-none"
+                disabled={product.stock === 0}
+                onClick={addToCart}
+              >
+                {t("order_telegram")}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost flex-1 sm:flex-none"
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("ai:open", {
+                      detail: { message: `${t("ask_ai")}: ${name}` },
+                    })
+                  )
+                }
+              >
+                <MessageSquare className="h-4 w-4" />
+                {t("ask_ai")}
+              </button>
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn flex-1 sm:flex-none flex items-center justify-center gap-2 text-white"
+                style={{ background: INSTAGRAM_GRADIENT }}
+              >
+                <Camera className="h-4 w-4" />
+                Instagram
+              </a>
+            </div>
           </div>
         </motion.div>
+      </div>
+
+      {/* Mobile sticky buy bar */}
+      <div className="sticky bottom-0 z-30 -mx-4 mt-6 flex items-center gap-3 border-t border-[var(--gl)] bg-[var(--bg)] px-4 py-3 backdrop-blur-md sm:hidden">
+        <div className="flex-1">
+          <div className="text-lg font-bold text-[var(--gold)]">
+            {formatPrice(price)} {tCommon("currency")}
+          </div>
+          {product.is_on_sale && (
+            <div className="text-xs text-[var(--muted)] line-through">
+              {formatPrice(product.price)} {tCommon("currency")}
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={product.stock === 0}
+          onClick={addToCart}
+        >
+          <ShoppingCart className="h-4 w-4" />
+          {product.stock > 0 ? t("add_to_cart") : t("out_of_stock")}
+        </button>
       </div>
 
       {related.length > 0 && (
@@ -344,21 +428,6 @@ export default function ProductDetailView({ product, related, setComponents = []
           </div>
         </section>
       )}
-
-      <TelegramOrderModal
-        isOpen={showOrderModal}
-        onClose={() => { setShowOrderModal(false); onCloseOrder?.(); }}
-        initialProduct={{
-          id: product.id,
-          name: name,
-          sku: product.sku,
-          price: product.promo_price ?? product.price,
-          promo_price: product.promo_price,
-          brand: product.brand,
-          image: product.image,
-        }}
-        onAddProduct={() => window.dispatchEvent(new CustomEvent("order:add-product"))}
-      />
     </div>
   );
 }

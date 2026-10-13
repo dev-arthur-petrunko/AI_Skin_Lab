@@ -27,6 +27,8 @@ class Product(BaseModel):
     tags: list[str] = []
     is_set: bool = False
     set_items: list[str] = []
+    purposes: list[str] = []
+    skin_types: list[str] = []
 
     def localized_name(self, lang: str) -> str:
         return {"uk": self.name_uk, "ru": self.name_ru, "en": self.name_en}.get(lang, self.name_uk)

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "@/i18n/request";
 import { Link } from "@/i18n/navigation";
 import { ThemeToggle } from "./ThemeProvider";
+import { INSTAGRAM_URL, INSTAGRAM_GRADIENT } from "@/lib/instagram";
 
 export default function Footer() {
   const t = useTranslations("footer");
@@ -25,19 +26,20 @@ export default function Footer() {
           </p>
 
           <a
-            href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
+            href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="tile mt-6 flex items-center gap-3 !p-3 transition hover:border-[var(--gold)]"
+            className="mt-6 flex items-center gap-3 rounded-full px-5 py-3 text-white shadow-lg transition hover:brightness-110"
+            style={{ background: INSTAGRAM_GRADIENT }}
           >
             <span className="text-2xl" aria-hidden>
               📸
             </span>
             <span className="min-w-0">
-              <span className="block text-[11px] uppercase tracking-wider text-[rgba(247,240,230,.6)]">
+              <span className="block text-[11px] uppercase tracking-wider text-white/80">
                 {t("instagram_label")}
               </span>
-              <span className="block truncate text-sm font-semibold text-[#e3c46a]">
+              <span className="block truncate text-sm font-semibold">
                 @ai_skin_lab →
               </span>
             </span>
@@ -62,6 +64,11 @@ export default function Footer() {
             <li>
               <Link href="/catalog?sets=1" className="transition hover:text-[#e3c46a]">
                 🎁 {t("sets")}
+              </Link>
+            </li>
+            <li>
+              <Link href="/guide" className="transition hover:text-[#e3c46a]">
+                {t("guide")}
               </Link>
             </li>
           </ul>

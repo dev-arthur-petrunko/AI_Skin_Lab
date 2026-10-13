@@ -5,6 +5,7 @@ import { useTranslations } from "@/i18n/request";
 import { Link, usePathname } from "@/i18n/navigation";
 import Image from "next/image";
 import { ThemeToggle } from "./ThemeProvider";
+import CartButton from "./CartButton";
 
 export default function Header() {
   const t = useTranslations("nav");
@@ -30,6 +31,7 @@ export default function Header() {
     { href: "/catalog", label: t("catalog") },
     { href: "/catalog?sale=1", label: t("sale") },
     { href: "/catalog?sets=1", label: t("sets") },
+    { href: "/guide", label: t("guide") },
   ];
 
   const isActive = (href: string) => pathname === href.split("?")[0];
@@ -64,6 +66,7 @@ export default function Header() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <CartButton />
             <button
               type="button"
               onClick={() => setMenu((v) => !v)}

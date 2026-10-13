@@ -1,6 +1,9 @@
 """Catalog endpoints: list products, get one, filters metadata."""
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException, Query
 
+from ..config import settings
 from ..models import CatalogResponse, Product
 from ..store import catalog_store
 
@@ -65,6 +68,23 @@ def get_sale_products(limit: int = 12):
     products = [p for p in catalog_store.products if p.is_on_sale]
     products.sort(key=lambda p: p.discount_percent, reverse=True)
     return products[:limit]
+
+
+@router.get("/photos/report")
+def photos_report():
+    """Report products whose photo file is missing on disk."""
+    images_dir = Path(settings.images_dir)
+    missing_image: list[dict] = []
+    for p in catalog_store.products:
+        img = (p.image or "").strip()
+        fname = Path(img.replace("\\", "/")).name if img else ""
+        has_image = bool(fname) and not fname.lower().endswith(".svg") and (images_dir / fname).exists()
+        if not has_image:
+            missing_image.append({"id": p.id, "sku": p.sku, "name": p.name_uk})
+    return {
+        "total": len(catalog_store.products),
+        "missing_image": missing_image,
+    }
 
 
 @router.get("/{product_id}", response_model=Product)

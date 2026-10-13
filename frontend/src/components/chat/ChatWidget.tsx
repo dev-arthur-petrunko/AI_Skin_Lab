@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "@/i18n/request";
 import { sendChatMessage } from "@/lib/chatClient";
 import { CHAT_TTL_MS, clearChat, loadChat, saveChat } from "@/lib/chatStorage";
 import ChatBubble, { type ChatProduct } from "./ChatBubble";
+import { INSTAGRAM_URL, INSTAGRAM_GRADIENT } from "@/lib/instagram";
 
 interface Message {
   id: number;
@@ -215,15 +216,18 @@ export default function ChatWidget() {
               </div>
             )}
 
-            <a
-              href="https://www.instagram.com/ai_skin_lab?exln=MXJlbTE4b25vdGNsMQ%3D%3D&utm_source=qr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-4 pb-1 text-center text-[11px] text-[var(--muted)] transition hover:text-[var(--azure)]"
-            >
-              {t("instagram_hint")}{" "}
-              <span className="font-semibold text-[var(--gold)]">@ai_skin_lab →</span>
-            </a>
+            <div className="px-4 pb-1">
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] text-white transition hover:brightness-110"
+                style={{ background: INSTAGRAM_GRADIENT }}
+              >
+                {t("instagram_hint")}{" "}
+                <span className="font-semibold">@ai_skin_lab →</span>
+              </a>
+            </div>
 
             <form
               onSubmit={(e) => {

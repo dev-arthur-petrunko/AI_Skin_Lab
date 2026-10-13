@@ -63,6 +63,25 @@ backend/data/
 temp.*
 _fix*.py
 fix_*.py
+analyze_*.py
+check_*.py
+check_*.js
+check_file.js
+create_audit.py
+debug_cells.py
+fill_*.py
+verify_*.py
+catalog.json
+catalog2.json
+*_output.txt
+control_check.txt
+empty_rows.txt
 
-# Local price copy is synced from ./price.xlsx by the start scripts
+# Sensitive business data — NEVER commit (price file, orders, backups)
+price.xlsx
+data/price.xlsx
+data/backup/
+data/orders.jsonl
+data/missing_photos.csv
+data/cutouts/
 

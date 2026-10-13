@@ -1,11 +1,10 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useTranslations } from "@/i18n/request";
 import { formatPrice, pluralUk } from "@/lib/format";
-import { cutoutSrc } from "@/lib/cutouts";
 import { localizedField, type Product } from "@/lib/types";
 
 export type BrandGroup = { name: string; products: Product[]; total: number };
@@ -99,18 +98,12 @@ function BrandProduct({ product }: { product: Product }) {
       <div className="pic relative aspect-square overflow-hidden [&_img]:p-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={cutoutSrc(product.id)}
+          src={product.image}
           alt={name}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
           onError={(e) => {
-            const el = e.currentTarget as HTMLImageElement;
-            if (el.dataset.fallback !== "original") {
-              el.dataset.fallback = "original";
-              el.src = product.image;
-            } else {
-              el.src = "/images/placeholder.svg";
-            }
+            (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
           }}
         />
       </div>

@@ -14,6 +14,31 @@ interface Props {
 
 const PAGE_SIZE = 12;
 
+function skinMatch(p: Product, skin: string): boolean {
+  if (!skin) return true;
+  const st = p.skin_types ?? [];
+  if (!st.length || st.includes("Всі типи") || st.includes(skin)) return true;
+  return false;
+}
+
+function purposeMatch(p: Product, purpose: string): boolean {
+  if (!purpose) return true;
+  const pr = p.purposes ?? [];
+  if (!pr.length || pr.includes(purpose)) return true;
+  return false;
+}
+
+function matchScore(p: Product, skin: string, purpose: string): number {
+  let s = 0;
+  const st = p.skin_types ?? [];
+  if (skin && st.length) {
+    if (st.includes(skin)) s += 4;
+    else if (st.includes("Всі типи")) s += 1;
+  }
+  if (purpose && (p.purposes ?? []).includes(purpose)) s += 2;
+  return s;
+}
+
 export default function CatalogClient({ initial }: Props) {
   const t = useTranslations("catalog");
   const searchParams = useSearchParams();
@@ -23,6 +48,8 @@ export default function CatalogClient({ initial }: Props) {
   const [category, setCategory] = useState(() => searchParams.get("category") ?? "");
   const [onSale, setOnSale] = useState(searchParams.get("sale") === "1");
   const [onlySets, setOnlySets] = useState(searchParams.get("sets") === "1");
+  const [skin, setSkin] = useState(() => searchParams.get("skin") ?? "");
+  const [purpose, setPurpose] = useState(() => searchParams.get("purpose") ?? "");
   const [sort, setSort] = useState<SortOption>("default");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -31,6 +58,8 @@ export default function CatalogClient({ initial }: Props) {
     setCategory(searchParams.get("category") ?? "");
     setOnSale(searchParams.get("sale") === "1");
     setOnlySets(searchParams.get("sets") === "1");
+    setSkin(searchParams.get("skin") ?? "");
+    setPurpose(searchParams.get("purpose") ?? "");
     setVisible(PAGE_SIZE);
   }, [searchParams]);
 
@@ -55,6 +84,8 @@ export default function CatalogClient({ initial }: Props) {
     if (category) result = result.filter((p) => p.category === category);
     if (onSale) result = result.filter((p) => p.is_on_sale);
     if (onlySets) result = result.filter((p) => p.is_set);
+    if (skin) result = result.filter((p) => skinMatch(p, skin));
+    if (purpose) result = result.filter((p) => purposeMatch(p, purpose));
 
     switch (sort) {
       case "price_asc":
@@ -69,10 +100,19 @@ export default function CatalogClient({ initial }: Props) {
       case "name":
         result = [...result].sort((a, b) => a.name.localeCompare(b.name));
         break;
+      default:
+        if (skin || purpose) {
+          result = [...result].sort(
+            (a, b) =>
+              matchScore(b, skin, purpose) - matchScore(a, skin, purpose) ||
+              a.name.localeCompare(b.name)
+          );
+        }
+        break;
     }
 
     return result;
-  }, [items, search, brand, category, onSale, onlySets, sort]);
+  }, [items, search, brand, category, onSale, onlySets, skin, purpose, sort]);
 
   const reset = () => {
     setSearch("");
@@ -80,11 +120,14 @@ export default function CatalogClient({ initial }: Props) {
     setCategory("");
     setOnSale(false);
     setOnlySets(false);
+    setSkin("");
+    setPurpose("");
     setSort("default");
     setVisible(PAGE_SIZE);
   };
 
-  const hasFilters = search || brand || category || onSale || onlySets || sort !== "default";
+  const hasFilters =
+    search || brand || category || onSale || onlySets || skin || purpose || sort !== "default";
 
 
   return (
@@ -105,9 +148,36 @@ export default function CatalogClient({ initial }: Props) {
             <> · оновлено {new Date(initial.last_updated).toLocaleString("uk-UA", { dateStyle: "medium" })}</>
           )}
         </p>
+
+        {(skin || purpose) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {skin && (
+              <button
+                type="button"
+                onClick={() => setSkin("")}
+                className="chip-f !border-[var(--gold)] !text-[var(--noir)]"
+                style={{ background: "var(--gold-gradient)" }}
+                aria-label={`${t("direction_clear")}: ${skin}`}
+              >
+                {skin} ✕
+              </button>
+            )}
+            {purpose && (
+              <button
+                type="button"
+                onClick={() => setPurpose("")}
+                className="chip-f !border-[var(--gold)] !text-[var(--noir)]"
+                style={{ background: "var(--gold-gradient)" }}
+                aria-label={`${t("direction_clear")}: ${purpose}`}
+              >
+                {purpose} ✕
+              </button>
+            )}
+          </div>
+        )}
       </motion.div>
 
-      <div className="sticky top-20 z-10 tile mt-8 p-4 sm:p-5">
+      <div className="z-10 tile mt-8 p-4 sm:p-5 lg:sticky lg:top-20 lg:p-2">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
           <input
             value={search}

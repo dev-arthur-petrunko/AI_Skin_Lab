@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useReducer } from "react";
+
+const CART_KEY = "asl_cart_v1";
 
 export interface CartItem {
   id: string;
@@ -12,13 +14,6 @@ export interface CartItem {
   image: string;
   qty: number;
 }
-
-type Action =
-  | { type: "ADD"; item: Omit<CartItem, "qty">; qty?: number }
-  | { type: "SET_QTY"; id: string; qty: number }
-  | { type: "REMOVE"; id: string }
-  | { type: "CLEAR" }
-  | { type: "HYDRATE"; items: CartItem[] };
 
 interface CartState {
   items: CartItem[];
@@ -32,6 +27,7 @@ type CartAction =
   | { type: "REMOVE"; id: string }
   | { type: "CLEAR" }
   | { type: "TOGGLE_OPEN" }
+  | { type: "OPEN" }
   | { type: "CLOSE" }
   | { type: "HYDRATE"; items: CartItem[] }
   | { type: "BUMP" };
@@ -62,6 +58,8 @@ function reducer(state: CartState, action: CartAction): CartState {
       return { ...state, items: [] };
     case "TOGGLE_OPEN":
       return { ...state, isOpen: !state.isOpen };
+    case "OPEN":
+      return { ...state, isOpen: true };
     case "CLOSE":
       return { ...state, isOpen: false };
     case "HYDRATE":
@@ -82,6 +80,7 @@ interface CartContextValue {
   remove: (id: string) => void;
   clear: () => void;
   open: () => void;
+  toggle: () => void;
   close: () => void;
   count: number;
   total: number;
@@ -96,21 +95,7 @@ export function useCart() {
   return ctx;
 }
 
-function generateSessionId(): string {
-  if (typeof window === 'undefined') {
-    return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  }
-  let sid = sessionStorage.getItem("asl_session_id");
-  if (!sid) {
-    sid = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-    sessionStorage.setItem("asl_session_id", sid);
-  }
-  return sid;
-}
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [sessionId] = useState(() => generateSessionId());
-
   const [state, dispatch] = useReducer(reducer, {
     items: [],
     isOpen: false,
@@ -118,22 +103,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     try {
-      const stored = localStorage.getItem(`asl_cart_v1_${sessionId}`);
+      const stored = localStorage.getItem(CART_KEY);
       if (stored) {
         const items = JSON.parse(stored) as CartItem[];
-        dispatch({ type: "HYDRATE", items });
+        if (Array.isArray(items)) dispatch({ type: "HYDRATE", items });
       }
     } catch {}
-  }, [sessionId]);
+  }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     try {
-      localStorage.setItem(`asl_cart_v1_${sessionId}`, JSON.stringify(state.items));
+      localStorage.setItem(CART_KEY, JSON.stringify(state.items));
     } catch {}
-  }, [state.items, sessionId]);
+  }, [state.items]);
+
+  useEffect(() => {
+    const onOpen = () => dispatch({ type: "OPEN" });
+    const onToggle = () => dispatch({ type: "TOGGLE_OPEN" });
+    window.addEventListener("cart:open", onOpen);
+    window.addEventListener("cart:toggle", onToggle);
+    return () => {
+      window.removeEventListener("cart:open", onOpen);
+      window.removeEventListener("cart:toggle", onToggle);
+    };
+  }, []);
 
   const actions = useMemo(
     () => ({
@@ -144,7 +140,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setQty: (id: string, qty: number) => dispatch({ type: "SET_QTY", id, qty }),
       remove: (id: string) => dispatch({ type: "REMOVE", id }),
       clear: () => dispatch({ type: "CLEAR" }),
-      open: () => dispatch({ type: "TOGGLE_OPEN" }),
+      open: () => dispatch({ type: "OPEN" }),
+      toggle: () => dispatch({ type: "TOGGLE_OPEN" }),
       close: () => dispatch({ type: "CLOSE" }),
       hydrate: (items: CartItem[]) => dispatch({ type: "HYDRATE", items }),
     }),
@@ -158,7 +155,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       bump: state.bump,
       bumpKey: state.bump,
       count: state.items.reduce((s, x) => s + x.qty, 0),
-      total: state.items.reduce((s, x) => s + x.qty * x.price, 0),
+      total: state.items.reduce(
+        (s, x) => s + x.qty * (x.promo_price ?? x.price),
+        0
+      ),
       ...actions,
     }),
     [state, dispatch]

@@ -157,6 +157,14 @@ body {
   .btn-secondary:hover { box-shadow: 0 14px 44px rgba(14, 165, 233, .55); }
   .btn-secondary:disabled { opacity: .5; cursor: not-allowed; }
 
+  .btn-telegram {
+    color: var(--noir);
+    background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 50%, #0284c7 100%);
+    box-shadow: 0 10px 30px rgba(14, 165, 233, .35);
+  }
+  .btn-telegram:hover { box-shadow: 0 14px 44px rgba(14, 165, 233, .55); }
+  .btn-telegram:disabled, .btn-primary:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+
   .chip-f {
     @apply inline-flex items-center rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 border;
     border-color: rgba(58, 42, 30, .18);
@@ -345,6 +353,51 @@ body {
   color: var(--gold);
   -webkit-text-stroke: 0;
   font-size: .55em;
+}
+
+/* sale rail: smooth continuous right-to-left flow of product cards */
+.sale-rail-wrap {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.sale-rail-track {
+  display: flex;
+  width: max-content;
+  animation-name: marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.sale-rail-group {
+  display: flex;
+  flex: none;
+  gap: 20px;
+  padding-right: 20px;
+}
+.sale-rail-item {
+  flex: none;
+  width: 76vw;
+}
+@media (min-width: 640px) {
+  .sale-rail-item { width: 46vw; }
+}
+@media (min-width: 1024px) {
+  .sale-rail-item { width: 260px; }
+}
+.sale-rail-wrap:hover .sale-rail-track,
+.sale-rail-wrap:focus-within .sale-rail-track,
+.sale-rail-wrap:active .sale-rail-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sale-rail-wrap {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .sale-rail-track { animation: none; }
+  .sale-rail-group[aria-hidden="true"] { display: none; }
 }
 
 /* white studio photos sit on the warm card without a hard rectangle edge */

@@ -20,6 +20,7 @@ from typing import Any
 
 import pandas as pd
 
+from . import eur_rate
 from .config import settings
 from .models import Product
 
@@ -43,6 +44,8 @@ COLUMN_ALIASES = {
     "description_ru": ["Опис (ru)", "Description_RU"],
     "description_en": ["Опис (en)", "Description_EN"],
     "image": ["Image_Name", "Фото", "Image"],
+    "skin_types": ["Тип шкіри", "Тип кожи", "Skin type"],
+    "purposes": ["Призначення", "Призначення/Показання", "Purpose"],
 }
 
 CATEGORY_KEYWORDS = [
@@ -101,6 +104,93 @@ def _clean_text(value: Any) -> str:
     if isinstance(value, float) and math.isnan(value):
         return ""
     return str(value).strip()
+
+
+# cyrillic look-alikes that appear in Excel SKUs -> latin (A.5)
+# А→A В→B С→C Е→E Н→H К→K М→M О→O Р→P Т→T Х→X (upper+lower)
+_SKU_TRANSLATION = str.maketrans(
+    "\u0410\u0412\u0421\u0415\u041d\u041a\u041c\u041e\u0420\u0422\u0425"
+    "\u0430\u0432\u0441\u0435\u043d\u043a\u043c\u043e\u0440\u0442\u0445",
+    "ABCEHKMOPTX" + "abcehkmoptx",
+)
+
+
+def _norm_sku(value: Any) -> str:
+    """Strip whitespace and replace cyrillic look-alike letters with latin."""
+    s = _clean_text(value)
+    return s.translate(_SKU_TRANSLATION).strip()
+
+
+# --- direction value normalisation (spec A.2 / D.4) ---
+VALID_PURPOSES = [
+    "Зволоження", "Відновлення", "Заспокоєння та почервоніння",
+    "Освітлення та пігментація", "Антивіковий догляд", "Антиоксидантний захист",
+    "Очищення", "Освіження та тонізація", "Матування та пори",
+    "Акне та проблемна шкіра", "Сонцезахист", "Догляд за очима",
+    "Делікатні зони",
+]
+VALID_SKIN_TYPES = ["Нормальна", "Суха", "Жирна", "Комбінована", "Чутлива", "Проблемна", "Всі типи"]
+
+_DIRECTION_ALIASES = {
+    "себорегуляція": "Матування та пори",
+    "ліфтинг": "Антивіковий догляд",
+    "lifting": "Антивіковий догляд",
+    "омолодження": "Антивіковий догляд",
+    "розгладження зморшок": "Антивіковий догляд",
+    "ревіталізація": "Антивіковий догляд",
+    "освітлення": "Освітлення та пігментація",
+    "вирівнювання тону": "Освітлення та пігментація",
+    "зменшення почервоніння": "Заспокоєння та почервоніння",
+    "купероз": "Заспокоєння та почервоніння",
+    "звуження пор": "Матування та пори",
+    "живлення": "Зволоження",
+    "заспокоєння": "Заспокоєння та почервоніння",
+    "освіження": "Освіження та тонізація",
+    "тонізація": "Освіження та тонізація",
+    "зменшення акне": "Акне та проблемна шкіра",
+    "відновлення бар'єру": "Відновлення",
+}
+
+
+def parse_direction_values(raw: Any, valid: list[str]) -> list[str]:
+    """Split raw Excel cell on ; , newline and canonicalise through aliases.
+
+    Unknown values are kept (lower-cased first letter) and appended at the end.
+    """
+    if raw is None:
+        return []
+    if isinstance(raw, float) and math.isnan(raw):
+        return []
+    text = str(raw).strip()
+    if not text:
+        return []
+    parts = re.split(r"[;,\n/]", text)
+    out: list[str] = []
+    valid_lower = {v.lower(): v for v in valid}
+    for part in parts:
+        p = part.strip().strip(".").strip()
+        if not p or len(p) > 60:
+            continue
+        low = p.lower()
+        if low in _DIRECTION_ALIASES:
+            v = _DIRECTION_ALIASES[low]
+        elif low in valid_lower:
+            v = valid_lower[low]
+        else:
+            # try substring match against valid values
+            v = None
+            for cand in valid:
+                if low in cand.lower() or cand.lower() in low:
+                    v = cand
+                    break
+            if v is None:
+                v = p  # unknown -> keep as-is, appended at end
+        if v not in out:
+            out.append(v)
+    # canonical values first, unknown at the end
+    known = [v for v in out if v in valid]
+    unknown = [v for v in out if v not in valid]
+    return known + unknown
 
 
 def _guess_category(name: str, description: str) -> str:
@@ -198,7 +288,7 @@ def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> tuple[list[Produc
             return [], set()
         skus: set[str] = set()
         for _, row in df.iterrows():
-            sku = _clean_text(row.get(col["sku"])) if col["sku"] else ""
+            sku = _norm_sku(row.get(col["sku"])) if col["sku"] else ""
             if sku and sku.lower() not in ("артикул", "sku", "id"):
                 skus.add(sku)
         return [], skus
@@ -206,7 +296,7 @@ def load_sets(excel_path: Path, by_sku: dict[str, Product]) -> tuple[list[Produc
     out: list[Product] = []
     for _, row in df.iterrows():
         items_raw = _clean_text(row.get(col["items"])) if col["items"] else ""
-        skus = [s.strip() for s in re.split(r"[;,]", items_raw) if s.strip()]
+        skus = [_norm_sku(s) for s in re.split(r"[;,]", items_raw) if s.strip()]
         items = [by_sku[s] for s in skus if s in by_sku]
         if not items:
             continue
@@ -287,7 +377,7 @@ def _parse_products(
         sku_raw = row.get(col["sku"]) if col["sku"] else None
         if sku_raw is None or (isinstance(sku_raw, float) and math.isnan(sku_raw)):
             continue
-        sku = _clean_text(sku_raw)
+        sku = _norm_sku(sku_raw)
         if not sku:
             continue
 
@@ -320,8 +410,11 @@ def _parse_products(
         volume = _clean_text(row.get(col["volume"])) if col.get("volume") else ""
         country = _clean_text(row.get(col["country"])) if col.get("country") else ""
 
-        image_value = _clean_text(row.get(col["image"])) if col.get("image") else ""
+        image_value = _norm_sku(row.get(col["image"])) if col.get("image") else ""
         image, has_image = _resolve_image(sku, image_value)
+
+        skin_types = parse_direction_values(row.get(col["skin_types"]), VALID_SKIN_TYPES) if col.get("skin_types") else []
+        purposes = parse_direction_values(row.get(col["purposes"]), VALID_PURPOSES) if col.get("purposes") else []
 
         product_id = sku
         suffix = 1
@@ -357,6 +450,8 @@ def _parse_products(
                 has_image=has_image,
                 is_on_sale=bool(promo_price),
                 tags=tags,
+                purposes=purposes,
+                skin_types=skin_types,
             )
         )
     return products
@@ -405,7 +500,12 @@ def load_catalog(auto_translate=False) -> list[Product]:
             continue
         price_header = str(col["price"] or "")
         is_eur = "€" in price_header or "eur" in price_header.lower()
-        rate = settings.eur_rate if (is_eur and settings.eur_rate > 0) else 1.0
+        rate = 1.0
+        if is_eur:
+            if settings.eur_rate > 0:
+                rate = eur_rate.get_rate()
+                eur_rate.mark_loaded(rate)
+            # EUR_RATE=0 disables conversion (rate stays 1.0)
         sheet_products = _parse_products(df, col, seen_ids, rate)
         logger.info(
             "Sheet %r: %d products%s",

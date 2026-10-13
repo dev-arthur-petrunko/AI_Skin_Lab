@@ -10,8 +10,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .ai_assistant import vector_index
-from .cutouts import cutout_name, cutouts_dir, schedule_generate
-from .routers import catalog, chat, orders
+from . import eur_rate
+from .routers import catalog, chat, orders, products
 from .store import catalog_store, start_watcher, stop_watcher
 import sys
 from pathlib import Path
@@ -40,10 +40,11 @@ def _rebuild_index(products) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     catalog_store.on_reload(_rebuild_index)
-    catalog_store.on_reload(schedule_generate)
     start_watcher()
     _rebuild_index(catalog_store.products)
+    eur_rate.start_refresher(catalog_store.reload)
     yield
+    eur_rate.stop_refresher()
     stop_watcher()
 
 
@@ -60,26 +61,13 @@ app.add_middleware(
 app.include_router(catalog.router)
 app.include_router(chat.router)
 app.include_router(orders.router)
+app.include_router(products.router)
 
 Path(settings.images_dir).mkdir(parents=True, exist_ok=True)
 app.mount("/images", StaticFiles(directory=settings.images_dir), name="images")
 
 # python:3.11-slim's mime database has no .webp mapping
 mimetypes.add_type("image/webp", ".webp")
-
-_cutouts_dir = cutouts_dir()
-_cutouts_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/cutouts", StaticFiles(directory=str(_cutouts_dir)), name="cutouts")
-
-
-@app.get("/api/cutouts")
-def cutout_ids():
-    ids = [
-        p.id
-        for p in catalog_store.products
-        if (_cutouts_dir / f"{cutout_name(p.id)}.webp").exists()
-    ]
-    return {"ids": ids}
 
 
 @app.get("/api/health")
@@ -88,6 +76,7 @@ def health():
         "status": "ok",
         "products": len(catalog_store.products),
         "last_updated": catalog_store.last_updated,
+        "eur_rate": eur_rate.snapshot(),
     }
 
 @app.get("/admin/reload")
