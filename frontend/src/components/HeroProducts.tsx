@@ -123,7 +123,7 @@ function Layer({
             fill
             sizes="(max-width: 768px) 45vw, 26vw"
             priority={i === 1}
-            className="object-contain rounded-3xl bg-white p-3 mix-blend-multiply transition-transform duration-500"
+            className="object-contain rounded-3xl p-3 transition-transform duration-500"
           />
         </Link>
         <span className="glass pointer-events-none absolute -bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-2xl px-3 py-1.5 text-xs">

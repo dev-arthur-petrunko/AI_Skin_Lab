@@ -400,17 +400,15 @@ body {
   .sale-rail-group[aria-hidden="true"] { display: none; }
 }
 
-/* white studio photos sit on the warm card without a hard rectangle edge */
+/* transparent cutouts — no card background behind the photo */
 .pic {
-  background: radial-gradient(circle at 50% 30%, #fff, var(--sand));
+  background: transparent;
   border-radius: 22px;
 }
 .pic img {
-  mix-blend-mode: multiply;
   object-fit: contain;
   padding: 14px;
 }
-[data-theme="dark"] .pic { background: #f4eee4; }
 [data-theme="dark"] .chip-f {
   background: linear-gradient(135deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .05));
   border-color: rgba(243, 233, 220, .28);
