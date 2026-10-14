@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { INSTAGRAM_URL } from "@/lib/instagram";
 import { formatPrice } from "@/lib/format";
@@ -20,6 +20,34 @@ export default function PerfumeCart() {
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [toast, setToast] = useState(false);
+  const [bump, setBump] = useState(false);
+  const toastTimer = useRef<number | null>(null);
+  const bumpTimer = useRef<number | null>(null);
+  const prevCount = useRef(0);
+
+  useEffect(() => {
+    const onAdded = () => {
+      setToast(true);
+      if (toastTimer.current) window.clearTimeout(toastTimer.current);
+      toastTimer.current = window.setTimeout(() => setToast(false), 2400);
+    };
+    window.addEventListener("pf:cart-added", onAdded);
+    return () => {
+      window.removeEventListener("pf:cart-added", onAdded);
+      if (toastTimer.current) window.clearTimeout(toastTimer.current);
+      if (bumpTimer.current) window.clearTimeout(bumpTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && count > prevCount.current) {
+      setBump(true);
+      if (bumpTimer.current) window.clearTimeout(bumpTimer.current);
+      bumpTimer.current = window.setTimeout(() => setBump(false), 450);
+    }
+    prevCount.current = count;
+  }, [count, hydrated]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,8 +110,17 @@ export default function PerfumeCart() {
       <button type="button" className="pf-fab" onClick={openCart} aria-label={T.cart_title}>
         <ShoppingBag className="h-4 w-4" />
         {T.checkout}
-        {hydrated && count > 0 && <span className="pf-fab-count">{count}</span>}
+        {hydrated && count > 0 && (
+          <span className={`pf-fab-count ${bump ? "is-bump" : ""}`}>{count}</span>
+        )}
       </button>
+
+      {toast && (
+        <div className="pf-toast" role="status">
+          <Check className="h-4 w-4 text-[var(--gold)]" />
+          {T.added}
+        </div>
+      )}
 
       {open && (
         <>

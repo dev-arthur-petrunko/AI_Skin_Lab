@@ -51,7 +51,6 @@ export default function AddToCartButton({ item }: { item: PerfumeItem }) {
       type="button"
       className="btn btn-primary w-full"
       onClick={() => {
-        if (navigator.vibrate) navigator.vibrate(15);
         add(
           {
             slug: item.slug,
@@ -62,6 +61,11 @@ export default function AddToCartButton({ item }: { item: PerfumeItem }) {
           },
           1
         );
+        try {
+          if (navigator.vibrate) navigator.vibrate(15);
+        } catch {
+          /* vibration not available */
+        }
       }}
     >
       {T.add}

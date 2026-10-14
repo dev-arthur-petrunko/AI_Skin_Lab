@@ -29,7 +29,6 @@ export default function PerfumeCard({ item }: { item: PerfumeItem }) {
 
   const handleAdd = () => {
     if (!item.in_stock) return;
-    if (navigator.vibrate) navigator.vibrate(15);
     add(
       {
         slug: item.slug,
@@ -40,6 +39,11 @@ export default function PerfumeCard({ item }: { item: PerfumeItem }) {
       },
       1
     );
+    try {
+      if (navigator.vibrate) navigator.vibrate(15);
+    } catch {
+      /* vibration not available */
+    }
   };
 
   return (

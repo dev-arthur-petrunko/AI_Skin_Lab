@@ -77,6 +77,11 @@ export function PerfumeCartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item, qty: Math.max(1, qty) }];
     });
+    try {
+      window.dispatchEvent(new CustomEvent("pf:cart-added", { detail: { slug: item.slug } }));
+    } catch {
+      /* non-browser environment */
+    }
   }, []);
 
   const setQty = useCallback((slug: string, qty: number) => {

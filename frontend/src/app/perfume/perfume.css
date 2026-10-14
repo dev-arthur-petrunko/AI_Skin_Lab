@@ -47,6 +47,90 @@
 
 .pf-hero-stat b { color: var(--gold); }
 
+.pf-hero-lead {
+  margin-top: 1rem;
+  max-width: 46ch;
+  font-size: .95rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+/* hero with the animated top-3 cluster on the right */
+.pf-hero-grid {
+  display: grid;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .pf-hero-grid { grid-template-columns: 46fr 54fr; gap: 2rem; }
+}
+
+.pf-hero-stage {
+  position: relative;
+  height: min(64vw, 480px);
+  min-height: 260px;
+}
+
+@media (min-width: 768px) { .pf-hero-stage { height: 440px; } }
+@media (min-width: 1024px) { .pf-hero-stage { height: 520px; } }
+
+.pf-hero-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 78%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--champagne) 55%, transparent 72%);
+  filter: blur(6px);
+}
+
+[data-theme="dark"] .pf-hero-glow { opacity: .22; }
+
+.pf-slot { position: absolute; }
+.pf-slot-a { left: 3%; top: 26%; height: 54%; width: 30%; z-index: 10; }
+.pf-slot-b { left: 33%; top: 4%; height: 76%; width: 34%; z-index: 20; }
+.pf-slot-c { right: 3%; top: 30%; height: 50%; width: 30%; z-index: 10; }
+
+.pf-slot-inner { position: relative; height: 100%; width: 100%; }
+
+.pf-slot-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 24px;
+  transition: transform .5s ease;
+}
+
+.pf-slot-link:hover { transform: scale(1.03); }
+
+.pf-slot-link img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: .5rem;
+}
+
+.pf-slot-tag {
+  position: absolute;
+  left: 50%;
+  bottom: -1rem;
+  transform: translateX(-50%);
+  z-index: 5;
+  white-space: nowrap;
+  border-radius: 16px;
+  padding: .4rem .75rem;
+  font-size: .72rem;
+}
+
+.pf-slot-tag b { color: var(--ink); }
+.pf-slot-off { margin-left: .3rem; font-weight: 800; color: var(--sale); }
+
+
 /* ---------- aroma circle ---------- */
 .pf-circle-wrap {
   position: relative;
@@ -262,6 +346,39 @@
   font-size: .72rem;
   text-align: center;
 }
+
+.pf-fab-count.is-bump { animation: pf-pop .4s ease; }
+
+@keyframes pf-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.55); }
+  100% { transform: scale(1); }
+}
+
+.pf-toast {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 10.5rem; /* right above the cart FAB */
+  z-index: 56;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .7rem 1.05rem;
+  border-radius: 999px;
+  background: var(--bg, #fbf7ef);
+  border: 1px solid var(--gold);
+  box-shadow: 0 14px 40px rgba(201, 165, 92, .35);
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--ink);
+  animation: pf-toast-in .25s ease;
+}
+
+@keyframes pf-toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
 
 .pf-overlay {
   position: fixed;

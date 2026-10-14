@@ -7,6 +7,7 @@ import BrandsPanel from "@/components/perfume/BrandsPanel";
 import SaleRail from "@/components/perfume/SaleRail";
 import PerfumeCollection from "@/components/perfume/PerfumeCollection";
 import HowToWear from "@/components/perfume/HowToWear";
+import PerfumeHero, { type PerfumeHeroItem } from "@/components/perfume/PerfumeHero";
 
 export const dynamic = "force-dynamic";
 
@@ -37,30 +38,30 @@ export default async function PerfumePage({ searchParams }: { searchParams: SP }
     ),
   ]);
 
+  // top-3 for the hero: biggest discounts first, fall back to the general list
+  const seen = new Set<string>();
+  const heroItems: PerfumeHeroItem[] = [];
+  for (const x of [...sale.items, ...list.items]) {
+    if (seen.has(x.slug) || !x.in_stock) continue;
+    seen.add(x.slug);
+    heroItems.push({
+      slug: x.slug,
+      name: x.display_name || x.name,
+      brand: x.brand,
+      price: x.price,
+      promo_price: x.promo_price,
+      discount: x.discount,
+    });
+    if (heroItems.length === 3) break;
+  }
+
   return (
     <>
       {/* hero */}
-      <section className="pf-hero">
-        <span className="section-label">
-          <span className="text-[var(--gold)]">●</span> {T.subtitle}
-        </span>
-        <h1 className="section-title mt-3">{T.title}</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-          Оберіть аромат за нотами, брендом чи сімейством — колекція парфумованої води з
-          доставкою по Україні.
-        </p>
-        <div className="pf-hero-stats">
-          <span className="pf-hero-stat"><b>{meta.count}</b> {T.aromatics}</span>
-          <span className="pf-hero-stat"><b>{meta.brands}</b> {T.brands_word}</span>
-          {meta.max_discount > 0 && (
-            <span className="pf-hero-stat">{T.up_to.replace("{n}", String(meta.max_discount))}</span>
-          )}
-        </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <a href="#pf-collection" className="btn btn-primary">{T.cta_pick}</a>
-          <a href="/perfume?sale=1#pf-collection" className="btn btn-ghost">{T.cta_sale}</a>
-        </div>
-      </section>
+      <PerfumeHero
+        items={heroItems}
+        stats={{ count: meta.count, brands: meta.brands, maxDiscount: meta.max_discount }}
+      />
 
       {/* finder */}
       <section className="mt-12 tile" aria-label={T.cta_pick}>
