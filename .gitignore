@@ -85,3 +85,9 @@ data/orders.jsonl
 data/missing_photos.csv
 data/cutouts/
 
+
+# Perfume feature (isolated /perfume page)
+data/perfume_orders.jsonl
+data/cache/
+data/perfume_photos_raw/
+data/perfume_images/*.png

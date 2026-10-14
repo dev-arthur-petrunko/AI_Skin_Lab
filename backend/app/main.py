@@ -12,6 +12,7 @@ from .config import settings
 from .ai_assistant import vector_index
 from . import eur_rate
 from .routers import catalog, chat, orders, products
+from .perfumes import setup as setup_perfumes
 from .store import catalog_store, start_watcher, stop_watcher
 import sys
 from pathlib import Path
@@ -62,6 +63,7 @@ app.include_router(catalog.router)
 app.include_router(chat.router)
 app.include_router(orders.router)
 app.include_router(products.router)
+setup_perfumes(app)
 
 class _NoCacheStaticFiles(StaticFiles):
     """Static files that always revalidate (ETag/Last-Modified), never heuristically cached.

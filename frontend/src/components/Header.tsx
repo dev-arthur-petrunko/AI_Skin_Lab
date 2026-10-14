@@ -31,6 +31,7 @@ export default function Header() {
     { href: "/catalog", label: t("catalog") },
     { href: "/catalog?sale=1", label: t("sale") },
     { href: "/catalog?sets=1", label: t("sets") },
+    { href: "/perfume", label: t("perfume") },
     { href: "/guide", label: t("guide") },
   ];
 
