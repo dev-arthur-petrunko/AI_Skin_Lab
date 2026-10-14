@@ -50,7 +50,7 @@ export default function PerfumeHero({ items, stats }: Props) {
           initial={{ opacity: 0, y: 18, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.9, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
-          className="section-title mt-3"
+          className="section-title pf-hero-title mt-3"
         >
           {T.title}
         </motion.h1>
