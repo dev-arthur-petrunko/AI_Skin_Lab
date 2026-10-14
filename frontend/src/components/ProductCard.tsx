@@ -99,7 +99,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
       >
         {product.is_set && (
           <span className="glass absolute left-3 top-3 z-10 rounded-full border border-[var(--gl)] px-2.5 py-1 text-[11px] font-semibold text-[var(--gold)]">
-            рџЋЃ {t("set_badge")}
+            🎁 {t("set_badge")}
           </span>
         )}
         {product.is_on_sale && (

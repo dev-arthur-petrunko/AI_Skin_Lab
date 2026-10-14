@@ -5,19 +5,8 @@ import { motion } from "framer-motion";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "@/i18n/request";
 import { formatPrice, pluralUk } from "@/lib/format";
+import { PURPOSES, SKIN_TYPES } from "@/lib/catalogFilters";
 import type { Product } from "@/lib/types";
-
-const SKIN_TYPES = [
-  "Нормальна", "Суха", "Жирна", "Комбінована", "Чутлива", "Проблемна", "Всі типи",
-];
-
-const PURPOSES = [
-  "Зволоження", "Відновлення", "Заспокоєння та почервоніння",
-  "Освітлення та пігментація", "Антивіковий догляд", "Антиоксидантний захист",
-  "Очищення", "Освіження та тонізація", "Матування та пори",
-  "Акне та проблемна шкіра", "Сонцезахист", "Догляд за очима",
-  "Делікатні зони",
-];
 
 export default function DirectionsSection() {
   const t = useTranslations("directions");

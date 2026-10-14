@@ -6,6 +6,13 @@ import { useTranslations } from "@/i18n/request";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import { pluralUk } from "@/lib/format";
+import {
+  PURPOSES,
+  SKIN_TYPES,
+  SORT_VALUES,
+  filtersToQuery,
+  writeCatalogSnapshot,
+} from "@/lib/catalogFilters";
 import type { CatalogResponse, Product, SortOption } from "@/lib/types";
 
 interface Props {
@@ -39,29 +46,57 @@ function matchScore(p: Product, skin: string, purpose: string): number {
   return s;
 }
 
+function readSort(v: string | null): SortOption {
+  return v && (SORT_VALUES as readonly string[]).includes(v) ? (v as SortOption) : "default";
+}
+
 export default function CatalogClient({ initial }: Props) {
   const t = useTranslations("catalog");
+  const td = useTranslations("directions");
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
-  const [brand, setBrand] = useState("");
+  const [brand, setBrand] = useState(() => searchParams.get("brand") ?? "");
   const [category, setCategory] = useState(() => searchParams.get("category") ?? "");
   const [onSale, setOnSale] = useState(searchParams.get("sale") === "1");
   const [onlySets, setOnlySets] = useState(searchParams.get("sets") === "1");
   const [skin, setSkin] = useState(() => searchParams.get("skin") ?? "");
   const [purpose, setPurpose] = useState(() => searchParams.get("purpose") ?? "");
-  const [sort, setSort] = useState<SortOption>("default");
+  const [sort, setSort] = useState<SortOption>(() => readSort(searchParams.get("sort")));
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
     setSearch(searchParams.get("q") ?? "");
+    setBrand(searchParams.get("brand") ?? "");
     setCategory(searchParams.get("category") ?? "");
     setOnSale(searchParams.get("sale") === "1");
     setOnlySets(searchParams.get("sets") === "1");
     setSkin(searchParams.get("skin") ?? "");
     setPurpose(searchParams.get("purpose") ?? "");
+    setSort(readSort(searchParams.get("sort")));
     setVisible(PAGE_SIZE);
   }, [searchParams]);
+
+  // keep the active filter set in the URL (replaceState — no history spam)
+  // and in sessionStorage, so the product page "back to catalog" link can
+  // restore the exact selection
+  useEffect(() => {
+    const filters = {
+      q: search,
+      brand,
+      category,
+      sale: onSale,
+      sets: onlySets,
+      skin,
+      purpose,
+      sort,
+    };
+    const qs = filtersToQuery(filters);
+    const current = `${window.location.pathname}${window.location.search}`;
+    const next = `${window.location.pathname}${qs}`;
+    if (current !== next) window.history.replaceState(null, "", next);
+    writeCatalogSnapshot(filters);
+  }, [search, brand, category, onSale, onlySets, skin, purpose, sort]);
 
   const items = useMemo(() => initial?.items ?? [], [initial]);
   const brands = initial?.brands ?? [];
@@ -178,7 +213,7 @@ export default function CatalogClient({ initial }: Props) {
       </motion.div>
 
       <div className="z-10 tile mt-8 p-4 sm:p-5 lg:sticky lg:top-20 lg:p-2">
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
+        <div className="grid gap-3 lg:grid-cols-4">
           <input
             value={search}
             onChange={(e) => {
@@ -222,6 +257,44 @@ export default function CatalogClient({ initial }: Props) {
           </select>
 
           <select
+            value={skin}
+            onChange={(e) => {
+              setSkin(e.target.value);
+              setVisible(PAGE_SIZE);
+            }}
+            className="select"
+            aria-label={td("skin_title")}
+          >
+            <option value="">
+              {td("skin_title")}: {t("all")}
+            </option>
+            {SKIN_TYPES.filter((s) => s !== "Всі типи").map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={purpose}
+            onChange={(e) => {
+              setPurpose(e.target.value);
+              setVisible(PAGE_SIZE);
+            }}
+            className="select"
+            aria-label={td("purpose_title")}
+          >
+            <option value="">
+              {td("purpose_title")}: {t("all")}
+            </option>
+            {PURPOSES.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+
+          <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
             className="select"
@@ -234,7 +307,7 @@ export default function CatalogClient({ initial }: Props) {
             <option value="name">{t("sort_name")}</option>
           </select>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 lg:col-span-2">
             <button
               type="button"
               onClick={() => setOnSale((v) => !v)}

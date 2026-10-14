@@ -16,6 +16,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { INSTAGRAM_URL, INSTAGRAM_GRADIENT } from "@/lib/instagram";
+import { filtersToQuery, readCatalogSnapshot } from "@/lib/catalogFilters";
 
 interface Props {
   product: ProductType;
@@ -37,6 +38,13 @@ export default function ProductDetailView({ product, related, setComponents = []
   const [qty, setQty] = useState(1);
   const { add, open: openCart, items } = useCart();
   const inCart = items.find((x) => x.id === product.id);
+
+  // restore the exact catalog filter selection the visitor came from
+  const [backHref, setBackHref] = useState("/catalog");
+  useEffect(() => {
+    const snap = readCatalogSnapshot();
+    setBackHref(snap ? `/catalog${filtersToQuery(snap)}` : "/catalog");
+  }, []);
 
   useEffect(() => {
     if (initialOpenOrder) window.dispatchEvent(new CustomEvent("cart:open"));
@@ -97,10 +105,10 @@ export default function ProductDetailView({ product, related, setComponents = []
   return (
     <div className="container-page py-12">
       <Link
-        href="/catalog"
-        className="inline-flex items-center gap-1 text-sm text-[var(--muted)] transition hover:text-[var(--azure)]"
+        href={backHref}
+        className="btn btn-ghost !inline-flex !px-3 !py-1.5 !text-sm"
       >
-        в†ђ {t("back")}
+        ← {t("back")}
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
@@ -113,7 +121,7 @@ export default function ProductDetailView({ product, related, setComponents = []
         >
           {product.is_set && (
             <span className="glass absolute left-4 top-4 z-10 rounded-full border border-[var(--gl)] px-3 py-1.5 text-xs font-semibold text-[var(--gold)]">
-              рџЋЃ {t("set_badge")}
+              🎁 {t("set_badge")}
             </span>
           )}
           {product.is_on_sale && (

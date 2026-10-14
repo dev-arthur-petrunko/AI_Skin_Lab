@@ -11,6 +11,9 @@ interface HistoryItem {
 }
 
 let catalogCache: { items: Product[]; at: number } | null = null;
+let perfumeCache: { items: Product[]; at: number } | null = null;
+
+const PERFUME_PREFIX = "perfume:";
 
 function env(name: string): string | undefined {
   return process.env[name];
@@ -29,12 +32,15 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 8. Не пропонуй товари з stock<=0 та не радь чекати на постачання.
 9. Наприкінці відповіді одним рядком додай Instagram-контакт: «Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab».
 10. ТОН: теплий, як уважний консультант бутику; конкретний (інгредієнти, ціни); без агресивних продажів; можна використовувати емодзі.
+11. Товари з id, що починається з "perfume:" — це наші парфуми. На запити про духи/аромати/парфуми рекомендуй саме їх: зазнач стать (жіночі/чоловічі/унісекс), парфумерну сімейство та об'єм з description.
+12. Якщо запит не стосується товарів магазину (погода, політика, програмування, інші сервіси) — ввічливо скажи, що ти допомагаєш з вибором косметики та парфумів AI Skin Lab, додай Instagram-рядок і поверни products: [].
+13. Контекст розмови — лише останні повідомлення: якщо клієнт змінив тему, відповідай на НОВУ тему і не повторюй попередні товари.
 
 ФОРМАТ ВІДПОВІДІ — ТІЛЬКИ ВАЛІДНИЙ JSON (без markdown, без тексту до або після):
 {
-  "reply": "2-4 речення: коротко перекажи потребу клієнта і що ти підібрав",
+  "reply": "2-3 речення (до 450 символів): коротко перекажи потребу і що ти підібрав",
   "products": [
-    { "id": "id з context.products", "reason": "1 речення: чому саме цей товар підходить" }
+    { "id": "id з context.products", "reason": "1 коротке речення (до 150 символів): чому саме цей товар підходить" }
   ],
   "follow_up_questions": ["1-2 уточнювальних питання"],
   "confidence": "high | medium | low"
@@ -42,8 +48,10 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 
 ПРАВИЛЯ ПОЛІВ:
 - products[].id має точно відповідати id товару з context.products.
-- reason — мовою відповіді, з конкретикою (інгредієнт, тип шкіри, текстура, бюджет, знижка).
-- products[] НЕ має бути порожнім, якщо в кандидатах є наявні товари: візьми найближчі за запитом (ціна, тип, знижка) і поясни в reason, чому це компроміс. Порожній products — лише якщо кандидатів немає взагалі, і тоді додай follow_up_questions.
+- reason — мовою відповіді, з конкретикою (інгредієнт, тип шкіри, текстура, бюджет, знижка), максимум 150 символів.
+- У reply НЕ перелікуй товари поіменно (їх уже показано картками) і не використовуй markdown-списки — лише 2-3 зв'язних речення.
+- products[] НЕ має бути порожнім, якщо в кандидатах є наявні товари: візьми найближчі за запитом (ціна, тип, знижка) і поясни в reason, чому це компроміс. Порожній products — лише якщо кандидатів немає взагалі або запит поза темою магазину (п.12), і тоді додай follow_up_questions.
+- Максимум 2 follow_up_questions, кожне до 100 символів.
 - Якщо confidence не "high" — обов'язково додай follow_up_questions.`;
 
 function localized(p: Product, lang: string, field: "name" | "description"): string {
@@ -69,6 +77,85 @@ async function loadCatalog(): Promise<Product[]> {
   const data = (await res.json()) as { items: Product[] };
   catalogCache = { items: data.items, at: Date.now() };
   return data.items;
+}
+
+interface PerfumeItem {
+  slug: string;
+  name: string;
+  display_name?: string;
+  brand: string;
+  gender?: string;
+  type?: string;
+  price: number;
+  promo_price?: number | null;
+  discount?: number;
+  in_stock?: boolean;
+  volume_ml?: number;
+  country?: string;
+  families?: string[];
+  note_list?: string[];
+  description?: string;
+  has_photo?: boolean;
+}
+
+function mapPerfume(p: PerfumeItem): Product {
+  const promo = p.promo_price && p.promo_price < p.price ? p.promo_price : null;
+  const percent = promo
+    ? Math.round((1 - promo / p.price) * 100)
+    : p.discount && p.discount > 0
+      ? p.discount
+      : 0;
+  const notes = (p.note_list && p.note_list.length ? p.note_list : []).join(", ");
+  const desc = [p.description || "", notes ? `Ноти: ${notes}` : ""].filter(Boolean).join(" ").trim();
+  return {
+    id: `${PERFUME_PREFIX}${p.slug}`,
+    sku: p.slug,
+    name: p.display_name || p.name,
+    name_uk: p.display_name || p.name,
+    name_ru: "",
+    name_en: "",
+    brand: p.brand,
+    category: "Парфумерія",
+    price: p.price,
+    promo_price: promo,
+    discount_percent: percent,
+    stock: p.in_stock === false ? 0 : 1,
+    volume: p.volume_ml ? `${p.volume_ml} мл` : "",
+    country: p.country || "",
+    description_uk: desc,
+    description_ru: "",
+    description_en: "",
+    image: p.has_photo
+      ? `/api/perfumes/image/${encodeURIComponent(p.slug)}?w=480`
+      : "/images/placeholder.svg",
+    has_image: !!p.has_photo,
+    is_on_sale: percent > 0,
+    tags: [p.gender, p.type, ...(p.families || []), ...(p.note_list || [])].filter(
+      (x): x is string => !!x
+    ),
+  };
+}
+
+async function loadPerfumes(): Promise<Product[]> {
+  if (perfumeCache && Date.now() - perfumeCache.at < 60_000) return perfumeCache.items;
+  const base = env("BACKEND_URL") || "http://localhost:8000";
+  try {
+    const res = await fetch(`${base}/api/perfumes?limit=100`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`perfumes responded ${res.status}`);
+    const data = (await res.json()) as { items: PerfumeItem[] };
+    const items = (Array.isArray(data.items) ? data.items : []).map(mapPerfume);
+    perfumeCache = { items, at: Date.now() };
+    return items;
+  } catch (err) {
+    // perfumes are optional enrichment — never fail the chat because of them
+    console.error("[chat] perfume load failed:", err);
+    return perfumeCache?.items ?? [];
+  }
+}
+
+async function loadAll(): Promise<Product[]> {
+  const [catalog, perfumes] = await Promise.all([loadCatalog(), loadPerfumes()]);
+  return [...catalog, ...perfumes];
 }
 
 function buildContext(products: Product[], lang: string): string {
@@ -136,6 +223,35 @@ async function callGroq(
   throw new Error(errors.join(" | ").slice(0, 600));
 }
 
+function cardLink(p: Product): string | undefined {
+  return p.id.startsWith(PERFUME_PREFIX)
+    ? `/perfume/${encodeURIComponent(p.id.slice(PERFUME_PREFIX.length))}`
+    : undefined;
+}
+
+function makeCard(p: Product, lang: string, reason?: string): ChatProductCard {
+  const trimmed = reason && reason.trim() ? reason.trim().slice(0, 160) : undefined;
+  return {
+    id: p.id,
+    name: nameOf(p, lang),
+    brand: p.brand,
+    price: p.price,
+    promo_price: p.promo_price,
+    image: p.image,
+    discount_percent: p.discount_percent,
+    reason: trimmed,
+    link: cardLink(p),
+  };
+}
+
+function truncateReply(text: string, max = 500): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const boundary = cut.match(/^[\s\S]*[.!?…][\s"»)]?/);
+  const out = boundary ? boundary[0].trimEnd() : cut.trimEnd();
+  return out.endsWith("…") ? out : `${out}…`;
+}
+
 function parseReply(raw: string, catalog: Product[], lang: string): ChatResponse {
   const cleaned = raw
     .trim()
@@ -147,8 +263,9 @@ function parseReply(raw: string, catalog: Product[], lang: string): ChatResponse
     follow_up_questions?: unknown;
   };
 
-  const reply = typeof data.reply === "string" ? data.reply.trim() : "";
+  let reply = typeof data.reply === "string" ? data.reply.trim() : "";
   if (!reply) throw new Error("missing reply");
+  reply = truncateReply(reply);
 
   const byId = new Map(catalog.map((p) => [p.id, p]));
   const cards: ChatProductCard[] = [];
@@ -157,19 +274,9 @@ function parseReply(raw: string, catalog: Product[], lang: string): ChatResponse
     const p = byId.get(String(item?.id));
     if (!p || p.stock <= 0 || seen.has(p.id)) continue;
     seen.add(p.id);
-    cards.push({
-      id: p.id,
-      name: nameOf(p, lang),
-      brand: p.brand,
-      price: p.price,
-      promo_price: p.promo_price,
-      image: p.image,
-      discount_percent: p.discount_percent,
-      reason:
-        typeof item.reason === "string" && item.reason.trim()
-          ? item.reason.trim().slice(0, 300)
-          : undefined,
-    });
+    cards.push(
+      makeCard(p, lang, typeof item.reason === "string" ? item.reason : undefined)
+    );
     if (cards.length === 3) break;
   }
 
@@ -201,6 +308,8 @@ const SKIN_SYNONYMS: string[][] = [
   ["акне", "вугр", "запален", "антисепт"],
   ["зморшк", "антивіков", "підтяг", "еластин", "anti-age"],
   ["влажн", "гіалурон", "hydrat"],
+  // perfumes: "духи", "парфуми", "аромат", notes/families…
+  ["парфум", "дух", "аромат", "шлейф", "туалетн", "амбра", "ваніл", "цитрус", "мускус"],
 ];
 
 function expandQuery(message: string): string {
@@ -292,18 +401,13 @@ function fallbackResponse(message: string, lang: string, products: Product[]): C
   const picks = retrieve(products, message, lang, 3);
   return {
     reply: withInstagram(FALLBACK_REPLY[lang] || FALLBACK_REPLY.uk, lang),
-    products: picks.map((p) => ({
-      id: p.id,
-      name: nameOf(p, lang),
-      brand: p.brand,
-      price: p.price,
-      promo_price: p.promo_price,
-      image: p.image,
-      discount_percent: p.discount_percent,
-      reason:
-        firstSentence(localized(p, lang, "description")) ||
-        `${p.category} · ${p.brand}`,
-    })),
+    products: picks.map((p) =>
+      makeCard(
+        p,
+        lang,
+        firstSentence(localized(p, lang, "description")) || `${p.category} · ${p.brand}`
+      )
+    ),
   };
 }
 
@@ -348,7 +452,7 @@ export async function POST(req: NextRequest) {
 
   let products: Product[];
   try {
-    products = await loadCatalog();
+    products = await loadAll();
   } catch (err) {
     console.error("[chat] catalog load failed:", err);
     return respond({ reply: withInstagram(CATALOG_UNAVAILABLE[lang] || CATALOG_UNAVAILABLE.uk, lang), products: [] });
@@ -376,18 +480,14 @@ export async function POST(req: NextRequest) {
           if (resp.products.length >= 3) break;
           if (have.has(c.id)) continue;
           have.add(c.id);
-          resp.products.push({
-            id: c.id,
-            name: nameOf(c, lang),
-            brand: c.brand,
-            price: c.price,
-            promo_price: c.promo_price,
-            image: c.image,
-            discount_percent: c.discount_percent,
-            reason:
+          resp.products.push(
+            makeCard(
+              c,
+              lang,
               firstSentence(localized(c, lang, "description")) ||
-              `${c.category} · ${c.brand}`,
-          });
+                `${c.category} · ${c.brand}`
+            )
+          );
         }
       }
       resp.reply = withInstagram(resp.reply, lang);

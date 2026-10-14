@@ -14,6 +14,7 @@ export interface ChatProduct {
   image: string;
   discount_percent: number;
   reason?: string;
+  link?: string;
 }
 
 interface Props {
@@ -52,8 +53,15 @@ export default function ChatBubble({ content, isTyping, onFinish, onGrow, produc
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, isTyping]);
 
+  // product cards mount after the typing finishes — grow the panel scroll
+  // so the last card is visible without manual scrolling
+  useEffect(() => {
+    if (products.length > 0 && !isTyping) onGrow?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, isTyping]);
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
       <div className="glass max-w-[85%] rounded-2xl rounded-tl-sm !p-3 px-4 py-3 text-sm leading-relaxed break-words">
         {displayed}
         {isTyping && displayed.length < content.length && (
@@ -66,13 +74,13 @@ export default function ChatBubble({ content, isTyping, onFinish, onGrow, produc
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col gap-2"
+            className="flex min-w-0 flex-col gap-2"
           >
             {products.map((p) => (
               <Link
                 key={p.id}
-                href={`/product/${encodeURIComponent(p.id)}`}
-                className="group flex items-center gap-3 glass rounded-xl !p-2 transition hover:shadow-md"
+                href={p.link || `/product/${encodeURIComponent(p.id)}`}
+                className="group flex min-w-0 items-center gap-3 glass rounded-xl !p-2 transition hover:shadow-md"
               >
                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[var(--pic)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -93,12 +101,12 @@ export default function ChatBubble({ content, isTyping, onFinish, onGrow, produc
                     {p.name}
                   </div>
                   {p.reason && (
-                    <div className="mt-0.5 text-[10px] leading-snug text-[color:var(--muted)]">
-                      рџ’Ў {p.reason}
+                    <div className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-[color:var(--muted)]">
+                      💡 {p.reason}
                     </div>
                   )}
                 </div>
-                <div className="text-right">
+                <div className="shrink-0 text-right">
                   {p.promo_price ? (
                     <>
                       <div className="price-new text-sm">{p.promo_price} {currency}</div>

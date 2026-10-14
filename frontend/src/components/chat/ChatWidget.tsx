@@ -147,7 +147,7 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 32, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="fixed bottom-24 right-4 z-50 flex h-[70vh] max-h-[640px] w-[calc(100vw-2rem)] max-w-md flex-col overflow-hidden rounded-3xl tile !rounded-3xl !p-0"
+            className="fixed bottom-24 left-4 right-4 z-50 flex h-[calc(100svh-7.5rem)] max-h-none flex-col overflow-hidden rounded-3xl tile !rounded-3xl !p-0 sm:left-auto sm:h-[78vh] sm:max-h-[680px] sm:w-[calc(100vw-2rem)] sm:max-w-lg lg:h-[70vh] lg:max-h-[640px] lg:max-w-md"
           >
             <div className="flex items-center gap-3 px-5 py-4">
               <span className="flex h-9 w-9 items-center justify-center rounded-full glass !rounded-full text-lg">

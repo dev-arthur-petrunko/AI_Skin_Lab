@@ -44,6 +44,7 @@ export interface ChatProductCard {
   image: string;
   discount_percent: number;
   reason?: string;
+  link?: string;
 }
 
 export interface ChatResponse {
