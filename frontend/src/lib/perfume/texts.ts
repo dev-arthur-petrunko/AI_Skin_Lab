@@ -3,6 +3,22 @@ export const T = {
   subtitle: "Парфумована вода та аромати",
   hero_lead:
     "Оберіть аромат за нотами, брендом чи сімейством — колекція парфумованої води з доставкою по Україні.",
+  about_title: "Про колекцію",
+  about_item: "Про аромат",
+  about_p1:
+    "«Духи» AI Skin Lab — це ретельно відібрана колекція парфумованої води: від ніжних квіткових композицій до стійких орієнтальних ароматів. Кожен флакон у колекції — це характер і настрій, який ви розповідаєте світу без слів.",
+  about_p2:
+    "Ми відбираємо аромати за стійкістю, багатством нот і якістю складу, тому в каталозі лише ті позиції, які приємно носити щодня. Підбір за сімействами та нотами допоможе знайти свій аромат навіть якщо ви знаєте лише улюблену ноту.",
+  about_p3:
+    "Оформіть замовлення за кілька хвилин: ми підтвердимо наявність, акуратно запакуємо флакон і відправимо доставкою по всій Україні.",
+  about_f1_t: "Доставка по Україні",
+  about_f1_d: "Відправляємо до відділення або кур'єром — швидко й зручно.",
+  about_f2_t: "Гарантія оригінальності",
+  about_f2_d: "Лише оригінальна парфумерія від перевірених постачальників.",
+  about_f3_t: "Підбір за нотами",
+  about_f3_d: "Фільтри за сімейством, нотами та брендом — свій аромат за хвилину.",
+  about_f4_t: "Швидке замовлення",
+  about_f4_d: "Кошик і пара контактів — і менеджер зв'яжеться з вами.",
   cta_pick: "Обрати аромат",
   cta_sale: "Дивитись знижки",
   found_one: "Знайдено {n} аромат",
@@ -93,4 +109,45 @@ export function pluralAromatic(n: number): string {
   if (mod10 === 1 && mod100 !== 11) return T.found_one.replace("{n}", String(n));
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return T.found_few.replace("{n}", String(n));
   return T.found_many.replace("{n}", String(n));
+}
+
+type DescSource = {
+  display_name?: string;
+  name: string;
+  brand: string;
+  gender?: string | null;
+  type?: string | null;
+  volume_ml?: number | null;
+  country?: string;
+  families: string[];
+  notes: { top: string[]; heart: string[]; base: string[] };
+};
+
+/** Rich Ukrainian description assembled from the product fields when none exists in the sheet. */
+export function buildDescription(item: DescSource): string {
+  const name = item.display_name || item.name;
+  const gender = (item.gender || "").toLowerCase();
+  let genderPhrase = "";
+  if (gender.startsWith("жіноч")) genderPhrase = " для жінок";
+  else if (gender.startsWith("чоловіч")) genderPhrase = " для чоловіків";
+  else if (gender.includes("унісекс")) genderPhrase = " унісекс";
+
+  const parts: string[] = [
+    `${name} — парфумована вода${genderPhrase} від бренду ${item.brand}` +
+      (item.volume_ml ? `, ${item.volume_ml} мл` : "") +
+      ".",
+  ];
+
+  if (item.type) parts.push(`Тип аромату: ${item.type}.`);
+  if (item.families.length) parts.push(`Сімейство аромату: ${item.families.join(", ")}.`);
+
+  const notes: string[] = [];
+  if (item.notes.top.length) notes.push(`у верхніх нотах ${item.notes.top.slice(0, 4).join(", ")}`);
+  if (item.notes.heart.length) notes.push(`у нотах серця ${item.notes.heart.slice(0, 4).join(", ")}`);
+  if (item.notes.base.length) notes.push(`у базових нотах ${item.notes.base.slice(0, 4).join(", ")}`);
+  if (notes.length) parts.push(`У розкритті — ${notes.join(", ")}.`);
+
+  if (item.country) parts.push(`Країна виробника: ${item.country}.`);
+  parts.push("Доставка по Україні — замовляйте онлайн у AI Skin Lab.");
+  return parts.join(" ");
 }

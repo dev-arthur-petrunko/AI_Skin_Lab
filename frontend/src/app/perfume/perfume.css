@@ -379,6 +379,89 @@
   to { opacity: 1; transform: none; }
 }
 
+/* ---------- about the collection ---------- */
+.pf-about { padding: clamp(1.5rem, 3.5vw, 2.75rem); }
+
+.pf-about-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .pf-about-grid { grid-template-columns: 1.15fr .85fr; gap: 3rem; align-items: start; }
+}
+
+.pf-about-lead {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 1.12rem;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.pf-about-lead::first-letter {
+  float: left;
+  font-size: 2.6em;
+  line-height: .85;
+  padding-right: .12em;
+  padding-top: .06em;
+  color: var(--gold);
+}
+
+.pf-about-text {
+  font-size: .95rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.pf-about-features {
+  display: grid;
+  gap: .8rem;
+}
+
+.pf-about-f {
+  display: flex;
+  gap: .9rem;
+  align-items: flex-start;
+  padding: .9rem 1rem;
+  border-radius: 18px;
+  border: 1px solid var(--gl);
+  background: rgba(255, 255, 255, .35);
+  transition: border-color .25s ease, transform .25s ease;
+}
+
+.pf-about-f:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+[data-theme="dark"] .pf-about-f { background: rgba(255, 255, 255, .05); }
+
+.pf-about-f-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: rgba(201, 165, 92, .16);
+  color: var(--gold);
+}
+
+.pf-about-f-t { font-size: .9rem; font-weight: 700; color: var(--ink); }
+.pf-about-f-d { margin-top: .15rem; font-size: .8rem; line-height: 1.5; color: var(--muted); }
+
+/* ---------- item description ---------- */
+.pf-desc {
+  border-top: 1px dashed var(--gl);
+  padding-top: 1rem;
+}
+
+.pf-desc-text {
+  margin-top: .6rem;
+  font-size: .92rem;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+
 
 .pf-overlay {
   position: fixed;

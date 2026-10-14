@@ -9,22 +9,27 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useCart } from "@/providers/CartProvider";
 
 export type PerfumeCartItem = {
   slug: string;
   name: string;
   brand: string;
   price: number;
+  promo_price: number | null;
   image: string;
   qty: number;
 };
 
-const STORAGE_KEY = "asl_perfume_cart_v1";
+/** perfume lines live inside the site-wide cart under this id prefix */
+const PREFIX = "perfume:";
+/** previous standalone perfume-cart storage (migrated once on load) */
+const LEGACY_KEY = "asl_perfume_cart_v1";
 
 type CartCtx = {
   items: PerfumeCartItem[];
   hydrated: boolean;
-  add: (item: Omit<PerfumeCartItem, "qty">, qty?: number) => void;
+  add: (item: Omit<PerfumeCartItem, "qty" | "promo_price"> & { promo_price?: number | null }, qty?: number) => void;
   setQty: (slug: string, qty: number) => void;
   remove: (slug: string) => void;
   clear: () => void;
@@ -35,68 +40,101 @@ type CartCtx = {
 const PerfumeCartContext = createContext<CartCtx | null>(null);
 
 export function PerfumeCartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<PerfumeCartItem[]>([]);
+  const main = useCart();
   const [hydrated, setHydrated] = useState(false);
 
+  // one-time migration of carts saved before the merge with the site cart
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          setItems(
-            parsed.filter(
-              (x): x is PerfumeCartItem =>
-                x && typeof x.slug === "string" && typeof x.qty === "number"
-            )
-          );
+    const t = window.setTimeout(() => {
+      try {
+        const raw = window.localStorage.getItem(LEGACY_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            for (const x of parsed) {
+              if (!x || typeof x.slug !== "string") continue;
+              main.add(
+                {
+                  id: PREFIX + x.slug,
+                  name: String(x.name || ""),
+                  sku: x.slug,
+                  brand: String(x.brand || ""),
+                  price: Number(x.price) || 0,
+                  promo_price: null,
+                  image: String(x.image || ""),
+                },
+                typeof x.qty === "number" && x.qty > 0 ? x.qty : 1
+              );
+            }
+          }
+          window.localStorage.removeItem(LEGACY_KEY);
         }
+      } catch {
+        /* corrupted storage — ignore */
       }
-    } catch {
-      /* corrupted storage — start empty */
-    }
-    setHydrated(true);
+      setHydrated(true);
+    }, 0);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    } catch {
-      /* storage full/unavailable */
-    }
-  }, [items, hydrated]);
+  const items = useMemo<PerfumeCartItem[]>(
+    () =>
+      main.items
+        .filter((x) => x.id.startsWith(PREFIX))
+        .map((x) => ({
+          slug: x.id.slice(PREFIX.length),
+          name: x.name,
+          brand: x.brand,
+          price: x.promo_price ?? x.price,
+          promo_price: x.promo_price,
+          image: x.image,
+          qty: x.qty,
+        })),
+    [main.items]
+  );
 
-  const add = useCallback((item: Omit<PerfumeCartItem, "qty">, qty = 1) => {
-    setItems((prev) => {
-      const found = prev.find((x) => x.slug === item.slug);
-      if (found) {
-        return prev.map((x) =>
-          x.slug === item.slug ? { ...x, qty: Math.min(99, x.qty + qty) } : x
-        );
+  const add = useCallback(
+    (
+      item: Omit<PerfumeCartItem, "qty" | "promo_price"> & { promo_price?: number | null },
+      qty = 1
+    ) => {
+      main.add(
+        {
+          id: PREFIX + item.slug,
+          name: item.name,
+          sku: item.slug,
+          brand: item.brand,
+          price: item.price,
+          promo_price: item.promo_price ?? null,
+          image: item.image,
+        },
+        qty
+      );
+      try {
+        window.dispatchEvent(new CustomEvent("pf:cart-added", { detail: { slug: item.slug } }));
+      } catch {
+        /* non-browser environment */
       }
-      return [...prev, { ...item, qty: Math.max(1, qty) }];
-    });
-    try {
-      window.dispatchEvent(new CustomEvent("pf:cart-added", { detail: { slug: item.slug } }));
-    } catch {
-      /* non-browser environment */
+    },
+    [main.add]
+  );
+
+  const setQty = useCallback(
+    (slug: string, qty: number) => {
+      if (qty <= 0) main.remove(PREFIX + slug);
+      else main.setQty(PREFIX + slug, qty);
+    },
+    [main]
+  );
+
+  const remove = useCallback((slug: string) => main.remove(PREFIX + slug), [main]);
+
+  const clear = useCallback(() => {
+    for (const x of main.items) {
+      if (x.id.startsWith(PREFIX)) main.remove(x.id);
     }
-  }, []);
-
-  const setQty = useCallback((slug: string, qty: number) => {
-    setItems((prev) =>
-      qty <= 0
-        ? prev.filter((x) => x.slug !== slug)
-        : prev.map((x) => (x.slug === slug ? { ...x, qty: Math.min(99, qty) } : x))
-    );
-  }, []);
-
-  const remove = useCallback((slug: string) => {
-    setItems((prev) => prev.filter((x) => x.slug !== slug));
-  }, []);
-
-  const clear = useCallback(() => setItems([]), []);
+  }, [main]);
 
   const value = useMemo<CartCtx>(() => {
     const count = items.reduce((s, x) => s + x.qty, 0);

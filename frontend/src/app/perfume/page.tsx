@@ -7,6 +7,7 @@ import BrandsPanel from "@/components/perfume/BrandsPanel";
 import SaleRail from "@/components/perfume/SaleRail";
 import PerfumeCollection from "@/components/perfume/PerfumeCollection";
 import HowToWear from "@/components/perfume/HowToWear";
+import PerfumeAbout from "@/components/perfume/PerfumeAbout";
 import PerfumeHero, { type PerfumeHeroItem } from "@/components/perfume/PerfumeHero";
 
 export const dynamic = "force-dynamic";
@@ -113,6 +114,9 @@ export default async function PerfumePage({ searchParams }: { searchParams: SP }
       <section className="mt-14">
         <HowToWear />
       </section>
+
+      {/* about the collection */}
+      <PerfumeAbout />
     </>
   );
 }

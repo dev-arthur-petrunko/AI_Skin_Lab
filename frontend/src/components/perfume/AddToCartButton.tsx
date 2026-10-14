@@ -56,7 +56,8 @@ export default function AddToCartButton({ item }: { item: PerfumeItem }) {
             slug: item.slug,
             name: item.display_name || item.name,
             brand: item.brand,
-            price,
+            price: item.price,
+            promo_price: item.promo_price,
             image: perfumeImg(item.slug, 480),
           },
           1

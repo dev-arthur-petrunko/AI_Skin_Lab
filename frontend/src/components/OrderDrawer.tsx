@@ -22,7 +22,7 @@ interface Props {
 export default function OrderDrawer({ open, onClose }: Props) {
   const t = useTranslations("order");
   const tCommon = useTranslations("common");
-  const { items, setQty, remove, clear, count, total } = useCart();
+  const { items, setQty, remove, count, total } = useCart();
   const reduce = useReducedMotion();
 
   const [step, setStep] = useState<Step>("cart");
@@ -64,11 +64,13 @@ export default function OrderDrawer({ open, onClose }: Props) {
   }, [open]);
 
   // reset to cart step when reopened after success
+  const wasOpen = useRef(false);
   useEffect(() => {
-    if (open && step === "done") {
+    if (open && !wasOpen.current && step === "done") {
       setStep("cart");
       setSubmitError(false);
     }
+    wasOpen.current = open;
   }, [open, step]);
 
   const validate = () => {
@@ -84,9 +86,21 @@ export default function OrderDrawer({ open, onClose }: Props) {
 
   const normalizePhone = (raw: string) => {
     const d = raw.replace(/\D/g, "");
-    if (d.startsWith("0") && d.length === 10) return "+380 " + d.slice(1, 3) + " " + d.slice(3, 6) + " " + d.slice(6, 8) + " " + d.slice(8);
-    if (d.startsWith("380") && d.length === 12) return "+380 " + d.slice(2, 4) + " " + d.slice(4, 7) + " " + d.slice(7, 9) + " " + d.slice(9);
-    if (d.startsWith("38") && d.length === 12) return "+380 " + d.slice(2, 4) + " " + d.slice(4, 7) + " " + d.slice(7, 9) + " " + d.slice(9);
+    if (d.startsWith("80") && d.length === 11) return "+3" + d;
+    if (d.startsWith("380")) {
+      const rest = d.slice(3);
+      if (rest.length < 9) return raw;
+      const op = rest.slice(0, 2);
+      const n1 = rest.slice(2, 5);
+      const n2 = rest.slice(5, 7);
+      const n3 = rest.slice(7, 9);
+      const tail = rest.slice(9);
+      return `+380 ${op} ${n1} ${n2} ${n3}` + (tail ? ` ${tail}` : "");
+    }
+    if (d.startsWith("0") && d.length === 10) {
+      return "+380 " + d.slice(1, 3) + " " + d.slice(3, 6) + " " + d.slice(6, 8) + " " + d.slice(8);
+    }
+    if (10 <= d.length && d.length <= 15) return "+" + d;
     return raw;
   };
 
@@ -95,27 +109,56 @@ export default function OrderDrawer({ open, onClose }: Props) {
     setLoading(true);
     setSubmitError(false);
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map((i) => ({ id: i.id, qty: i.qty })),
-          name: form.name.trim(),
-          phone: normalizePhone(form.phone),
-          comment: form.comment.trim(),
-          website: form.website,
-          locale: "uk",
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.detail || "error");
-      setOrderNo(data.order_no || "");
+      const perfumeItems = items.filter((i) => i.id.startsWith("perfume:"));
+      const mainItems = items.filter((i) => !i.id.startsWith("perfume:"));
+      let allOk = true;
+
+      // perfume lines go to their own endpoint (separate Telegram topic)
+      if (perfumeItems.length > 0) {
+        const res = await fetch("/api/perfumes/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: perfumeItems.map((i) => ({ slug: i.id.slice("perfume:".length), qty: i.qty })),
+            name: form.name.trim(),
+            phone: normalizePhone(form.phone),
+            comment: form.comment.trim(),
+            website: form.website,
+          }),
+        });
+        if (res.ok) perfumeItems.forEach((i) => remove(i.id));
+        else allOk = false;
+      }
+
+      // regular catalog lines go to the main orders endpoint
+      if (mainItems.length > 0) {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: mainItems.map((i) => ({ id: i.id, qty: i.qty })),
+            name: form.name.trim(),
+            phone: normalizePhone(form.phone),
+            comment: form.comment.trim(),
+            website: form.website,
+            locale: "uk",
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          setOrderNo(data.order_no || "");
+          mainItems.forEach((i) => remove(i.id));
+        } else {
+          allOk = false;
+        }
+      }
+
+      if (!allOk) throw new Error("part-failed");
       if (remember) {
         try {
           localStorage.setItem("asl_order_contact", JSON.stringify({ name: form.name, phone: form.phone }));
         } catch {}
       }
-      clear();
       setStep("done");
     } catch {
       setSubmitError(true);

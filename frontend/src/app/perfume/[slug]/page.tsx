@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPerfume, perfumeImg } from "@/lib/perfume/api";
 import { formatPrice } from "@/lib/format";
-import { T } from "@/lib/perfume/texts";
+import { T, buildDescription } from "@/lib/perfume/texts";
 import PerfumeCard from "@/components/perfume/PerfumeCard";
 import NotePyramid from "@/components/perfume/NotePyramid";
 import AddToCartButton from "@/components/perfume/AddToCartButton";
@@ -18,9 +18,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const item = await getPerfume(decodeURIComponent(params.slug)).catch(() => null);
   if (!item) return { title: `${T.title} — AI Skin Lab` };
   const name = item.display_name || item.name;
+  const desc = item.description || buildDescription(item);
   return {
     title: `${name} — ${T.title} | AI Skin Lab`,
-    description: item.description || `${item.brand} · ${T.title}`,
+    description: desc || `${item.brand} · ${T.title}`,
   };
 }
 
@@ -31,6 +32,7 @@ export default async function PerfumeDetailPage({ params }: Params) {
   const name = item.display_name || item.name;
   const price = item.promo_price ?? item.price;
   const hasSale = Boolean(item.discount && item.promo_price);
+  const desc = item.description || buildDescription(item);
 
   const specs: [string, string][] = [
     [T.brand_title, item.brand],
@@ -95,8 +97,13 @@ export default async function PerfumeDetailPage({ params }: Params) {
             <AddToCartButton item={item} />
           </div>
 
-          {item.description && (
-            <p className="text-sm leading-relaxed text-[var(--muted)]">{item.description}</p>
+          {desc && (
+            <div className="pf-desc">
+              <span className="section-label">
+                <span className="text-[var(--gold)]">●</span> {T.about_item}
+              </span>
+              <p className="pf-desc-text">{desc}</p>
+            </div>
           )}
         </div>
       </div>

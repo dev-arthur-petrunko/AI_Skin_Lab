@@ -2,7 +2,7 @@
 # Scope guard for the isolated /perfume feature.
 set -euo pipefail
 ALLOWED='^(frontend/src/app/perfume/|frontend/src/components/perfume/|frontend/src/lib/perfume/|backend/app/perfumes/|backend/tests/test_perfume|scripts/(perfume_|check_scope_perfume)|data/perfume_(photos_)?report\.csv$|data/perfume_images/)'
-EDITABLE='^(backend/app/main\.py|frontend/src/components/Header\.tsx|frontend/src/messages/uk\.json|\.gitignore)$'
+EDITABLE='^(backend/app/main\.py|frontend/src/components/Header\.tsx|frontend/src/components/OrderDrawer\.tsx|frontend/src/messages/uk\.json|\.gitignore)$'
 cd "$(dirname "$0")/.."
 # WSL git vs Windows git: normalize so CRLF on disk doesn't create phantom diffs
 gitc() { git -c core.autocrlf=true "$@"; }
