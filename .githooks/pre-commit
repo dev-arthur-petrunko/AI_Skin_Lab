@@ -1,0 +1,30 @@
+#!/bin/sh
+# Secret guard: blocks commits that stage real .env files or known secret
+# patterns (Telegram bot tokens, Groq/OpenAI keys, AWS keys, Slack tokens).
+# Enable once per clone:  git config core.hooksPath .githooks
+
+fail=0
+
+# 1) Never stage real env files (templates *.example are allowed)
+for f in $(git diff --cached --name-only --diff-filter=ACM); do
+  base=$(basename "$f")
+  case "$base" in
+    .env|.env.local|.env.development.local|.env.test.local|.env.production.local)
+      echo "BLOCKED by pre-commit: '$f' is a real env file (local secrets only)." >&2
+      fail=1
+      ;;
+  esac
+done
+
+# 2) Scan added lines of the staged diff for secret-shaped values
+if git diff --cached -U0 | grep -E '^\+' | grep -Eq \
+  '[0-9]{8,12}:[A-Za-z0-9_-]{30,}|gsk_[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}'; then
+  echo "BLOCKED by pre-commit: staged changes look like a secret (token/key pattern)." >&2
+  fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo "Keep secrets in local .env; commit only placeholders/templates." >&2
+  exit 1
+fi
+exit 0

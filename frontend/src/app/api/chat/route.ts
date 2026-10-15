@@ -3,6 +3,34 @@ import type { ChatResponse, ChatProductCard, Product } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+// Rate limit: per-IP + global — protects the paid Groq quota from abuse.
+const RATE_HITS = new Map<string, number[]>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT_IP = 10;
+const RATE_LIMIT_GLOBAL = 60;
+const GLOBAL_KEY = "__global__";
+
+function clientRateKey(req: NextRequest): string {
+  const cf = req.headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+  const xff = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  if (xff) return xff;
+  return "shared";
+}
+
+function rateLimited(key: string, limit: number): boolean {
+  const now = Date.now();
+  const arr = (RATE_HITS.get(key) || []).filter((t) => now - t < RATE_WINDOW_MS);
+  arr.push(now);
+  RATE_HITS.set(key, arr);
+  if (RATE_HITS.size > 500) {
+    RATE_HITS.forEach((v, k) => {
+      if (v.every((t: number) => now - t >= RATE_WINDOW_MS)) RATE_HITS.delete(k);
+    });
+  }
+  return arr.length > limit;
+}
+
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 interface HistoryItem {
@@ -402,6 +430,13 @@ function respond(body: ChatResponse, status = 200): NextResponse {
 }
 
 export async function POST(req: NextRequest) {
+  if (rateLimited(clientRateKey(req), RATE_LIMIT_IP) || rateLimited(GLOBAL_KEY, RATE_LIMIT_GLOBAL)) {
+    return NextResponse.json(
+      { error: "Забагато запитів. Спробуйте за хвилину." },
+      { status: 429 }
+    );
+  }
+
   let message = "";
   const lang = "uk";
   let history: HistoryItem[] = [];

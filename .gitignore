@@ -81,13 +81,16 @@ empty_rows.txt
 price.xlsx
 data/price.xlsx
 data/backup/
-data/orders.jsonl
+data/*.jsonl
 data/missing_photos.csv
 data/cutouts/
 
 
 # Perfume feature (isolated /perfume page)
-data/perfume_orders.jsonl
 data/cache/
 data/perfume_photos_raw/
 data/perfume_images/*.png
+
+# Secrets policy: real .env files are local-only (.env.example is the template).
+# Enforced by .githooks/pre-commit — enable with:
+#   git config core.hooksPath .githooks

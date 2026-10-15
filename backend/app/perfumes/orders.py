@@ -11,8 +11,9 @@ from collections import defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
 
+import httpx
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger("perfumes.orders")
 
@@ -24,15 +25,15 @@ _hits: dict[str, deque[float]] = defaultdict(deque)
 
 
 class OrderItem(BaseModel):
-    slug: str
+    slug: str = Field(max_length=200)
     qty: int = 1
 
 
 class PerfumeOrder(BaseModel):
-    items: list[OrderItem]
-    name: str
-    phone: str
-    comment: str = ""
+    items: list[OrderItem] = Field(min_length=1, max_length=30)
+    name: str = Field(max_length=120)
+    phone: str = Field(max_length=32)
+    comment: str = Field(default="", max_length=1000)
     website: str = ""  # honeypot
 
 
@@ -49,15 +50,34 @@ def _normalize_phone(raw: str) -> str | None:
     return None
 
 
-def _rate_limited(ip: str) -> bool:
+def _client_key(request: Request) -> str:
+    """Best-effort real client IP (mirrors catalog orders)."""
+    cf = (request.headers.get("cf-connecting-ip") or "").strip()
+    if cf:
+        return cf
+    xff = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    if xff:
+        return xff
+    return "shared"
+
+
+def _rate_limited(key: str, limit: int = 5) -> bool:
     now = time.time()
-    q = _hits[ip]
+    q = _hits[key]
     while q and now - q[0] > 600:
         q.popleft()
-    if len(q) >= 5:
+    if len(q) >= limit:
         return True
     q.append(now)
     return False
+
+
+def _order_rate_limited(request: Request) -> bool:
+    """Per-IP limit when the real IP is known; elevated shared limit otherwise;
+    global backstop caps spoofed-header abuse."""
+    key = _client_key(request)
+    limit = 5 if key != "shared" else 20
+    return _rate_limited(key, limit) or _rate_limited("__global__", 20)
 
 
 def register(router: APIRouter) -> None:
@@ -68,8 +88,7 @@ def register(router: APIRouter) -> None:
     async def perfume_order(request: Request, order: PerfumeOrder):
         from .loader import store
 
-        ip = request.client.host if request.client else "unknown"
-        if _rate_limited(ip):
+        if _order_rate_limited(request):
             raise HTTPException(status_code=429, detail="Забагато спроб. Спробуйте пізніше.")
         if order.website:
             raise HTTPException(status_code=422, detail="Invalid")
@@ -137,20 +156,17 @@ def register(router: APIRouter) -> None:
         if not token or not chat_ids:
             raise HTTPException(status_code=502, detail="Telegram не налаштовано")
 
-        import urllib.request
         ok = False
-        for chat in chat_ids:
-            payload = json.dumps({"chat_id": chat, "text": text, "parse_mode": "HTML"}).encode()
-            req = urllib.request.Request(
-                f"https://api.telegram.org/bot{token}/sendMessage",
-                data=payload,
-                headers={"Content-Type": "application/json"},
-            )
-            try:
-                with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310
-                    ok = resp.status == 200 or ok
-            except Exception:  # noqa: BLE001
-                logger.exception("telegram send failed for chat %s", chat)
+        async with httpx.AsyncClient(timeout=10) as client:
+            for chat in chat_ids:
+                try:
+                    r = await client.post(
+                        f"https://api.telegram.org/bot{token}/sendMessage",
+                        json={"chat_id": chat, "text": text, "parse_mode": "HTML"},
+                    )
+                    ok = r.status_code == 200 or ok
+                except httpx.HTTPError:
+                    logger.exception("telegram send failed for chat %s", chat)
         if not ok:
             raise HTTPException(status_code=502, detail="Не вдалося надіслати замовлення")
         return {"status": "sent", "total": total}

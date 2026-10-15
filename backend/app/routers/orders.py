@@ -38,7 +38,7 @@ class OrderIn(BaseModel):
     name: str = Field(min_length=2, max_length=80)
     phone: str
     comment: str = Field(default="", max_length=500)
-    locale: str = "uk"
+    locale: str = Field(default="uk", max_length=16)
     website: str = ""  # honeypot field
 
     @field_validator("phone")
@@ -55,12 +55,33 @@ class OrderIn(BaseModel):
 
 
 def rate_limited(ip: str, limit: int = 5, window: int = 600) -> bool:
-    """Simple in-memory rate limiter: max 5 requests per 10 minutes per IP."""
+    """Simple in-memory rate limiter: max `limit` requests per `window` seconds per key."""
     now = time.time()
     hits = [t for t in _hits.get(ip, []) if now - t < window]
     hits.append(now)
     _hits[ip] = hits
     return len(hits) > limit
+
+
+def client_key(request: Request) -> str:
+    """Best-effort real client IP. Behind docker-proxy (no proxy headers) every
+    client shares one key — use an elevated shared limit for that case."""
+    cf = (request.headers.get("cf-connecting-ip") or "").strip()
+    if cf:
+        return cf
+    xff = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    if xff:
+        return xff
+    return "shared"
+
+
+def orders_rate_limited(request: Request) -> bool:
+    """Per-IP limit (5/10min) when the real IP is known; elevated shared limit
+    (20/10min) otherwise; plus a global backstop (20/10min) so spoofed
+    x-forwarded-for headers cannot bypass the cap."""
+    key = client_key(request)
+    limit = 5 if key != "shared" else 20
+    return rate_limited(key, limit=limit) or rate_limited("__global__", limit=20)
 
 
 def next_order_no() -> str:
@@ -121,13 +142,8 @@ async def create_order(o: OrderIn, request: Request):
     if o.website:
         return {"ok": True}
 
-    # Rate limiting by IP
-    ip = (
-        request.headers.get("cf-connecting-ip") or
-        request.headers.get("x-forwarded-for", "").split(",")[0].strip() or
-        (request.client.host if request.client else "?")
-    )
-    if rate_limited(ip):
+    # Rate limiting by client (per-IP + global backstop)
+    if orders_rate_limited(request):
         raise HTTPException(429, "too_many_requests")
 
     # Lookup products and build order
