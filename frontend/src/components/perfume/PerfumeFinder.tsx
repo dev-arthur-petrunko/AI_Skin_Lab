@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { PerfumeFacets } from "@/lib/perfume/api";
-import { hasActiveFilters, toSearchParams, type PerfumeQuery } from "@/lib/perfume/query";
-import { T } from "@/lib/perfume/texts";
+import {
+  applyPerfumeQuery,
+  subscribePerfumeQuery,
+  subscribePerfumeResult,
+} from "@/lib/perfume/filterBus";
+import { hasActiveFilters, type PerfumeQuery } from "@/lib/perfume/query";
+import { T, pluralAromatic } from "@/lib/perfume/texts";
 
-type Props = { facets: PerfumeFacets; query: PerfumeQuery };
+type Props = { facets: PerfumeFacets; query: PerfumeQuery; total: number };
 
 function toggleList(list: string, value: string): string {
   const set = new Set((list || "").split(",").filter(Boolean));
@@ -57,27 +61,30 @@ const SORTS: { value: string; label: string }[] = [
   { value: "name", label: T.sort_name },
 ];
 
-export default function PerfumeFinder({ facets, query }: Props) {
-  const router = useRouter();
+export default function PerfumeFinder({ facets, query, total }: Props) {
   const [draft, setDraft] = useState<PerfumeQuery>({ ...query });
+  const [found, setFound] = useState(total);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const applied = useMemo(() => toSearchParams(query), [query]);
-
   useEffect(() => {
-    setDraft({ ...query });
-    if (searchRef.current) searchRef.current.value = query.q || "";
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applied]);
+    const unsubQuery = subscribePerfumeQuery((q) => {
+      setDraft({ ...q });
+      if (searchRef.current) searchRef.current.value = q.q || "";
+    });
+    const unsubResult = subscribePerfumeResult((n) => setFound(n));
+    return () => {
+      unsubQuery();
+      unsubResult();
+    };
+  }, []);
 
   const go = (next: PerfumeQuery) => {
-    router.replace(`/perfume${toSearchParams(next)}`, { scroll: false });
+    applyPerfumeQuery(next);
+    setDraft({ ...next });
   };
 
   const patch = (p: Partial<PerfumeQuery>) => {
-    const next = { ...draft, ...p };
-    setDraft(next);
-    go(next);
+    go({ ...draft, ...p });
   };
 
   const reset = () => {
@@ -101,6 +108,9 @@ export default function PerfumeFinder({ facets, query }: Props) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-[var(--muted)]" aria-live="polite">
+            {pluralAromatic(found)}
+          </span>
           <select
             className="pf-select"
             aria-label={T.sort_default}
@@ -114,7 +124,7 @@ export default function PerfumeFinder({ facets, query }: Props) {
           <button type="button" className="btn btn-primary px-5 py-2 text-sm" onClick={showAll}>
             {T.show}
           </button>
-          {hasActiveFilters(query) && (
+          {hasActiveFilters(draft) && (
             <button type="button" className="btn btn-ghost px-5 py-2 text-sm" onClick={reset}>
               {T.reset}
             </button>

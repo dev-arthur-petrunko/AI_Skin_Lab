@@ -1,12 +1,18 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { PerfumeFacets } from "@/lib/perfume/api";
+import { applyPerfumeQuery, subscribePerfumeQuery } from "@/lib/perfume/filterBus";
 import { T } from "@/lib/perfume/texts";
 
 type Props = { brands: PerfumeFacets["brands"]; query: { brand?: string } };
 
 export default function BrandsPanel({ brands, query }: Props) {
+  const [brandList, setBrandList] = useState(query.brand || "");
+  useEffect(() => subscribePerfumeQuery((q) => setBrandList(q.brand || "")), [query.brand]);
   if (brands.length === 0) return null;
-  const selected = new Set((query.brand || "").split(",").filter(Boolean));
+  const selected = new Set(brandList.split(",").filter(Boolean));
 
   return (
     <>
@@ -28,6 +34,10 @@ export default function BrandsPanel({ brands, query }: Props) {
               }
               className="chip-f"
               aria-pressed={selected.has(b.value)}
+              onClick={(e) => {
+                e.preventDefault();
+                applyPerfumeQuery({ brand: next || undefined }, { hash: true, scroll: true });
+              }}
             >
               {b.value}
               <span className="ml-1.5 text-xs opacity-60">{b.count}</span>

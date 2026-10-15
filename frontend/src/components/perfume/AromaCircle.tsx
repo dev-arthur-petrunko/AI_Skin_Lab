@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import type { PerfumeFacets } from "@/lib/perfume/api";
+import { applyPerfumeQuery } from "@/lib/perfume/filterBus";
 import { T } from "@/lib/perfume/texts";
 import { toSearchParams } from "@/lib/perfume/query";
 
@@ -39,6 +42,10 @@ export default function AromaCircle({ families }: Props) {
             <Link
               href={`/perfume${toSearchParams({ family: f.value })}#pf-collection`}
               className="chip-f"
+              onClick={(e) => {
+                e.preventDefault();
+                applyPerfumeQuery({ family: f.value }, { hash: true, scroll: true });
+              }}
             >
               {f.value}
               <span className="ml-1.5 text-xs opacity-60">{f.count}</span>

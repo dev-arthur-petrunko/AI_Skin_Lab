@@ -35,6 +35,9 @@ services:
       - "3000:3000"
     environment:
       BACKEND_URL: http://backend:8000
+      # keep-alive > docker-proxy idle timeout: stale keep-alive sockets make
+      # on-demand RSC navigations stall for many seconds
+      KEEP_ALIVE_TIMEOUT: "65000"
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_MODEL: ${GROQ_MODEL:-}
       NEXT_PUBLIC_INSTAGRAM_URL: ${NEXT_PUBLIC_INSTAGRAM_URL:-}

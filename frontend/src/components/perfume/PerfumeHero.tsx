@@ -11,6 +11,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { formatPrice } from "@/lib/format";
+import { applyPerfumeQuery } from "@/lib/perfume/filterBus";
 import { T } from "@/lib/perfume/texts";
 
 export type PerfumeHeroItem = {
@@ -84,7 +85,16 @@ export default function PerfumeHero({ items, stats }: Props) {
           className="mt-6 flex flex-wrap gap-3"
         >
           <a href="#pf-collection" className="btn btn-primary">{T.cta_pick}</a>
-          <a href="/perfume?sale=1#pf-collection" className="btn btn-ghost">{T.cta_sale}</a>
+          <a
+            href="/perfume?sale=1#pf-collection"
+            className="btn btn-ghost"
+            onClick={(e) => {
+              e.preventDefault();
+              applyPerfumeQuery({ sale: "1" }, { hash: true, scroll: true });
+            }}
+          >
+            {T.cta_sale}
+          </a>
         </motion.div>
       </div>
 

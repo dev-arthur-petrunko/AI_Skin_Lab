@@ -66,7 +66,7 @@ export default async function PerfumePage({ searchParams }: { searchParams: SP }
 
       {/* finder */}
       <section className="mt-12" aria-label={T.cta_pick}>
-        <PerfumeFinder facets={facets} query={query} />
+        <PerfumeFinder facets={facets} query={query} total={list.total} />
       </section>
 
       {/* aroma circle */}
