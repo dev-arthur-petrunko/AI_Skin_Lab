@@ -30,16 +30,6 @@ class Product(BaseModel):
     purposes: list[str] = []
     skin_types: list[str] = []
 
-    def localized_name(self, lang: str) -> str:
-        return {"uk": self.name_uk, "ru": self.name_ru, "en": self.name_en}.get(lang, self.name_uk)
-
-    def localized_description(self, lang: str) -> str:
-        return {
-            "uk": self.description_uk,
-            "ru": self.description_ru,
-            "en": self.description_en,
-        }.get(lang, self.description_uk)
-
 
 class CatalogResponse(BaseModel):
     items: list[Product]
@@ -47,29 +37,3 @@ class CatalogResponse(BaseModel):
     brands: list[str]
     categories: list[str]
     last_updated: str
-
-
-class ChatMessage(BaseModel):
-    role: str
-    content: str
-
-
-class ChatRequest(BaseModel):
-    message: str
-    lang: str = "uk"
-    history: list[ChatMessage] = []
-
-
-class ChatProductCard(BaseModel):
-    id: str
-    name: str
-    brand: str
-    price: float
-    promo_price: Optional[float] = None
-    image: str
-    discount_percent: float = 0
-
-
-class ChatResponse(BaseModel):
-    reply: str
-    products: list[ChatProductCard] = []

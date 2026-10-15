@@ -37,7 +37,7 @@ export default function AromaCircle({ families }: Props) {
         return (
           <span key={f.value} className="pf-orbit" style={pos}>
             <Link
-              href={`/perfume${toSearchParams({ family: f.value })}`}
+              href={`/perfume${toSearchParams({ family: f.value })}#pf-collection`}
               className="chip-f"
             >
               {f.value}

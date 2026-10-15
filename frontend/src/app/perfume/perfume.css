@@ -6,17 +6,11 @@
 }
 
 /* ---------- hero ---------- */
+/* flat by design: content sits directly on the page (no card box) */
 .pf-hero {
   position: relative;
   overflow: hidden;
-  border-radius: var(--r, 28px);
-  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 3.5rem);
-  background:
-    radial-gradient(1000px 420px at 82% -10%, rgba(201, 165, 92, .22), transparent 60%),
-    radial-gradient(700px 380px at 8% 110%, rgba(179, 35, 92, .14), transparent 65%),
-    linear-gradient(135deg, var(--ga), var(--gb));
-  border: 1px solid var(--gl);
-  box-shadow: var(--sh), inset 0 1px 0 rgba(255, 255, 255, .35);
+  padding: 0;
 }
 
 .pf-hero-stats {

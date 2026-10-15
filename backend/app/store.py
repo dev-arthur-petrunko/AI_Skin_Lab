@@ -1,8 +1,7 @@
 """In-memory catalog cache with automatic reload when price.xlsx changes.
 
 Uses `watchdog` to monitor the data directory. On any modification of the
-Excel file, the catalog is reparsed and the vector index for the AI
-assistant is rebuilt, without needing to restart the server.
+Excel file, the catalog is reparsed, without needing to restart the server.
 """
 from __future__ import annotations
 
@@ -26,21 +25,12 @@ class CatalogStore:
         self._lock = threading.RLock()
         self._products: list[Product] = []
         self._last_updated: str = ""
-        self._on_reload_callbacks = []
 
-    def reload(self, auto_translate=settings.auto_translate) -> None:
+    def reload(self) -> None:
         with self._lock:
-            self._products = load_catalog(auto_translate=auto_translate)
+            self._products = load_catalog()
             self._last_updated = get_file_mtime()
         logger.info("Catalog reloaded: %d products", len(self._products))
-        for cb in self._on_reload_callbacks:
-            try:
-                cb(self._products)
-            except Exception:  # noqa: BLE001
-                logger.exception("Reload callback failed")
-
-    def on_reload(self, callback) -> None:
-        self._on_reload_callbacks.append(callback)
 
     @property
     def products(self) -> list[Product]:
@@ -79,7 +69,7 @@ class _ExcelChangeHandler(FileSystemEventHandler):
             return  # debounce rapid consecutive events
         self._last_trigger = now
         time.sleep(0.3)  # let the OS finish flushing the file
-        catalog_store.reload(auto_translate=settings.auto_translate)
+        catalog_store.reload()
 
     def on_modified(self, event) -> None:
         if not event.is_directory:
@@ -110,7 +100,7 @@ def _poll_loop(interval: float = 3.0) -> None:
         except OSError:
             mtime = None
         if mtime is not None and last_mtime is not None and mtime != last_mtime:
-            catalog_store.reload(auto_translate=settings.auto_translate)
+            catalog_store.reload()
         if mtime is not None:
             last_mtime = mtime
         _stop_poll.wait(interval)
@@ -122,7 +112,7 @@ def start_watcher() -> None:
     watch_dir = excel_path.parent
     watch_dir.mkdir(parents=True, exist_ok=True)
 
-    catalog_store.reload(auto_translate=settings.auto_translate)
+    catalog_store.reload()
 
     handler = _ExcelChangeHandler(excel_path)
     observer = Observer()

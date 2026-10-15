@@ -8,11 +8,6 @@ services:
     environment:
       EXCEL_PATH: /app/data/price.xlsx
       IMAGES_DIR: /app/data/images
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
-      CHAT_MODEL: ${CHAT_MODEL:-gpt-4o-mini}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
-      AUTO_TRANSLATE: ${AUTO_TRANSLATE:-0}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost}
       # EUR -> UAH rate for price sheets denominated in € (e.g. Anubis)
       EUR_RATE: ${EUR_RATE:-48}

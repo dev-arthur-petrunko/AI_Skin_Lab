@@ -16,13 +16,8 @@ class Settings(BaseSettings):
     app_name: str = "AI Skin Lab"
     excel_path: str = str(PROJECT_ROOT / "data" / "price.xlsx")
     images_dir: str = str(PROJECT_ROOT / "data" / "images")
-    openai_api_key: str = ""
-    openai_base_url: str = "https://api.openai.com/v1"
-    embedding_model: str = "text-embedding-3-small"
-    chat_model: str = "gpt-4o-mini"
-    auto_translate: bool = False
     # Comma-separated Excel sheet names to skip at load (case-insensitive).
-    # "Perfume" is hidden from the site until the owner re-enables it.
+    # The Perfume sheet is parsed by the dedicated /perfume loader instead.
     excluded_sheets: str = "Perfume"
     allowed_origins: str = "http://localhost:3000,http://localhost:8000"
     # Fallback EUR -> UAH rate for sheets with € price headers (e.g. Anubis).

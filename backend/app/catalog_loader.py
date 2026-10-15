@@ -496,7 +496,7 @@ def _parse_products(
     return products
 
 
-def load_catalog(auto_translate=False) -> list[Product]:
+def load_catalog() -> list[Product]:
     """Parse the Excel workbook into a list of validated Product models.
 
     Every sheet except "sets" (case-insensitive) is treated as a product sheet
@@ -504,17 +504,6 @@ def load_catalog(auto_translate=False) -> list[Product]:
     catalog. Sheets whose price headers are denominated in € (e.g. "Ціна, €")
     are converted to UAH with settings.eur_rate.
     """
-    if auto_translate:
-        try:
-            from scripts.translator import translate_catalog as _translate
-        except ImportError:  # pragma: no cover
-            logger.warning("Translator unavailable, skipping auto-translate")
-        else:
-            try:
-                _translate(products=load_catalog())
-            except Exception:  # noqa: BLE001
-                logger.exception("Auto-translate failed")
-
     excel_path = Path(settings.excel_path)
     if not excel_path.exists():
         logger.warning("Excel file not found at %s", excel_path)

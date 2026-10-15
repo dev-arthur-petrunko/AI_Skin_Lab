@@ -3,21 +3,17 @@ import logging
 import mimetypes
 import secrets
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
-from .ai_assistant import vector_index
 from . import eur_rate
-from .routers import catalog, chat, orders, products
+from .routers import catalog, orders, products
 from .perfumes import setup as setup_perfumes
 from .store import catalog_store, start_watcher, stop_watcher
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from scripts.translator import translate_catalog
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -34,15 +30,9 @@ def _require_admin(x_admin_token: str | None) -> None:
         raise HTTPException(status_code=401, detail="Invalid admin token")
 
 
-def _rebuild_index(products) -> None:
-    vector_index.build(products)
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    catalog_store.on_reload(_rebuild_index)
     start_watcher()
-    _rebuild_index(catalog_store.products)
     eur_rate.start_refresher(catalog_store.reload)
     yield
     eur_rate.stop_refresher()
@@ -60,7 +50,6 @@ app.add_middleware(
 )
 
 app.include_router(catalog.router)
-app.include_router(chat.router)
 app.include_router(orders.router)
 app.include_router(products.router)
 setup_perfumes(app)
@@ -99,10 +88,3 @@ def admin_reload(x_admin_token: str | None = Header(default=None)):
     _require_admin(x_admin_token)
     catalog_store.reload()
     return {'status': 'reloaded', 'products': len(catalog_store.products)}
-
-@app.get("/admin/translate")
-def admin_translate(to: str = "ru,en", dry_run: bool = False, sku: str | None = None,
-                    x_admin_token: str | None = Header(default=None)):
-    _require_admin(x_admin_token)
-    cells, written = translate_catalog(to=to.split(","), dry_run=dry_run, sku=sku)
-    return {'status': 'translated', 'to': to, 'dry_run': dry_run, 'sku': sku, 'cells': cells, 'written': written}

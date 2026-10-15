@@ -147,14 +147,14 @@ async def create_order(o: OrderIn, request: Request):
         qty_sum += item.qty
 
         lines.append(
-            f"<b>{i}. {html.escape(product.localized_name('uk'))}</b>\n"
+            f"<b>{i}. {html.escape(product.name_uk)}</b>\n"
             f"    Артикул: <code>{html.escape(str(product.sku))}</code>\n"
             f"    Кількість: <b>{item.qty}</b> × {price:g} ₴ = {line_sum} ₴"
         )
         saved_items.append({
             "id": item.id,
             "sku": str(product.sku),
-            "name": product.localized_name('uk'),
+            "name": product.name_uk,
             "qty": item.qty,
             "price": price,
         })

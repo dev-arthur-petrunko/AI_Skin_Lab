@@ -21,7 +21,11 @@ export default function BrandsPanel({ brands, query }: Props) {
           return (
             <Link
               key={b.value}
-              href={next ? `/perfume?brand=${encodeURIComponent(next)}` : "/perfume"}
+              href={
+                next
+                  ? `/perfume?brand=${encodeURIComponent(next)}#pf-collection`
+                  : "/perfume#pf-collection"
+              }
               className="chip-f"
               aria-pressed={selected.has(b.value)}
             >

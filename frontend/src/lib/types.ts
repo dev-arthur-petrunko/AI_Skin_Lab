@@ -62,14 +62,8 @@ export type SortOption =
 export function localizedField(
   product: Product,
   field: "name" | "description",
-  lang: string
+  _lang: string
 ): string {
-  if (field === "name") {
-    if (lang === "ru" && product.name_ru) return product.name_ru;
-    if (lang === "en" && product.name_en) return product.name_en;
-    return product.name_uk || product.name;
-  }
-  if (lang === "ru" && product.description_ru) return product.description_ru;
-  if (lang === "en" && product.description_en) return product.description_en;
+  if (field === "name") return product.name_uk || product.name;
   return product.description_uk;
 }

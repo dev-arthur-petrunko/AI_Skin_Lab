@@ -9,7 +9,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
-COPY scripts ./scripts
 
 # Data (price.xlsx + images) is mounted as a volume at runtime.
 RUN mkdir -p /app/data/images

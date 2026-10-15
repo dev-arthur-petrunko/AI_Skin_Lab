@@ -24,7 +24,7 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 ЖОРСТКІ ПРАВИЛА:
 1. Рекомендуй ТІЛЬКИ товари з наданого списку context.products. Заборонено вигадувати товари, бренди чи ціни.
 2. Завжди давай РОВНО 3 товари, якщо серед кандидатів є щонайменше 3 наявні (stock>0); якщо менше — стільки, скільки є.
-3. Відповідай виключно мовою запиту користувача (uk — українською, ru — російською, en — англійською).
+3. Відповідай завжди українською мовою, навіть якщо клієнт пише іншою.
 4. Ціни та знижки — лише ті, що в context.products. Якщо is_on_sale=true, згадай promo_price та відсоток знижки.
 5. Не давай медичних порад; за серйозних проблем зі шкірою (розацеа, екзема, сильне акне) ввічливо порадь звернутись до дерматолога і запропонуй м'який догляд.
 6. Ми працюємо лише з брендами {{BRANDS}} — якщо клієнт питає інший бренд, запропонуй схоже з нашого асортименту.
@@ -54,14 +54,8 @@ const SYSTEM_PROMPT = `Ти — «AI Skin Lab Consultant», експерт-ко�
 - Максимум 2 follow_up_questions, кожне до 100 символів.
 - Якщо confidence не "high" — обов'язково додай follow_up_questions.`;
 
-function localized(p: Product, lang: string, field: "name" | "description"): string {
-  if (field === "name") {
-    if (lang === "ru" && p.name_ru) return p.name_ru;
-    if (lang === "en" && p.name_en) return p.name_en;
-    return p.name_uk || p.name;
-  }
-  if (lang === "ru" && p.description_ru) return p.description_ru;
-  if (lang === "en" && p.description_en) return p.description_en;
+function localized(p: Product, _lang: string, field: "name" | "description"): string {
+  if (field === "name") return p.name_uk || p.name;
   return p.description_uk;
 }
 
@@ -368,27 +362,16 @@ function retrieve(products: Product[], message: string, lang: string, limit: num
   return picked;
 }
 
-const FALLBACK_REPLY: Record<string, string> = {
-  uk: "На жаль, AI-сервіс зараз недоступний, але я підібрав варіанти з нашого каталогу під ваш запит 👇 Під кожним — чому саме він підходить. Уточніть тип шкіри та бюджет, і я звужу добірку.",
-  ru: "К сожалению, AI-сервис сейчас недоступен, но я подобрал варианты из нашего каталога под ваш запрос 👇 Под каждым — почему именно он подходит. Уточните тип кожи и бюджет, и я сузю подборку.",
-  en: "Sorry, the AI service is unavailable right now, but I picked catalog items matching your request 👇 Each card explains why it fits. Tell me your skin type and budget and I will narrow it down.",
-};
+const FALLBACK_REPLY =
+  "На жаль, AI-сервіс зараз недоступний, але я підібрав варіанти з нашого каталогу під ваш запит 👇 Під кожним — чому саме він підходить. Уточніть тип шкіри та бюджет, і я звужу добірку.";
 
-const CATALOG_UNAVAILABLE: Record<string, string> = {
-  uk: "Каталог зараз недоступний. Спробуйте ще раз за хвилину 🙏",
-  ru: "Каталог сейчас недоступен. Попробуйте ещё раз через минуту 🙏",
-  en: "The catalog is unavailable right now. Please try again in a minute 🙏",
-};
+const CATALOG_UNAVAILABLE = "Каталог зараз недоступний. Спробуйте ще раз за хвилину 🙏";
 
-const INSTAGRAM_LINE: Record<string, string> = {
-  uk: "Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab",
-  ru: "Не нашли нужное? Напишите нам в Instagram 👉 @ai_skin_lab",
-  en: "Didn't find what you need? Message us on Instagram 👉 @ai_skin_lab",
-};
+const INSTAGRAM_LINE = "Не знайшли потрібне? Напишіть нам в Instagram 👉 @ai_skin_lab";
 
-function withInstagram(reply: string, lang: string): string {
+function withInstagram(reply: string): string {
   if (/instagram/i.test(reply)) return reply;
-  return `${reply}\n\n${INSTAGRAM_LINE[lang] || INSTAGRAM_LINE.uk}`;
+  return `${reply}\n\n${INSTAGRAM_LINE}`;
 }
 
 function firstSentence(text: string, max = 160): string | undefined {
@@ -400,7 +383,7 @@ function firstSentence(text: string, max = 160): string | undefined {
 function fallbackResponse(message: string, lang: string, products: Product[]): ChatResponse {
   const picks = retrieve(products, message, lang, 3);
   return {
-    reply: withInstagram(FALLBACK_REPLY[lang] || FALLBACK_REPLY.uk, lang),
+    reply: withInstagram(FALLBACK_REPLY),
     products: picks.map((p) =>
       makeCard(
         p,
@@ -420,17 +403,15 @@ function respond(body: ChatResponse, status = 200): NextResponse {
 
 export async function POST(req: NextRequest) {
   let message = "";
-  let lang = "uk";
+  const lang = "uk";
   let history: HistoryItem[] = [];
 
   try {
     const body = (await req.json()) as {
       message?: unknown;
-      lang?: unknown;
       history?: unknown;
     };
     message = typeof body.message === "string" ? body.message.trim().slice(0, 1000) : "";
-    lang = typeof body.lang === "string" && ["uk", "ru", "en"].includes(body.lang) ? body.lang : "uk";
     if (Array.isArray(body.history)) {
       history = body.history
         .filter(
@@ -455,7 +436,7 @@ export async function POST(req: NextRequest) {
     products = await loadAll();
   } catch (err) {
     console.error("[chat] catalog load failed:", err);
-    return respond({ reply: withInstagram(CATALOG_UNAVAILABLE[lang] || CATALOG_UNAVAILABLE.uk, lang), products: [] });
+    return respond({ reply: withInstagram(CATALOG_UNAVAILABLE), products: [] });
   }
 
   const key = env("GROQ_API_KEY");
@@ -490,7 +471,7 @@ export async function POST(req: NextRequest) {
           );
         }
       }
-      resp.reply = withInstagram(resp.reply, lang);
+      resp.reply = withInstagram(resp.reply);
       return respond(resp);
     } catch (err) {
       console.error("[chat] Groq call failed, using fallback:", err);

@@ -1,4 +1,5 @@
 ﻿import "./globals.css";
+import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import LenisProvider from "@/components/LenisProvider";
 import Header from "@/components/Header";
@@ -8,6 +9,12 @@ import { LivingBackground } from "@/components/LivingBackground";
 import { CartProvider } from "@/providers/CartProvider";
 import { OrderModalProvider } from "@/providers/OrderModalProvider";
 import OrderDrawerShell from "@/components/OrderDrawerShell";
+
+export const metadata: Metadata = {
+  title: "AI Skin Lab — преміальна косметика та парфуми",
+  description:
+    "Преміальна косметика, догляд та парфумерія з добіркою AI-консультанта. Підбір за типом шкіри, бренди зі знижками, швидке замовлення.",
+};
 
 export default function RootLayout({
   children,
